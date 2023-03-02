@@ -2,7 +2,7 @@
 import { signIn, signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 interface AuthShowcaseProps {
-  session: Session;
+  session: Session | null;
 }
 const AuthShowcase: React.FC<AuthShowcaseProps> = ({ session }) => {
   return (
