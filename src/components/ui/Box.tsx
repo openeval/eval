@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { type VariantProps, cva } from "class-variance-authority";
 
-import { cn } from "~/utils/ui";
+import { cn } from "~/lib/utils";
 
 const boxVariants = cva(
   "flex  shrink-0 items-center justify-center rounded-md border border-slate-200 dark:border-slate-700",

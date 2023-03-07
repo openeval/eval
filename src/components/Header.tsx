@@ -33,8 +33,8 @@ import {
 
 const Header = () => {
   return (
-    <header className="fixed w-full border-b border-b-slate-200 bg-white dark:border-b-slate-700 dark:bg-slate-900">
-      <div className="container flex h-16 items-center">
+    <header className="fixed z-10 w-full border-b border-b-slate-200  backdrop-blur-md dark:border-b-slate-700 dark:bg-slate-900">
+      <div className="flex h-16 items-center px-8">
         <div className="flex">
           <Link href="/" className="h-12 w-32">
             <Image src="logo.svg" alt="logo" priority width={170} height={90} />
