@@ -1,8 +1,10 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/Avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
 import { Button } from "~/components/ui/Button";
+import { signOut } from "next-auth/react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,7 +116,7 @@ const Header = () => {
                   </DropdownMenuSub>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                   <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

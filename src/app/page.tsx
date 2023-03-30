@@ -7,8 +7,7 @@ import { prisma } from "~/server/db";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  const examples = await prisma.example.findMany();
-
+  const examples = await prisma.assessment.findMany();
   if (!session) {
     redirect("auth/signin");
   }

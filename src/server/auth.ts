@@ -3,12 +3,14 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
+  type Session,
 } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { type User } from "prisma/zod";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -18,18 +20,24 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: {
-      id: string;
-      completedOnboarding: boolean;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
+    user: User & DefaultSession["user"];
   }
 
   // interface User {
   //   // ...other properties
   //   // role: UserRole;
   // }
+}
+
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+  interface JWT {
+    id: string;
+    name: string | null;
+    email: string | null;
+    activeOrgId: string | null;
+    completedOnboarding: boolean;
+  }
 }
 
 /**
@@ -39,16 +47,49 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        // session.user.role = user.role; <-- put other properties on the session here
+    // this function is called before session callback
+    async jwt({ token, user }) {
+      const dbUser = await prisma.user.findFirst({
+        where: {
+          email: token.email,
+        },
+      });
+
+      if (!dbUser) {
+        if (user) {
+          token.id = user?.id;
+        }
+        return token;
+      }
+
+      return {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        activeOrgId: dbUser.activeOrgId,
+        completedOnboarding: dbUser.completedOnboarding,
+      };
+    },
+    session({ token, session }): Session {
+      if (token) {
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.activeOrgId = token.activeOrgId;
+        session.user.completedOnboarding = token.completedOnboarding;
       }
       return session;
     },
   },
   secret: env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/login",
+    newUser: "/onboarding",
+  },
   providers: [
     /**
      * ...add more providers here.
@@ -88,3 +129,13 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
+
+export async function getSession() {
+  return await getServerSession(authOptions);
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+
+  return session?.user;
+}
