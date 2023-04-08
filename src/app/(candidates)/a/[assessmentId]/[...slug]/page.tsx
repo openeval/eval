@@ -2,7 +2,7 @@ import { cache } from "react";
 import { prisma } from "~/server/db";
 import { Button } from "~/components/ui/Button";
 import { notFound } from "next/navigation";
-import { searchIssues } from "~/server/openIssues";
+import { searchIssues } from "~/server/github";
 import { getCurrentUser } from "~/server/auth";
 interface PageProps {
   params: { assessmentId: string };
@@ -29,9 +29,7 @@ const getIssues = cache(
 export default async function Page({ params }: PageProps) {
   const user = await getCurrentUser();
 
-  console.log(params);
   const assessment = await getAssessmentById(params.assessmentId);
-  console.log(assessment);
   const issues = await getIssues(assessment?.ghIssuesQuerySeach);
 
   if (!assessment) {

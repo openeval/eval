@@ -25,6 +25,7 @@ export function AssessmentItem({ assessment }: AssessmentItemProps) {
           </p>
         </div>
       </div>
+      <div>3 Candidates</div>
       <AssessmentOperations
         assessment={{ id: assessment.id, title: assessment.title }}
       />

@@ -4,7 +4,7 @@ import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { cache } from "react";
 
 import { OpenTaskItem } from "~/components/OpenTaskItem";
-import { searchIssues } from "~/server/openIssues";
+import { searchIssues } from "~/server/github";
 import { Separator } from "~/components/ui/Separator";
 import SaveAssessmentIssuesButton from "~/components/SaveAssessmentIssuesButton";
 

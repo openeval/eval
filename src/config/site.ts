@@ -7,17 +7,17 @@ export const siteConfig = {
     {
       title: "Assessments",
       href: "/assessments",
-      icon: "assessments",
+      icon: "FileBadge",
     },
     {
       title: "Candidates",
       href: "/candidates",
-      icon: "candidates",
+      icon: "Users",
     },
     {
       title: "Settings",
       href: "/settings",
-      icon: "settings",
+      icon: "Settings",
     },
   ],
 };

@@ -23,12 +23,12 @@ export default async function handle(
   const { user } = session;
 
   if (req.method === "POST") {
-    const startAssessmentSchema = z.object({
-      assessmentId: z.string(),
+    const finishAssessmentSchema = z.object({
+      sessionId: z.string(),
     });
 
     try {
-      data = startAssessmentSchema.parse({
+      data = finishAssessmentSchema.parse({
         ...req.body,
       });
 
@@ -38,15 +38,10 @@ export default async function handle(
         },
       });
 
-      response = await prisma.assessmentSession.create({
+      response = await prisma.assessmentSession.update({
+        where: { id: data.sessionId },
         data: {
-          assessment: { connect: { id: data.assessmentId } },
-          sessionToken: "TODO_SESSION_TOKEN",
-          expiresAt: new Date(),
-          //TODO: add more conditions , like matching org candidate etc
-          candidate: {
-            connect: { id: candidate?.id },
-          },
+          finishedAt: new Date(),
         },
       });
 
@@ -54,32 +49,6 @@ export default async function handle(
     } catch (error) {
       console.error(error);
 
-      if (error instanceof z.ZodError) {
-        return res.status(422).json(error.issues);
-      }
-      return res.status(500).end();
-    }
-  }
-
-  // TODO: handle the update of a session, what are the cases  ?
-  if (req.method === "PUT") {
-    try {
-      data = AssessmentUpdateInputSchema.parse(req.body);
-
-      response = await prisma.assessment.update({
-        where: { id: data.id as string },
-        data,
-      });
-
-      return res.status(200).json(response);
-    } catch (error) {
-      console.error(error);
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2025"
-      ) {
-        return res.status(404).json({ message: "Entity not found" });
-      }
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
       }

@@ -10,14 +10,19 @@ interface CandidateItemProps {
     Candidate,
     "id" | "name" | "lastName" | "email" | "createdAt"
   >;
+  assessmentId?: string;
 }
 
-export function CandidateItem({ candidate }: CandidateItemProps) {
+export function CandidateItem({ candidate, assessmentId }: CandidateItemProps) {
   return (
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
         <Link
-          href={`/candidates/${candidate.id}`}
+          href={
+            assessmentId
+              ? `/assessments/${assessmentId}/candidates/${candidate.id}`
+              : `/candidates/${candidate.id}`
+          }
           className="font-semibold hover:underline"
         >
           {candidate.name} {candidate.lastName}

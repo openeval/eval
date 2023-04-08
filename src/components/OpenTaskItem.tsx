@@ -23,6 +23,7 @@ interface IIssueData {
   assignees: string[];
   comments: number;
   repository_url: string;
+  html_url: string;
 }
 
 interface OpenTaskItemProps {
@@ -36,12 +37,12 @@ export function OpenTaskItem({ item }: OpenTaskItemProps) {
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">
             <CircleDot className="mr-2 mt-1 h-5 w-5 text-green-600" />
-            <a className="text-zinc-400 hover:text-sky-500" href="#">
+            <a className="text-zinc-400 hover:text-sky-500" href={item.repo}>
               {item.repository_url.split("/").slice(-2).join("/")}
             </a>
           </span>
 
-          <a className="pl-7  hover:text-sky-500 sm:pl-3" href="#">
+          <a className="pl-7  hover:text-sky-500 sm:pl-3" href={item.html_url}>
             {item.title}
           </a>
         </div>

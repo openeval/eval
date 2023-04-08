@@ -55,7 +55,7 @@ export function InviteCandidateForm({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ assessmentId, ...data }),
     });
 
     setIsLoading(false);
@@ -72,7 +72,6 @@ export function InviteCandidateForm({
       });
     }
   }
-  console.log(errors);
   return (
     <div className={cn("mt-8 grid gap-6", className)}>
       <form onSubmit={handleSubmit(onHandleSubmit)}>

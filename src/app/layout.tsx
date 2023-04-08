@@ -7,6 +7,7 @@ const fontWorkSans = Work_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
+  weight: ["400", "500"],
 });
 
 export default function RootLayout({
@@ -18,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={clsx(
-          "min-h-screen bg-white font-sans text-slate-900 antialiased ",
+          "min-h-screen scroll-smooth bg-white font-sans text-slate-900 antialiased ",
           fontWorkSans.variable
         )}
       >

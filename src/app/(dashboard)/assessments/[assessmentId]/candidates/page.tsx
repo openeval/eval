@@ -11,8 +11,9 @@ import prisma from "~/server/db";
 import { type User } from "@prisma/client";
 import { CandidateItem } from "~/components/CandidateItem";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
+
 const getAssessment = cache(async (assessmentId: string) => {
-  return await prisma.assessment.findMany({
+  return await prisma.assessment.findFirst({
     where: {
       id: assessmentId,
     },
@@ -20,7 +21,16 @@ const getAssessment = cache(async (assessmentId: string) => {
       id: true,
       title: true,
       createdAt: true,
-      candidates: true,
+      candidates: {
+        select: {
+          id: true,
+          name: true,
+          lastName: true,
+          email: true,
+          createdAt: true,
+          assessmentSessions: true,
+        },
+      },
     },
 
     orderBy: {
@@ -42,8 +52,7 @@ export default async function AssessmentCandidatePage({
     redirect("/login");
   }
 
-  const { candidates, other } = await getAssessment(params.assessmentId);
-  console.log(other);
+  const { candidates } = await getAssessment(params.assessmentId);
   return (
     <>
       <div className="flex justify-between px-2">
@@ -53,7 +62,7 @@ export default async function AssessmentCandidatePage({
           </h1>
           <p className="text-neutral-500">tests for your candidates</p>
         </div>
-        <InviteCandidateButton />
+        <InviteCandidateButton assessmentId={params.assessmentId} />
       </div>
 
       <Separator className="my-4" />
@@ -61,7 +70,11 @@ export default async function AssessmentCandidatePage({
       {candidates && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
           {candidates.map((candidate) => (
-            <CandidateItem key={candidate.id} candidate={candidate} />
+            <CandidateItem
+              key={candidate.id}
+              candidate={candidate}
+              assessmentId={params.assessmentId}
+            />
           ))}
         </div>
       )}

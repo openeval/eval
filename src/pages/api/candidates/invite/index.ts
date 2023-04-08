@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import slugify from "slugify";
 import { z } from "zod";
 import { transporter } from "~/server/mailer";
+import { InviteCandidateSchema } from "~/dto/InviteCandidateDto";
 import {
   AssessmentCreateInputSchema,
   AssessmentUpdateInputSchema,
@@ -16,7 +17,7 @@ export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  let response, data;
+  let response, body;
 
   // TODO: move this to middlewares
   const session = await getServerSession(req, res, authOptions);
@@ -28,52 +29,37 @@ export default async function handle(
 
   if (req.method === "POST") {
     try {
-      data = CandidateCreateInputSchema.parse({
+      body = InviteCandidateSchema.parse({
         ...req.body,
-        organization: { connect: { id: user.activeOrgId } },
-        createdBy: { connect: { id: user.id } },
       });
 
-      response = await prisma.candidate.create({
-        data,
+      const { assessmentId, ...data } = body;
+
+      response = await prisma.candidate.upsert({
+        where: { email: data.email },
+        update: {
+          // we make sure if the candidate exist to invite it to the assessment
+          assessments: { connect: { id: assessmentId } },
+        },
+        create: {
+          ...data,
+          assessments: { connect: { id: assessmentId } },
+          organization: { connect: { id: user.activeOrgId || undefined } },
+          createdBy: { connect: { id: user.id } },
+        },
       });
 
-      await transporter.sendMail({
-        to: response.email, // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "You have a new invitation to an assessment", // plain text body
-        html: "<b>Hello world?</b>", // html body
-      });
+      // await transporter.sendMail({
+      //   to: response.email, // list of receivers
+      //   subject: "Hello ✔", // Subject line
+      //   text: "You have a new invitation to an assessment", // plain text body
+      //   html: "<b>Hello world?</b>", // html body
+      // });
 
       return res.status(200).json(response);
     } catch (error) {
       console.error(error);
 
-      if (error instanceof z.ZodError) {
-        return res.status(422).json(error.issues);
-      }
-      return res.status(500).end();
-    }
-  }
-
-  if (req.method === "PUT") {
-    try {
-      data = AssessmentUpdateInputSchema.parse(req.body);
-
-      response = await prisma.assessment.update({
-        where: { id: data.id as string },
-        data,
-      });
-
-      return res.status(200).json(response);
-    } catch (error) {
-      console.error(error);
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2025"
-      ) {
-        return res.status(404).json({ message: "Entity not found" });
-      }
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
       }

@@ -14,11 +14,16 @@ import {
 } from "~/components/ui/Sheet";
 import { InviteCandidateForm } from "~/components/InviteCandidateForm";
 
-export function InviteCandidateButton() {
+interface InviteCandidateButtonProps {
+  assessmentId: string;
+}
+export function InviteCandidateButton({
+  assessmentId,
+}: InviteCandidateButtonProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">Open</Button>
+        <Button>Invite</Button>
       </SheetTrigger>
       <SheetContent position="right">
         {/* <SheetHeader>
@@ -27,7 +32,7 @@ export function InviteCandidateButton() {
             Make changes to your profile here. Click save when you're done.
           </SheetDescription>
         </SheetHeader> */}
-        <InviteCandidateForm />
+        <InviteCandidateForm assessmentId={assessmentId} />
         {/* <SheetFooter>
           <Button type="submit">Save changes</Button>
         </SheetFooter> */}

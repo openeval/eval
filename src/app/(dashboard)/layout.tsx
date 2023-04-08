@@ -1,7 +1,10 @@
 import "~/styles/globals.css";
 import Header from "~/components/Header";
 import SideMenu from "~/components/SideMenu";
+import { SideNav } from "~/components/SideNav";
+import { siteConfig } from "~/config/site";
 
+// TODO: duplicated in assessments
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div>
@@ -13,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           aria-label="Sidebar"
         >
           <div className="container mt-8">
-            <SideMenu />
+            <SideNav items={siteConfig.sidebarNav} />
           </div>
         </aside>
         <main

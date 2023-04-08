@@ -131,6 +131,7 @@ model Membership {
 enum CandidateStatus {
   PENDING
   ACCEPTED
+  ARCHIVED
 }
 
 model Candidate {
@@ -144,12 +145,13 @@ model Candidate {
   // assessmentId       String?             @map("assessment_id") @db.Uuid
   name               String
   lastName           String              @map("last_name")
-  email              String
+  email              String              @unique
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
   createdBy          User                @relation("userCandidateCreated", fields: [createdById], references: [id])
   createdById        String              @map("created_by_id") @db.Uuid
 
+  @@unique([id, email, organizationId])
   @@map("candidate")
 }
 
@@ -189,18 +191,23 @@ model Assessment {
   @@map("assessment")
 }
 
-model AssessmentSession {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  // TODO: handle sessions expiration
-  sessionToken String   @unique @map("session_token")
-  expiresAt    DateTime @map("expires_at")
+enum AssessmentSessionStatus {
+  STARTED
+  FINISHED
+}
 
-  assessment   Assessment @relation(fields: [assessmentId], references: [id])
-  assessmentId String     @map("assessment_id") @db.Uuid
-  startedAt    DateTime   @default(now()) @map("started_at")
-  finishedAt   DateTime?  @map("finished_at")
-  candidate    Candidate  @relation(fields: [candidateId], references: [id])
-  candidateId  String     @map("candidate_id") @db.Uuid
+model AssessmentSession {
+  id           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // TODO: handle sessions expiration
+  sessionToken String                  @unique @map("session_token")
+  expiresAt    DateTime                @map("expires_at")
+  status       AssessmentSessionStatus @default(STARTED) @map("status")
+  assessment   Assessment              @relation(fields: [assessmentId], references: [id])
+  assessmentId String                  @map("assessment_id") @db.Uuid
+  startedAt    DateTime                @default(now()) @map("started_at")
+  finishedAt   DateTime?               @map("finished_at")
+  candidate    Candidate               @relation(fields: [candidateId], references: [id])
+  candidateId  String                  @map("candidate_id") @db.Uuid
 
   @@map("assessment_session")
 }
