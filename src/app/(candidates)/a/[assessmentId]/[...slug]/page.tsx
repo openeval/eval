@@ -8,7 +8,6 @@ interface PageProps {
   params: { assessmentId: string };
 }
 import StartAssessmentButton from "~/components/StartAssessmentButton";
-import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { Separator } from "~/components/ui/Separator";
 
 const getAssessmentById = cache(async (id: string) => {
@@ -39,15 +38,9 @@ export default async function Page({ params }: PageProps) {
   return (
     <div>
       <h1>{assessment.title}</h1>
-      <div>{assessment.description}</div>
+      <div className="prose">{assessment.description}</div>
 
       <Separator className="my-4" />
-
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-        {issues.map((item) => (
-          <OpenTaskItem key={item.id} item={item} />
-        ))}
-      </div>
 
       <StartAssessmentButton assessmentId={params.assessmentId} user={user} />
     </div>

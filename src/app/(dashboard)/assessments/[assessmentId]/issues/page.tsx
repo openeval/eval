@@ -7,7 +7,7 @@ import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { searchIssues } from "~/server/github";
 import { Separator } from "~/components/ui/Separator";
 import SaveAssessmentIssuesButton from "~/components/SaveAssessmentIssuesButton";
-
+import { AssessmentNav } from "~/components/AssessmentNav";
 const getIssues = cache(
   async (querySearch?: { [key: string]: string | string[] | undefined }) => {
     const issuees = await searchIssues({ querySearch: querySearch?.q });
@@ -19,7 +19,7 @@ export default async function IssuesPage({
   params: { assessmentId },
   searchParams,
 }: {
-  params: { assessmentId?: string };
+  params: { assessmentId: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const user = await getCurrentUser();
@@ -36,6 +36,7 @@ export default async function IssuesPage({
             Assessments
           </h1>
           <p className="text-neutral-500">tests for your candidates</p>
+          <AssessmentNav assessmentId={assessmentId} />
         </div>
       </div>
       <SearchIssuesBar />

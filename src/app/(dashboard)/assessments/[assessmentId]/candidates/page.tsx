@@ -11,7 +11,7 @@ import prisma from "~/server/db";
 import { type User } from "@prisma/client";
 import { CandidateItem } from "~/components/CandidateItem";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
-
+import { AssessmentNav } from "~/components/AssessmentNav";
 const getAssessment = cache(async (assessmentId: string) => {
   return await prisma.assessment.findFirst({
     where: {
@@ -61,6 +61,7 @@ export default async function AssessmentCandidatePage({
             Candidates
           </h1>
           <p className="text-neutral-500">tests for your candidates</p>
+          <AssessmentNav assessmentId={params.assessmentId} />
         </div>
         <InviteCandidateButton assessmentId={params.assessmentId} />
       </div>

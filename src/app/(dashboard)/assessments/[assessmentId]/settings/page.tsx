@@ -4,7 +4,7 @@ import { prisma } from "~/server/db";
 import { AssessmentSettingsForm } from "~/components/AssessmentSettingsForm";
 import slugify from "slugify";
 import { absoluteUrl } from "~/lib/utils";
-
+import { AssessmentNav } from "~/components/AssessmentNav";
 type AssessmentDetailPageProps = {
   params: { assessmentId: string };
 };
@@ -31,6 +31,7 @@ export default async function AssessmentDetailPage({
         <h1 className="text-2xl font-bold tracking-wide text-slate-900">
           {assessment.title}
         </h1>
+        <AssessmentNav assessmentId={assessmentId} />
         <div className="mt-4 flex">
           <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 pr-2 pl-2 dark:border-slate-700 dark:bg-black ">
             <code className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-50">
@@ -38,7 +39,8 @@ export default async function AssessmentDetailPage({
               {slugify(assessment.title)}
             </code>
             <CopyButton
-              value="npx create-next-app -e https://github.com/shadcn/next-template"
+              value={`${absoluteUrl("/")}a/${assessment.organizationId}/
+              ${slugify(assessment.title)}`}
               className="border-none text-slate-900 hover:bg-transparent dark:text-slate-50"
             />
           </pre>

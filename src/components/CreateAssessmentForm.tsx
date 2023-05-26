@@ -7,11 +7,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
+import TextareaAutosize from "react-textarea-autosize";
 
 import { Button } from "~/components/ui/Button";
-import { Input } from "~/components/ui/Input";
-import { Label } from "~/components/ui/Label";
-import { Textarea } from "~/components/ui/Textarea";
 import { type Assessment } from "@prisma/client";
 
 interface CreateAssessmentFormProps
@@ -72,10 +70,16 @@ export function CreateAssessmentForm({
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-2">
           <div className="grid gap-1">
-            <Label className="" htmlFor="title">
-              Title
-            </Label>
-            <Input id="title" {...register("title")} />
+            <TextareaAutosize
+              autoFocus
+              id="title"
+              // defaultValue={post.title}
+              placeholder="Assessment title"
+              className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
+              {...register("title")}
+            />
+
+            {/* <Input id="title" {...register("title")} /> */}
             {errors?.title && (
               <p className="px-1 text-xs text-red-600">
                 {errors.title.message}
@@ -83,10 +87,15 @@ export function CreateAssessmentForm({
             )}
           </div>
           <div className="grid gap-1">
-            <Label className="" htmlFor="Description">
-              Description
-            </Label>
-            <Textarea id="description" {...register("description")} />
+            <TextareaAutosize
+              autoFocus
+              id="description"
+              // defaultValue={post.title}
+              placeholder="description"
+              className="prose w-full resize-none appearance-none overflow-hidden bg-transparent focus:outline-none"
+              {...register("description")}
+            />
+
             {errors?.description && (
               <p className="px-1 text-xs text-red-600">
                 {errors.description.message}
