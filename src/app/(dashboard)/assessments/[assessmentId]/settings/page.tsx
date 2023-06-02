@@ -35,11 +35,10 @@ export default async function AssessmentDetailPage({
         <div className="mt-4 flex">
           <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 pr-2 pl-2 dark:border-slate-700 dark:bg-black ">
             <code className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-50">
-              {absoluteUrl("/")}a/{assessment.organizationId}/
-              {slugify(assessment.title)}
+              {absoluteUrl("/")}a/{assessmentId}/{slugify(assessment.title)}
             </code>
             <CopyButton
-              value={`${absoluteUrl("/")}a/${assessment.organizationId}/
+              value={`${absoluteUrl("/")}a/${assessmentId}/
               ${slugify(assessment.title)}`}
               className="border-none text-slate-900 hover:bg-transparent dark:text-slate-50"
             />

@@ -73,7 +73,9 @@ export default function StartAssessmentButton({
   };
 
   if (!user) {
-    return <Button onClick={() => handleStart()}>Login with github</Button>;
+    return (
+      <Button onClick={() => handleStart()}>Login with Github to start</Button>
+    );
   }
 
   return (

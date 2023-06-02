@@ -173,7 +173,7 @@ model Assessment {
   id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title              String
   slug               String?
-  description        String?
+  description        String
   status             AssessmentStatus    @default(DRAFT) @map("status")
   createdBy          User                @relation(fields: [createdById], references: [id])
   createdById        String              @map("created_by_id") @db.Uuid

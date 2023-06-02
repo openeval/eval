@@ -54,7 +54,7 @@ export default async function AssessmentPage() {
           href={"/assessments/add"}
           className={cn(buttonVariants({ variant: "default" }))}
         >
-          Add Assessment
+          New Assessment
         </Link>
       </div>
 

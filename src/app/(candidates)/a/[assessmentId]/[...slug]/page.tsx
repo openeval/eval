@@ -4,6 +4,8 @@ import { Button } from "~/components/ui/Button";
 import { notFound } from "next/navigation";
 import { searchIssues } from "~/server/github";
 import { getCurrentUser } from "~/server/auth";
+import Markdown from "~/components/Markdown";
+import { Typografy } from "~/components/ui/Typography";
 interface PageProps {
   params: { assessmentId: string };
 }
@@ -18,18 +20,10 @@ const getAssessmentById = cache(async (id: string) => {
   });
 });
 
-const getIssues = cache(
-  async (querySearch?: { [key: string]: string | string[] | undefined }) => {
-    const issuees = await searchIssues({ querySearch });
-    return issuees;
-  }
-);
-
 export default async function Page({ params }: PageProps) {
   const user = await getCurrentUser();
 
   const assessment = await getAssessmentById(params.assessmentId);
-  const issues = await getIssues(assessment?.ghIssuesQuerySeach);
 
   if (!assessment) {
     notFound();
@@ -37,8 +31,10 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div>
-      <h1>{assessment.title}</h1>
-      <div className="prose">{assessment.description}</div>
+      <Typografy variant="h1">{assessment.title}</Typografy>
+      <div className="prose">
+        <Markdown content={assessment.description} />
+      </div>
 
       <Separator className="my-4" />
 
