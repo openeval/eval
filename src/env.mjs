@@ -27,6 +27,7 @@ const server = z.object({
   SMTP_USER: z.string().min(1),
   SMTP_PASSWORD: z.string().min(1),
   SMTP_FROM: z.string().min(1),
+  GITHUB_API_AUTH_TOKEN: z.string().min(),
 });
 
 /**
@@ -56,6 +57,7 @@ const processEnv = {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   SMTP_FROM: process.env.SMTP_FROM,
+  GITHUB_API_AUTH_TOKEN: process.env.GITHUB_API_AUTH_TOKEN,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

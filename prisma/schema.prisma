@@ -1,66 +1,213 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// NOTES:
+// ids  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+// createdAt         DateTime            @default(now()) @map("created_at")
+// updatedAt         DateTime            @default(now()) @updatedAt @map("updated_at")
+
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
+}
+
+//  generate zod schemas by model
+// https://github.com/chrishoermann/zod-prisma-types
+generator zod {
+  provider = "zod-prisma-types"
+  output   = "./zod" // default is ./generated/zod
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
-// Necessary for Next auth
+// Necessary for Next auth, DO NOT CHANGE THIS!
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String?  @db.Text
-    access_token      String?  @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?  @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @map("refresh_token") @db.Text
+  access_token      String? @map("access_token") @db.Text
+  expires_at        Int?    @map("expires_at")
+  token_type        String? @map("token_type")
+  scope             String?
+  id_token          String? @map("id_token") @db.Text
+  session_state     String? @map("session_state")
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
+  @@map("account")
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+enum UserType {
+  RECRUITER
+  CANDIDATE
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+  id                  String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String?
+  email               String?       @unique
+  emailVerified       DateTime?     @map("email_verified")
+  completedOnboarding Boolean       @default(false)
+  image               String?
+  accounts            Account[]
+  sessions            Session[]
+  createdAssessments  Assessment[]
+  memberships         Membership[]
+  type                UserType?     @map("type")
+  candidate           Candidate?
+  activeOrgId         String?       @db.Uuid
+  activeOrg           Organization? @relation(fields: [activeOrgId], references: [id])
+  createdCandidates   Candidate[]   @relation("userCandidateCreated")
+
+  @@map("user")
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
+  @@map("verification_token")
+}
+
+model Organization {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  slug        String?      @unique
+  logo        String?
+  bio         String?
+  size        String?
+  members     Membership[]
+  assessments Assessment[]
+  candidates  Candidate[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
+  User        User[]
+
+  @@map("organization")
+}
+
+enum MembershipRole {
+  MEMBER
+  HIRING_MANAGER
+  RECRUITER
+  ADMIN
+  OWNER
+}
+
+model Membership {
+  userId         String         @map("user_id") @db.Uuid
+  accepted       Boolean        @default(false)
+  role           MembershipRole @map("role")
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  organizationId String         @map("organization_id") @db.Uuid
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, organizationId])
+  @@map("membership")
+}
+
+// TODO: DEFINE STATUS
+enum CandidateStatus {
+  PENDING
+  ACCEPTED
+  ARCHIVED
+}
+
+model Candidate {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user               User?               @relation(fields: [userId], references: [id])
+  userId             String?             @unique @map("user_id") @db.Uuid
+  organizationId     String?             @map("organization_id") @db.Uuid
+  assessmentSessions AssessmentSession[]
+  organization       Organization?       @relation(fields: [organizationId], references: [id])
+  assessments        Assessment[]
+  // assessmentId       String?             @map("assessment_id") @db.Uuid
+  name               String
+  lastName           String              @map("last_name")
+  email              String              @unique
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
+  createdBy          User                @relation("userCandidateCreated", fields: [createdById], references: [id])
+  createdById        String              @map("created_by_id") @db.Uuid
+
+  @@unique([id, email, organizationId])
+  @@map("candidate")
+}
+
+enum AssessmentStatus {
+  DRAFT
+  ACTIVE // ready to accept candidates
+  IN_PROGRESS // with active candidates 
+  CLOSED // no longer acception candidates
+  ARCHIVED // deleted
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+}
+
+model Assessment {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title              String
+  slug               String?
+  description        String
+  status             AssessmentStatus    @default(DRAFT) @map("status")
+  createdBy          User                @relation(fields: [createdById], references: [id])
+  createdById        String              @map("created_by_id") @db.Uuid
+  organization       Organization        @relation(fields: [organizationId], references: [id])
+  organizationId     String              @map("organization_id") @db.Uuid
+  candidates         Candidate[]
+  applicantSessions  AssessmentSession[]
+  ghIssuesQuerySeach String?
+  evaluationPeriod   String?
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
+  published          Boolean             @default(false)
+  visibility         Visibility          @default(PUBLIC)
+
+  @@map("assessment")
+}
+
+enum AssessmentSessionStatus {
+  STARTED
+  FINISHED
+}
+
+model AssessmentSession {
+  id           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // TODO: handle sessions expiration
+  sessionToken String                  @unique @map("session_token")
+  expiresAt    DateTime                @map("expires_at")
+  status       AssessmentSessionStatus @default(STARTED) @map("status")
+  assessment   Assessment              @relation(fields: [assessmentId], references: [id])
+  assessmentId String                  @map("assessment_id") @db.Uuid
+  startedAt    DateTime                @default(now()) @map("started_at")
+  finishedAt   DateTime?               @map("finished_at")
+  candidate    Candidate               @relation(fields: [candidateId], references: [id])
+  candidateId  String                  @map("candidate_id") @db.Uuid
+
+  @@map("assessment_session")
 }

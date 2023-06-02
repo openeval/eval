@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { type VariantProps, cva } from "class-variance-authority";
-
+import { Github, Loader2 as SpinnerIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 const buttonVariants = cva(
@@ -36,16 +36,24 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  isLoading?: boolean;
+}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  (
+    { className, isLoading, disabled, variant, size, children, ...props },
+    ref
+  ) => {
     return (
       <button
+        disabled={disabled || isLoading}
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-      />
+      >
+        {isLoading ? <SpinnerIcon className="y-8 w-8" /> : children}
+      </button>
     );
   }
 );

@@ -1,16 +1,23 @@
 import { prisma } from "../src/server/db";
+import type { Prisma } from "@prisma/client";
+
+const userData: Prisma.UserCreateInput[] = [
+  {
+    name: "Alice",
+    email: "alice@useeval.com",
+    completedOnboarding: false,
+  },
+];
 
 async function main() {
-  const id = "cl9ebqhxk00003b600tymydho";
-  await prisma.example.upsert({
-    where: {
-      id,
-    },
-    create: {
-      id,
-    },
-    update: {},
-  });
+  console.log(`Start seeding ...`);
+  for (const u of userData) {
+    const user = await prisma.user.create({
+      data: u,
+    });
+    console.log(`Created user with id: ${user.id}`);
+  }
+  console.log(`Seeding finished.`);
 }
 
 main()
