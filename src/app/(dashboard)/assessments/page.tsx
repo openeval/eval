@@ -25,6 +25,7 @@ const getassessmentsForUser = cache(async (userId: User["id"]) => {
       title: true,
       published: true,
       createdAt: true,
+      candidates: true,
     },
     orderBy: {
       updatedAt: "desc",

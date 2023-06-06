@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { type Assessment } from "@prisma/client";
+import { type Assessment, type Candidate } from "@prisma/client";
 
 import { formatDate } from "~/lib/utils";
 import { AssessmentOperations } from "~/components/AssessmentOperations";
 import { Skeleton } from "~/components/ui/Skeleton";
 
 interface AssessmentItemProps {
-  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt">;
+  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt"> & {
+    candidates: [Candidate];
+  };
 }
 
 export function AssessmentItem({ assessment }: AssessmentItemProps) {
@@ -25,7 +27,7 @@ export function AssessmentItem({ assessment }: AssessmentItemProps) {
           </p>
         </div>
       </div>
-      <div>3 Candidates</div>
+      <div>{assessment.candidates.length} Candidates</div>
       <AssessmentOperations
         assessment={{ id: assessment.id, title: assessment.title }}
       />
