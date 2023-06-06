@@ -19,13 +19,15 @@ import {
 } from "~/components/ui/AlertDialog";
 
 interface StartAssessmentButtonProps {
-  user?: User;
   assessmentId: string;
+  user?: User;
+  className?: string;
 }
 // add alert to start
 export default function StartAssessmentButton({
   user,
   assessmentId,
+  className,
 }: StartAssessmentButtonProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const router = useRouter();
@@ -74,7 +76,9 @@ export default function StartAssessmentButton({
 
   if (!user) {
     return (
-      <Button onClick={() => handleStart()}>Login with Github to start</Button>
+      <Button className={className} onClick={() => handleStart()}>
+        Login with Github to start
+      </Button>
     );
   }
 
