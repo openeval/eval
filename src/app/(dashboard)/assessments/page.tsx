@@ -10,6 +10,8 @@ import { cache } from "react";
 import prisma from "~/server/db";
 import { type User } from "@prisma/client";
 import { AssessmentItem } from "~/components/AssessmentItem";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
 export const metadata = {
   title: "Assessments",
@@ -21,11 +23,16 @@ const getassessmentsForUser = cache(async (userId: User["id"]) => {
       createdById: userId,
     },
     select: {
+      _count: {
+        select: {
+          candidates: true,
+        },
+      },
       id: true,
       title: true,
+      status: true,
       published: true,
       createdAt: true,
-      candidates: true,
     },
     orderBy: {
       updatedAt: "desc",
@@ -41,7 +48,14 @@ export default async function AssessmentPage() {
   }
 
   const assessments = await getassessmentsForUser(user.id);
-
+  // const data = [
+  //   {
+  //     id: "728ed52f",
+  //     amount: 100,
+  //     status: "pending",
+  //     email: "m@example.com",
+  //   },
+  // ];
   return (
     <>
       <div className="flex justify-between px-2">
@@ -62,11 +76,7 @@ export default async function AssessmentPage() {
       <Separator className="my-4" />
 
       {assessments.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-          {assessments.map((assessment) => (
-            <AssessmentItem key={assessment.id} assessment={assessment} />
-          ))}
-        </div>
+        <DataTable columns={columns} data={assessments} />
       )}
 
       {!assessments.length && (

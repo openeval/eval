@@ -2,8 +2,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "~/server/auth";
 import { redirect } from "next/navigation";
 
-import AuthShowcase from "~/components/AuthShowcase";
-
 export default async function Home() {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -13,7 +11,7 @@ export default async function Home() {
   return (
     <div className="">
       <h1>Hello Home page</h1>
-      <AuthShowcase session={session} />
+
       <h2>list of elements from supabase</h2>
     </div>
   );

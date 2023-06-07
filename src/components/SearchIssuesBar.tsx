@@ -37,9 +37,9 @@ export default function SearchIssuesBar() {
 
   return (
     <div className="flex flex-row">
-      {/* <button className="border-lightgray bg-dark flex  items-center rounded-l-md border border-r-0 px-4 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
+      {/* <Button className="border-lightgray bg-dark flex  items-center rounded-l-md border border-r-0 px-4 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
         Filters <ChevronDown className="ml-1 mt-px h-4 w-4" />
-      </button> */}
+      </Button> */}
       <label className="relative w-full">
         <span className="sr-only">Search</span>
         <span className="absolute inset-y-0 left-0 flex items-center px-2">
