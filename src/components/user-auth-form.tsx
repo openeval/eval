@@ -80,10 +80,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               </p>
             )}
           </div>
-          <button className={cn(buttonVariants())} disabled={isLoading}>
+          <Button className={cn(buttonVariants())} disabled={isLoading}>
             {isLoading && <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />}
             Sign In with Email
-          </button>
+          </Button>
         </div>
       </form>
       <div className="relative">
@@ -94,7 +94,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <span className="bg-white px-2 text-slate-600">Or continue with</span>
         </div>
       </div>
-      <button
+      <Button
         type="button"
         className={cn(buttonVariants({ variant: "outline" }))}
         onClick={() => {
@@ -111,7 +111,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <Github className="mr-2 h-4 w-4" />
         )}{" "}
         Github
-      </button>
+      </Button>
     </div>
   );
 }

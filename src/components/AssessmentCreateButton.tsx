@@ -58,7 +58,7 @@ export function PostCreateButton({
   }
 
   return (
-    <button
+    <Button
       onClick={onClick}
       className={cn(
         buttonVariants({ variant }),
@@ -76,6 +76,6 @@ export function PostCreateButton({
         <Icons.add className="mr-2 h-4 w-4" />
       )}
       New post
-    </button>
+    </Button>
   );
 }
