@@ -7,13 +7,13 @@ const octokit = new Octokit({
 });
 
 interface SearchIssuesParams {
-  querySearch: string | undefined;
+  querySearch?: string[] | string | undefined;
 }
 
 async function searchIssues({ querySearch }: SearchIssuesParams) {
   const defaulQuery = `type:issue no:assignee ${
     siteConfig.github.searchQueryString
-  } ${querySearch || ""}`;
+  } ${(querySearch as string) || ""}`;
   const { data } = await octokit.rest.search.issuesAndPullRequests({
     q: defaulQuery,
   });
