@@ -14,7 +14,6 @@ export default function DashboardLoading() {
           <h1 className="text-2xl font-bold tracking-wide text-slate-900">
             Assessments
           </h1>
-          <p className="text-neutral-500">tests for your candidates</p>
         </div>
         <Link
           href={"/assessments/add"}

@@ -1,4 +1,4 @@
-import { CreateAssessmentForm } from "~/components/CreateAssessmentForm";
+import { CreateAssessmentForm } from "~/components/AssessmentRoleForm";
 
 export default function AddAssessmentPage() {
   return (

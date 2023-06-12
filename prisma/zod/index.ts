@@ -1791,8 +1791,8 @@ export const AssessmentSessionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.A
 
 export const UuidFilterSchema: z.ZodType<Prisma.UuidFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -1803,8 +1803,8 @@ export const UuidFilterSchema: z.ZodType<Prisma.UuidFilter> = z.object({
 
 export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -1818,8 +1818,8 @@ export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
 
 export const StringNullableFilterSchema: z.ZodType<Prisma.StringNullableFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -1833,8 +1833,8 @@ export const StringNullableFilterSchema: z.ZodType<Prisma.StringNullableFilter> 
 
 export const IntNullableFilterSchema: z.ZodType<Prisma.IntNullableFilter> = z.object({
   equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
+  in: z.union([ z.number().array(),z.number() ]).optional().nullable(),
+  notIn: z.union([ z.number().array(),z.number() ]).optional().nullable(),
   lt: z.number().optional(),
   lte: z.number().optional(),
   gt: z.number().optional(),
@@ -1907,8 +1907,8 @@ export const AccountSumOrderByAggregateInputSchema: z.ZodType<Prisma.AccountSumO
 
 export const UuidWithAggregatesFilterSchema: z.ZodType<Prisma.UuidWithAggregatesFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -1922,8 +1922,8 @@ export const UuidWithAggregatesFilterSchema: z.ZodType<Prisma.UuidWithAggregates
 
 export const StringWithAggregatesFilterSchema: z.ZodType<Prisma.StringWithAggregatesFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -1940,8 +1940,8 @@ export const StringWithAggregatesFilterSchema: z.ZodType<Prisma.StringWithAggreg
 
 export const StringNullableWithAggregatesFilterSchema: z.ZodType<Prisma.StringNullableWithAggregatesFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -1958,8 +1958,8 @@ export const StringNullableWithAggregatesFilterSchema: z.ZodType<Prisma.StringNu
 
 export const IntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.IntNullableWithAggregatesFilter> = z.object({
   equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
+  in: z.union([ z.number().array(),z.number() ]).optional().nullable(),
+  notIn: z.union([ z.number().array(),z.number() ]).optional().nullable(),
   lt: z.number().optional(),
   lte: z.number().optional(),
   gt: z.number().optional(),
@@ -1974,8 +1974,8 @@ export const IntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.IntNullable
 
 export const DateTimeFilterSchema: z.ZodType<Prisma.DateTimeFilter> = z.object({
   equals: z.coerce.date().optional(),
-  in: z.coerce.date().array().optional(),
-  notIn: z.coerce.date().array().optional(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -2006,8 +2006,8 @@ export const SessionMinOrderByAggregateInputSchema: z.ZodType<Prisma.SessionMinO
 
 export const DateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeWithAggregatesFilter> = z.object({
   equals: z.coerce.date().optional(),
-  in: z.coerce.date().array().optional(),
-  notIn: z.coerce.date().array().optional(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -2020,8 +2020,8 @@ export const DateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeWithAg
 
 export const DateTimeNullableFilterSchema: z.ZodType<Prisma.DateTimeNullableFilter> = z.object({
   equals: z.coerce.date().optional().nullable(),
-  in: z.coerce.date().array().optional().nullable(),
-  notIn: z.coerce.date().array().optional().nullable(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -2036,15 +2036,15 @@ export const BoolFilterSchema: z.ZodType<Prisma.BoolFilter> = z.object({
 
 export const EnumUserTypeNullableFilterSchema: z.ZodType<Prisma.EnumUserTypeNullableFilter> = z.object({
   equals: z.lazy(() => UserTypeSchema).optional().nullable(),
-  in: z.lazy(() => UserTypeSchema).array().optional().nullable(),
-  notIn: z.lazy(() => UserTypeSchema).array().optional().nullable(),
+  in: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
+  notIn: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
   not: z.union([ z.lazy(() => UserTypeSchema),z.lazy(() => NestedEnumUserTypeNullableFilterSchema) ]).optional().nullable(),
 }).strict();
 
 export const UuidNullableFilterSchema: z.ZodType<Prisma.UuidNullableFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -2148,8 +2148,8 @@ export const UserMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserMinOrderBy
 
 export const DateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeNullableWithAggregatesFilter> = z.object({
   equals: z.coerce.date().optional().nullable(),
-  in: z.coerce.date().array().optional().nullable(),
-  notIn: z.coerce.date().array().optional().nullable(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -2170,8 +2170,8 @@ export const BoolWithAggregatesFilterSchema: z.ZodType<Prisma.BoolWithAggregates
 
 export const EnumUserTypeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.EnumUserTypeNullableWithAggregatesFilter> = z.object({
   equals: z.lazy(() => UserTypeSchema).optional().nullable(),
-  in: z.lazy(() => UserTypeSchema).array().optional().nullable(),
-  notIn: z.lazy(() => UserTypeSchema).array().optional().nullable(),
+  in: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
+  notIn: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
   not: z.union([ z.lazy(() => UserTypeSchema),z.lazy(() => NestedEnumUserTypeNullableWithAggregatesFilterSchema) ]).optional().nullable(),
   _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumUserTypeNullableFilterSchema).optional(),
@@ -2180,8 +2180,8 @@ export const EnumUserTypeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.En
 
 export const UuidNullableWithAggregatesFilterSchema: z.ZodType<Prisma.UuidNullableWithAggregatesFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -2261,8 +2261,8 @@ export const OrganizationMinOrderByAggregateInputSchema: z.ZodType<Prisma.Organi
 
 export const EnumMembershipRoleFilterSchema: z.ZodType<Prisma.EnumMembershipRoleFilter> = z.object({
   equals: z.lazy(() => MembershipRoleSchema).optional(),
-  in: z.lazy(() => MembershipRoleSchema).array().optional(),
-  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  in: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
   not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleFilterSchema) ]).optional(),
 }).strict();
 
@@ -2294,8 +2294,8 @@ export const MembershipMinOrderByAggregateInputSchema: z.ZodType<Prisma.Membersh
 
 export const EnumMembershipRoleWithAggregatesFilterSchema: z.ZodType<Prisma.EnumMembershipRoleWithAggregatesFilter> = z.object({
   equals: z.lazy(() => MembershipRoleSchema).optional(),
-  in: z.lazy(() => MembershipRoleSchema).array().optional(),
-  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  in: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
   not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumMembershipRoleFilterSchema).optional(),
@@ -2356,15 +2356,15 @@ export const CandidateMinOrderByAggregateInputSchema: z.ZodType<Prisma.Candidate
 
 export const EnumAssessmentStatusFilterSchema: z.ZodType<Prisma.EnumAssessmentStatusFilter> = z.object({
   equals: z.lazy(() => AssessmentStatusSchema).optional(),
-  in: z.lazy(() => AssessmentStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentStatusSchema),z.lazy(() => NestedEnumAssessmentStatusFilterSchema) ]).optional(),
 }).strict();
 
 export const EnumVisibilityFilterSchema: z.ZodType<Prisma.EnumVisibilityFilter> = z.object({
   equals: z.lazy(() => VisibilitySchema).optional(),
-  in: z.lazy(() => VisibilitySchema).array().optional(),
-  notIn: z.lazy(() => VisibilitySchema).array().optional(),
+  in: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
   not: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => NestedEnumVisibilityFilterSchema) ]).optional(),
 }).strict();
 
@@ -2418,8 +2418,8 @@ export const AssessmentMinOrderByAggregateInputSchema: z.ZodType<Prisma.Assessme
 
 export const EnumAssessmentStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumAssessmentStatusWithAggregatesFilter> = z.object({
   equals: z.lazy(() => AssessmentStatusSchema).optional(),
-  in: z.lazy(() => AssessmentStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentStatusSchema),z.lazy(() => NestedEnumAssessmentStatusWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAssessmentStatusFilterSchema).optional(),
@@ -2428,8 +2428,8 @@ export const EnumAssessmentStatusWithAggregatesFilterSchema: z.ZodType<Prisma.En
 
 export const EnumVisibilityWithAggregatesFilterSchema: z.ZodType<Prisma.EnumVisibilityWithAggregatesFilter> = z.object({
   equals: z.lazy(() => VisibilitySchema).optional(),
-  in: z.lazy(() => VisibilitySchema).array().optional(),
-  notIn: z.lazy(() => VisibilitySchema).array().optional(),
+  in: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
   not: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => NestedEnumVisibilityWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumVisibilityFilterSchema).optional(),
@@ -2438,8 +2438,8 @@ export const EnumVisibilityWithAggregatesFilterSchema: z.ZodType<Prisma.EnumVisi
 
 export const EnumAssessmentSessionStatusFilterSchema: z.ZodType<Prisma.EnumAssessmentSessionStatusFilter> = z.object({
   equals: z.lazy(() => AssessmentSessionStatusSchema).optional(),
-  in: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema) ]).optional(),
 }).strict();
 
@@ -2483,8 +2483,8 @@ export const AssessmentSessionMinOrderByAggregateInputSchema: z.ZodType<Prisma.A
 
 export const EnumAssessmentSessionStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumAssessmentSessionStatusWithAggregatesFilter> = z.object({
   equals: z.lazy(() => AssessmentSessionStatusSchema).optional(),
-  in: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => NestedEnumAssessmentSessionStatusWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema).optional(),
@@ -3285,8 +3285,8 @@ export const CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchem
 
 export const NestedUuidFilterSchema: z.ZodType<Prisma.NestedUuidFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3296,8 +3296,8 @@ export const NestedUuidFilterSchema: z.ZodType<Prisma.NestedUuidFilter> = z.obje
 
 export const NestedStringFilterSchema: z.ZodType<Prisma.NestedStringFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3310,8 +3310,8 @@ export const NestedStringFilterSchema: z.ZodType<Prisma.NestedStringFilter> = z.
 
 export const NestedStringNullableFilterSchema: z.ZodType<Prisma.NestedStringNullableFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3324,8 +3324,8 @@ export const NestedStringNullableFilterSchema: z.ZodType<Prisma.NestedStringNull
 
 export const NestedIntNullableFilterSchema: z.ZodType<Prisma.NestedIntNullableFilter> = z.object({
   equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
+  in: z.union([ z.number().array(),z.number() ]).optional().nullable(),
+  notIn: z.union([ z.number().array(),z.number() ]).optional().nullable(),
   lt: z.number().optional(),
   lte: z.number().optional(),
   gt: z.number().optional(),
@@ -3335,8 +3335,8 @@ export const NestedIntNullableFilterSchema: z.ZodType<Prisma.NestedIntNullableFi
 
 export const NestedUuidWithAggregatesFilterSchema: z.ZodType<Prisma.NestedUuidWithAggregatesFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3349,8 +3349,8 @@ export const NestedUuidWithAggregatesFilterSchema: z.ZodType<Prisma.NestedUuidWi
 
 export const NestedIntFilterSchema: z.ZodType<Prisma.NestedIntFilter> = z.object({
   equals: z.number().optional(),
-  in: z.number().array().optional(),
-  notIn: z.number().array().optional(),
+  in: z.union([ z.number().array(),z.number() ]).optional(),
+  notIn: z.union([ z.number().array(),z.number() ]).optional(),
   lt: z.number().optional(),
   lte: z.number().optional(),
   gt: z.number().optional(),
@@ -3360,8 +3360,8 @@ export const NestedIntFilterSchema: z.ZodType<Prisma.NestedIntFilter> = z.object
 
 export const NestedStringWithAggregatesFilterSchema: z.ZodType<Prisma.NestedStringWithAggregatesFilter> = z.object({
   equals: z.string().optional(),
-  in: z.string().array().optional(),
-  notIn: z.string().array().optional(),
+  in: z.union([ z.string().array(),z.string() ]).optional(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3377,8 +3377,8 @@ export const NestedStringWithAggregatesFilterSchema: z.ZodType<Prisma.NestedStri
 
 export const NestedStringNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedStringNullableWithAggregatesFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3394,8 +3394,8 @@ export const NestedStringNullableWithAggregatesFilterSchema: z.ZodType<Prisma.Ne
 
 export const NestedIntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedIntNullableWithAggregatesFilter> = z.object({
   equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
+  in: z.union([ z.number().array(),z.number() ]).optional().nullable(),
+  notIn: z.union([ z.number().array(),z.number() ]).optional().nullable(),
   lt: z.number().optional(),
   lte: z.number().optional(),
   gt: z.number().optional(),
@@ -3410,8 +3410,8 @@ export const NestedIntNullableWithAggregatesFilterSchema: z.ZodType<Prisma.Neste
 
 export const NestedFloatNullableFilterSchema: z.ZodType<Prisma.NestedFloatNullableFilter> = z.object({
   equals: z.number().optional().nullable(),
-  in: z.number().array().optional().nullable(),
-  notIn: z.number().array().optional().nullable(),
+  in: z.union([ z.number().array(),z.number() ]).optional().nullable(),
+  notIn: z.union([ z.number().array(),z.number() ]).optional().nullable(),
   lt: z.number().optional(),
   lte: z.number().optional(),
   gt: z.number().optional(),
@@ -3421,8 +3421,8 @@ export const NestedFloatNullableFilterSchema: z.ZodType<Prisma.NestedFloatNullab
 
 export const NestedDateTimeFilterSchema: z.ZodType<Prisma.NestedDateTimeFilter> = z.object({
   equals: z.coerce.date().optional(),
-  in: z.coerce.date().array().optional(),
-  notIn: z.coerce.date().array().optional(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -3432,8 +3432,8 @@ export const NestedDateTimeFilterSchema: z.ZodType<Prisma.NestedDateTimeFilter> 
 
 export const NestedDateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.NestedDateTimeWithAggregatesFilter> = z.object({
   equals: z.coerce.date().optional(),
-  in: z.coerce.date().array().optional(),
-  notIn: z.coerce.date().array().optional(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -3446,8 +3446,8 @@ export const NestedDateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.NestedDa
 
 export const NestedDateTimeNullableFilterSchema: z.ZodType<Prisma.NestedDateTimeNullableFilter> = z.object({
   equals: z.coerce.date().optional().nullable(),
-  in: z.coerce.date().array().optional().nullable(),
-  notIn: z.coerce.date().array().optional().nullable(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -3462,15 +3462,15 @@ export const NestedBoolFilterSchema: z.ZodType<Prisma.NestedBoolFilter> = z.obje
 
 export const NestedEnumUserTypeNullableFilterSchema: z.ZodType<Prisma.NestedEnumUserTypeNullableFilter> = z.object({
   equals: z.lazy(() => UserTypeSchema).optional().nullable(),
-  in: z.lazy(() => UserTypeSchema).array().optional().nullable(),
-  notIn: z.lazy(() => UserTypeSchema).array().optional().nullable(),
+  in: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
+  notIn: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
   not: z.union([ z.lazy(() => UserTypeSchema),z.lazy(() => NestedEnumUserTypeNullableFilterSchema) ]).optional().nullable(),
 }).strict();
 
 export const NestedUuidNullableFilterSchema: z.ZodType<Prisma.NestedUuidNullableFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3480,8 +3480,8 @@ export const NestedUuidNullableFilterSchema: z.ZodType<Prisma.NestedUuidNullable
 
 export const NestedDateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedDateTimeNullableWithAggregatesFilter> = z.object({
   equals: z.coerce.date().optional().nullable(),
-  in: z.coerce.date().array().optional().nullable(),
-  notIn: z.coerce.date().array().optional().nullable(),
+  in: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
+  notIn: z.union([ z.coerce.date().array(),z.coerce.date() ]).optional().nullable(),
   lt: z.coerce.date().optional(),
   lte: z.coerce.date().optional(),
   gt: z.coerce.date().optional(),
@@ -3502,8 +3502,8 @@ export const NestedBoolWithAggregatesFilterSchema: z.ZodType<Prisma.NestedBoolWi
 
 export const NestedEnumUserTypeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumUserTypeNullableWithAggregatesFilter> = z.object({
   equals: z.lazy(() => UserTypeSchema).optional().nullable(),
-  in: z.lazy(() => UserTypeSchema).array().optional().nullable(),
-  notIn: z.lazy(() => UserTypeSchema).array().optional().nullable(),
+  in: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
+  notIn: z.union([ z.lazy(() => UserTypeSchema).array(),z.lazy(() => UserTypeSchema) ]).optional().nullable(),
   not: z.union([ z.lazy(() => UserTypeSchema),z.lazy(() => NestedEnumUserTypeNullableWithAggregatesFilterSchema) ]).optional().nullable(),
   _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumUserTypeNullableFilterSchema).optional(),
@@ -3512,8 +3512,8 @@ export const NestedEnumUserTypeNullableWithAggregatesFilterSchema: z.ZodType<Pri
 
 export const NestedUuidNullableWithAggregatesFilterSchema: z.ZodType<Prisma.NestedUuidNullableWithAggregatesFilter> = z.object({
   equals: z.string().optional().nullable(),
-  in: z.string().array().optional().nullable(),
-  notIn: z.string().array().optional().nullable(),
+  in: z.union([ z.string().array(),z.string() ]).optional().nullable(),
+  notIn: z.union([ z.string().array(),z.string() ]).optional().nullable(),
   lt: z.string().optional(),
   lte: z.string().optional(),
   gt: z.string().optional(),
@@ -3526,15 +3526,15 @@ export const NestedUuidNullableWithAggregatesFilterSchema: z.ZodType<Prisma.Nest
 
 export const NestedEnumMembershipRoleFilterSchema: z.ZodType<Prisma.NestedEnumMembershipRoleFilter> = z.object({
   equals: z.lazy(() => MembershipRoleSchema).optional(),
-  in: z.lazy(() => MembershipRoleSchema).array().optional(),
-  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  in: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
   not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleFilterSchema) ]).optional(),
 }).strict();
 
 export const NestedEnumMembershipRoleWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumMembershipRoleWithAggregatesFilter> = z.object({
   equals: z.lazy(() => MembershipRoleSchema).optional(),
-  in: z.lazy(() => MembershipRoleSchema).array().optional(),
-  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  in: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => MembershipRoleSchema).array(),z.lazy(() => MembershipRoleSchema) ]).optional(),
   not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumMembershipRoleFilterSchema).optional(),
@@ -3543,22 +3543,22 @@ export const NestedEnumMembershipRoleWithAggregatesFilterSchema: z.ZodType<Prism
 
 export const NestedEnumAssessmentStatusFilterSchema: z.ZodType<Prisma.NestedEnumAssessmentStatusFilter> = z.object({
   equals: z.lazy(() => AssessmentStatusSchema).optional(),
-  in: z.lazy(() => AssessmentStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentStatusSchema),z.lazy(() => NestedEnumAssessmentStatusFilterSchema) ]).optional(),
 }).strict();
 
 export const NestedEnumVisibilityFilterSchema: z.ZodType<Prisma.NestedEnumVisibilityFilter> = z.object({
   equals: z.lazy(() => VisibilitySchema).optional(),
-  in: z.lazy(() => VisibilitySchema).array().optional(),
-  notIn: z.lazy(() => VisibilitySchema).array().optional(),
+  in: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
   not: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => NestedEnumVisibilityFilterSchema) ]).optional(),
 }).strict();
 
 export const NestedEnumAssessmentStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumAssessmentStatusWithAggregatesFilter> = z.object({
   equals: z.lazy(() => AssessmentStatusSchema).optional(),
-  in: z.lazy(() => AssessmentStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentStatusSchema).array(),z.lazy(() => AssessmentStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentStatusSchema),z.lazy(() => NestedEnumAssessmentStatusWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAssessmentStatusFilterSchema).optional(),
@@ -3567,8 +3567,8 @@ export const NestedEnumAssessmentStatusWithAggregatesFilterSchema: z.ZodType<Pri
 
 export const NestedEnumVisibilityWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumVisibilityWithAggregatesFilter> = z.object({
   equals: z.lazy(() => VisibilitySchema).optional(),
-  in: z.lazy(() => VisibilitySchema).array().optional(),
-  notIn: z.lazy(() => VisibilitySchema).array().optional(),
+  in: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => VisibilitySchema).array(),z.lazy(() => VisibilitySchema) ]).optional(),
   not: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => NestedEnumVisibilityWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumVisibilityFilterSchema).optional(),
@@ -3577,15 +3577,15 @@ export const NestedEnumVisibilityWithAggregatesFilterSchema: z.ZodType<Prisma.Ne
 
 export const NestedEnumAssessmentSessionStatusFilterSchema: z.ZodType<Prisma.NestedEnumAssessmentSessionStatusFilter> = z.object({
   equals: z.lazy(() => AssessmentSessionStatusSchema).optional(),
-  in: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema) ]).optional(),
 }).strict();
 
 export const NestedEnumAssessmentSessionStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumAssessmentSessionStatusWithAggregatesFilter> = z.object({
   equals: z.lazy(() => AssessmentSessionStatusSchema).optional(),
-  in: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
-  notIn: z.lazy(() => AssessmentSessionStatusSchema).array().optional(),
+  in: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => AssessmentSessionStatusSchema).array(),z.lazy(() => AssessmentSessionStatusSchema) ]).optional(),
   not: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => NestedEnumAssessmentSessionStatusWithAggregatesFilterSchema) ]).optional(),
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema).optional(),
