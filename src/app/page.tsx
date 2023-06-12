@@ -8,11 +8,7 @@ export default async function Home() {
     redirect("auth/signin");
   }
 
-  return (
-    <div className="">
-      <h1>Hello Home page</h1>
+  redirect("/assessments");
 
-      <h2>list of elements from supabase</h2>
-    </div>
-  );
+  return <div></div>;
 }

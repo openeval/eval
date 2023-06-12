@@ -11,7 +11,7 @@ export function AssessmentNav({ assessmentId }: AssessmentNavProps) {
   const path = usePathname();
   const items = [
     {
-      title: "Assessments",
+      title: "Info",
       href: `/assessments/${assessmentId}`,
     },
     {

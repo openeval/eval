@@ -11,7 +11,6 @@ export default withAuth(
 
     if (isAuthPage) {
       if (isAuth) {
-        console.log(token);
         return NextResponse.redirect(new URL("/assessments", req.url));
       }
 

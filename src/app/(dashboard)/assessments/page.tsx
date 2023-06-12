@@ -48,14 +48,7 @@ export default async function AssessmentPage() {
   }
 
   const assessments = await getassessmentsForUser(user.id);
-  // const data = [
-  //   {
-  //     id: "728ed52f",
-  //     amount: 100,
-  //     status: "pending",
-  //     email: "m@example.com",
-  //   },
-  // ];
+
   return (
     <>
       <div className="flex justify-between px-2">

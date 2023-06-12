@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 const typografyVariants = cva("", {
   variants: {
     variant: {
-      h1: "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl",
+      h1: "scroll-m-20 text-4xl font-extrabold tracking-tight ",
       h2: "mt-10 scroll-m-20 border-b border-b-slate-200 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0 dark:border-b-slate-700",
       h3: "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
       h4: "mt-8 scroll-m-20 text-xl font-semibold tracking-tight",

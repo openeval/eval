@@ -81,7 +81,6 @@ export function AssessmentSettingsForm({
       });
     }
   }
-  console.log(errors);
   return (
     <div className={cn("grid gap-6", className)}>
       <form onSubmit={handleSubmit(onHandleSubmit)}>
