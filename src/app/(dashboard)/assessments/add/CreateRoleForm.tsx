@@ -8,7 +8,6 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
-
 import { Button } from "~/components/ui/Button";
 import { type Assessment } from "@prisma/client";
 import {
@@ -21,67 +20,51 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
-import { CreateAssessmentDto } from "~/dto/CreateAssessmentDto";
-
+import {
+  UpdateAssessmentDto,
+  type UpdateAssessmentDtoType,
+} from "~/dto/UpdateAssessmentDto";
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  assessment?: Partial<Assessment>;
-  onSuccess?: () => void;
+  assessment: Partial<Assessment>;
+  action: (data: UpdateAssessmentDtoType) => Promise<unknown>;
 }
 
-type FormData = z.infer<typeof CreateAssessmentDto>;
+type FormData = z.infer<typeof UpdateAssessmentDto>;
 
 export function AssessmentRoleForm({
   className,
   ...props
 }: AssessmentRoleFormProps) {
   const form = useForm<FormData>({
-    resolver: zodResolver(CreateAssessmentDto),
+    resolver: zodResolver(UpdateAssessmentDto),
     values: props.assessment,
   });
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const router = useRouter();
 
-  async function create(formData: FormData) {
-    "use server";
-
-    console.log(formData);
-  }
+  const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
-    setIsLoading(true);
-    React.startTransition(() => {
-      await create(data);
-    });
-    // Mutate external data source
-    const response = await fetch(`/api/assessments`, {
-      method: props.assessment ? "PATCH" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: props.assessment.id, ...data }),
-    });
-
-    setIsLoading(false);
-    if (response.ok) {
-      const assessment: Assessment = await response.json();
-      if (props.onSuccess) {
-        props.onSuccess();
+    // @ts-expect-error canary issue
+    startActionTransition(async () => {
+      try {
+        await props.action(data);
+        toast({
+          title: "Success.",
+          description: "Assessment updated",
+        });
+      } catch (e) {
+        // TODO: how to handle errors in with server actions
+        toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
       }
-      router.refresh();
-      if (!props.assessment) {
-        router.push(`/assessments/${assessment.id}/issues`);
-      }
-    } else {
-      return toast({
-        title: "Something went wrong.",
-        description: "Your post was not created. Please try again.",
-        variant: "destructive",
-      });
-    }
+    });
   }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
+      {/* https://github.com/react-hook-form/react-hook-form/issues/10391 */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-4">
@@ -111,7 +94,6 @@ export function AssessmentRoleForm({
                     <TextareaAutosize
                       autoFocus
                       id="description"
-                      // defaultValue={post.title}
                       placeholder="description"
                       className="h-[600px] w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
                       {...field}

@@ -4,8 +4,7 @@ import * as React from "react";
 import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useRouter } from "next/navigation";
+import type { z } from "zod";
 import { cn } from "~/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "~/components/ui/Button";
@@ -26,7 +25,7 @@ import {
 } from "~/dto/UpdateAssessmentDto";
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
   assessment: Partial<Assessment>;
-  action: (data: UpdateAssessmentDtoType) => Promise<T>;
+  action: (data: UpdateAssessmentDtoType) => Promise<unknown>;
 }
 
 type FormData = z.infer<typeof UpdateAssessmentDto>;
@@ -37,6 +36,7 @@ export function AssessmentRoleForm({
 }: AssessmentRoleFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(UpdateAssessmentDto),
+    // @ts-expect-error react-hook-form issue
     values: props.assessment,
   });
 

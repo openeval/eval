@@ -9,6 +9,9 @@ const config = {
       parserOptions: {
         project: "tsconfig.json",
       },
+      rules: {
+        "@typescript-eslint/require-await": "off",
+      },
     },
   ],
   parser: "@typescript-eslint/parser",
