@@ -7,11 +7,9 @@ import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { searchIssues } from "~/server/github";
 import { Separator } from "~/components/ui/Separator";
 import SaveAssessmentIssuesButton from "~/components/SaveAssessmentIssuesButton";
-import { AssessmentNav } from "~/components/AssessmentNav";
 const getIssues = cache(
   async (querySearch?: { [key: string]: string | string[] | undefined }) => {
-    const issuees = await searchIssues({ querySearch: querySearch?.q });
-    return issuees;
+    return await searchIssues({ querySearch: querySearch?.q });
   }
 );
 
@@ -31,13 +29,7 @@ export default async function IssuesPage({
   return (
     <div>
       <div className="mb-8 flex justify-between px-2">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-bold tracking-wide text-slate-900">
-            Assessments
-          </h1>
-          <p className="text-neutral-500">tests for your candidates</p>
-          <AssessmentNav assessmentId={assessmentId} />
-        </div>
+        <p className="text-neutral-500">tests for your candidates</p>
       </div>
       <SearchIssuesBar />
       <Separator className="my-4" />
