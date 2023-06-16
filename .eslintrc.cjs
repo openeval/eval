@@ -37,6 +37,7 @@ const config = {
       },
     ],
     "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-empty-interface": "off",
   },
 };
 

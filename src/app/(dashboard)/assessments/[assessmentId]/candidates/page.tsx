@@ -1,5 +1,3 @@
-import { getCurrentUser } from "~/server/auth";
-import { redirect } from "next/navigation";
 import { Users } from "lucide-react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import prisma from "~/server/db";
@@ -30,19 +28,13 @@ type AssessmentCandidatePageProps = {
 export default async function AssessmentCandidatePage({
   params,
 }: AssessmentCandidatePageProps) {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
   const candidates = await getCandidates(params.assessmentId);
   return (
     <>
       <div className="mb-8 flex justify-between px-2">
         <div className="grid gap-1">
           <p className="text-neutral-500">
-            Invite and follow candidates to the assigment
+            Invite and follow candidates progress
           </p>
         </div>
         <InviteCandidateButton assessmentId={params.assessmentId} />
