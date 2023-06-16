@@ -7,10 +7,5 @@ export default async function CandidateDetailPage({
   params,
 }: CandidateDetailPageProps) {
   const user = await getCurrentUser();
-  return (
-    <div>
-      <h1>hello {user.email}</h1>
-      details {params.candidateId}
-    </div>
-  );
+  return <div>details {params.candidateId}</div>;
 }

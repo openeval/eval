@@ -4,7 +4,7 @@ import * as React from "react";
 import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
+import { z } from "zod";
 import { cn } from "~/lib/utils";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "~/components/ui/Button";
@@ -19,23 +19,29 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
-import {
-  UpdateAssessmentDto,
-  type UpdateAssessmentDtoType,
-} from "~/dto/UpdateAssessmentDto";
+
+import type { Prisma } from "@prisma/client";
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
   assessment: Partial<Assessment>;
-  action: (data: UpdateAssessmentDtoType) => Promise<unknown>;
+  action: (
+    where: Prisma.AssessmentWhereUniqueInput,
+    data: Prisma.AssessmentUpdateInput
+  ) => Promise<unknown>;
 }
 
-type FormData = z.infer<typeof UpdateAssessmentDto>;
+const assessmentSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+});
+
+type FormData = z.infer<typeof assessmentSchema>;
 
 export function AssessmentRoleForm({
   className,
   ...props
 }: AssessmentRoleFormProps) {
   const form = useForm<FormData>({
-    resolver: zodResolver(UpdateAssessmentDto),
+    resolver: zodResolver(assessmentSchema),
     // @ts-expect-error react-hook-form issue
     values: props.assessment,
   });
@@ -46,7 +52,7 @@ export function AssessmentRoleForm({
     // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
-        await props.action({ ...data, id: props.assessment.id as string });
+        await props.action({ id: props.assessment.id }, data);
         toast({
           title: "Success.",
           description: "Assessment updated",

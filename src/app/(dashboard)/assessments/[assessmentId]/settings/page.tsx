@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { AssessmentSettingsForm } from "~/components/AssessmentSettingsForm";
+import { AssessmentSettingsForm } from "./AssessmentSettingsForm";
 import slugify from "slugify";
 import { absoluteUrl } from "~/lib/utils";
-import { AssessmentNav } from "~/components/AssessmentNav";
+import { updateAssessment } from "../actions";
+
 type AssessmentDetailPageProps = {
   params: { assessmentId: string };
 };
@@ -19,7 +19,6 @@ async function fetchAssessment(id: string) {
 export default async function AssessmentDetailPage({
   params: { assessmentId },
 }: AssessmentDetailPageProps) {
-  const user = await getCurrentUser();
   const assessment = await fetchAssessment(assessmentId);
   if (!assessment) {
     notFound();
@@ -27,7 +26,7 @@ export default async function AssessmentDetailPage({
 
   return (
     <div>
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <div className="mt-4 flex">
           <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 pr-2 pl-2 dark:border-slate-700 dark:bg-black ">
             <code className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-50">
@@ -40,8 +39,11 @@ export default async function AssessmentDetailPage({
             />
           </pre>
         </div>
-      </div>
-      <AssessmentSettingsForm assessmentId={assessmentId} />
+      </div> */}
+      <AssessmentSettingsForm
+        assessment={assessment}
+        action={updateAssessment}
+      />
     </div>
   );
 }

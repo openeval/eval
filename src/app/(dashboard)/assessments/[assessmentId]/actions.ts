@@ -9,6 +9,8 @@ import {
 } from "~/dto/CreateAssessmentDto";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import type { Prisma } from "@prisma/client";
+
 import { AssessmentStatus } from "@prisma/client";
 import {
   UpdateAssessmentDto,
@@ -55,7 +57,10 @@ export async function createAssessment(req: CreateAssessmentDtoType) {
   }
 }
 
-export async function updateAssessment(req: UpdateAssessmentDtoType) {
+export async function updateAssessment(
+  where: Prisma.AssessmentWhereUniqueInput,
+  data: Prisma.AssessmentUpdateInput
+) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -63,12 +68,12 @@ export async function updateAssessment(req: UpdateAssessmentDtoType) {
   }
 
   try {
-    const data = UpdateAssessmentDto.parse({
-      ...req,
+    UpdateAssessmentDto.parse({
+      ...data,
     });
 
     await prisma.assessment.update({
-      where: { id: req.id },
+      where,
       data,
     });
 
