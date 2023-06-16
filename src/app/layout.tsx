@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html dir="ltr" lang="en">
       <body
         className={clsx(
           "min-h-screen scroll-smooth bg-white font-sans text-slate-900 antialiased ",

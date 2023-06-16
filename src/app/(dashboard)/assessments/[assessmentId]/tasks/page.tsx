@@ -13,7 +13,7 @@ const getIssues = cache(
   }
 );
 
-export default async function IssuesPage({
+export default async function TaskPage({
   params: { assessmentId },
   searchParams,
 }: {

@@ -21,7 +21,7 @@ import {
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export async function createAssessment(req: CreateAssessmentDtoType) {
+export async function createAssessment(data: CreateAssessmentDtoType) {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -33,8 +33,8 @@ export async function createAssessment(req: CreateAssessmentDtoType) {
   const { user } = session;
 
   try {
-    const data = CreateAssessmentDto.parse({
-      ...req,
+    CreateAssessmentDto.parse({
+      ...data,
     });
 
     await prisma.assessment.create({

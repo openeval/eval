@@ -2,7 +2,7 @@ import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { getProfile, searchContributions } from "~/server/github";
 import { format } from "date-fns";
-import { Typografy } from "~/components/ui/Typography";
+import { Typography } from "~/components/ui/Typography";
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 
 const getCandidate = async (candidateId: string, assessmentId: string) => {
@@ -50,14 +50,16 @@ export default async function CandidateDetailPage({
 
   return (
     <div>
-      <Typografy variant={"h3"}>
+      <Typography variant={"h3"}>
         {candidate.name} {candidate.lastName}
-      </Typografy>
+      </Typography>
       <p>{candidate.email}</p>
 
       {/* TODO:use suspense */}
-      <Typografy variant="h2">Contributions</Typografy>
-      <Typografy variant={"p"}>Contributions made to the assessment</Typografy>
+      <Typography variant="h2">Contributions</Typography>
+      <Typography variant={"p"}>
+        Contributions made to the assessment
+      </Typography>
       <div className="mt-8 divide-y divide-neutral-200 rounded-md border border-slate-200">
         {contributions.map((item) => (
           <OpenTaskItem key={item.id} item={item} />

@@ -3,7 +3,7 @@ import * as React from "react";
 import { type VariantProps, cva } from "class-variance-authority";
 import { cn } from "~/lib/utils";
 
-const typografyVariants = cva("", {
+const typographyVariants = cva("", {
   variants: {
     variant: {
       h1: "scroll-m-20 text-4xl font-extrabold tracking-tight ",
@@ -30,15 +30,15 @@ const typografyVariants = cva("", {
   },
 });
 
-export interface TypografyProps
+export interface TypographyProps
   extends React.HTMLAttributes<HTMLElement>,
-    VariantProps<typeof typografyVariants> {
+    VariantProps<typeof typographyVariants> {
   as?: React.ElementType;
 }
 
-const Typografy = React.forwardRef<HTMLElement, TypografyProps>(
+const Typography = React.forwardRef<HTMLElement, TypographyProps>(
   ({ className, as, size, variant, children, ...props }, ref) => {
-    const classes = cn(typografyVariants({ variant, size, className }));
+    const classes = cn(typographyVariants({ variant, size, className }));
 
     // @ts-expect-error we avoid a switch case by variant
     const element = React.isValidElement(React.createElement(variant))
@@ -59,6 +59,6 @@ const Typografy = React.forwardRef<HTMLElement, TypografyProps>(
     return template;
   }
 );
-Typografy.displayName = "Typografy";
+Typography.displayName = "Typography";
 
-export { Typografy, typografyVariants };
+export { Typography, typographyVariants };

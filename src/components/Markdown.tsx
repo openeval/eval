@@ -6,7 +6,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 import remarkEmoji from "remark-emoji";
 import remarkGfm from "remark-gfm";
-import { Typografy } from "./ui/Typography";
+import { Typography } from "./ui/Typography";
 import { cn } from "~/lib/utils";
 
 interface ComponentTypes {
@@ -18,7 +18,7 @@ import { Callout } from "~/components/ui/Callout";
 
 function Markdown({ content }: { content: string }) {
   const components = {
-    h1: (props: ComponentTypes) => <Typografy variant={"h1"} {...props} />,
+    h1: (props: ComponentTypes) => <Typography variant={"h1"} {...props} />,
     h2: ({ className, ...props }: ComponentTypes) => (
       <h2
         className={cn(

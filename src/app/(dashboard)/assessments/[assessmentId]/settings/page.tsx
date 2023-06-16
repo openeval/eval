@@ -3,7 +3,7 @@ import { prisma } from "~/server/db";
 import { AssessmentSettingsForm } from "./AssessmentSettingsForm";
 import slugify from "slugify";
 import { absoluteUrl } from "~/lib/utils";
-import { updateAssessment } from "../actions";
+import { updateAssessment } from "../../actions";
 
 type AssessmentDetailPageProps = {
   params: { assessmentId: string };

@@ -22,13 +22,13 @@ interface InviteCandidateFormProps
   assessmentId?: string;
 }
 
-const assessmentSchema = z.object({
+const invitationSchema = z.object({
   name: z.string(),
   lastName: z.string(),
   email: z.string().email(),
 });
 
-type FormData = z.infer<typeof assessmentSchema>;
+type FormData = z.infer<typeof invitationSchema>;
 
 export function InviteCandidateForm({
   assessmentId,
@@ -42,7 +42,7 @@ export function InviteCandidateForm({
     control,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(assessmentSchema),
+    resolver: zodResolver(invitationSchema),
   });
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const router = useRouter();
