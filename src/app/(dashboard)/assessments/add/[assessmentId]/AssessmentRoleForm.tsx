@@ -98,11 +98,10 @@ export function AssessmentRoleForm({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <TextareaAutosize
-                      minRows={5}
                       autoFocus
                       id="description"
                       placeholder="description"
-                      className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
+                      className="h-[600px] w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
                       {...field}
                     />
                   </FormControl>

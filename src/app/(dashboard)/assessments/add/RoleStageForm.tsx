@@ -19,20 +19,19 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
+import { useRouter } from "next/navigation";
 
 import type { Prisma } from "@prisma/client";
-interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  assessment: Partial<Assessment>;
-  action: (
-    where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput
-  ) => Promise<unknown>;
-}
 
 const assessmentSchema = z.object({
   title: z.string(),
   description: z.string(),
 });
+
+interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  assessment: Partial<Assessment>;
+  action: (data: FormData) => Promise<unknown>;
+}
 
 type FormData = z.infer<typeof assessmentSchema>;
 
@@ -40,6 +39,7 @@ export function RoleStageForm({
   className,
   ...props
 }: AssessmentRoleFormProps) {
+  const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(assessmentSchema),
     // @ts-expect-error react-hook-form issue
@@ -52,11 +52,16 @@ export function RoleStageForm({
     // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
-        await props.action({ id: props.assessment.id }, data);
+        const assessment = await props.action(data);
         toast({
           title: "Success.",
-          description: "Assessment updated",
+          description: "Assessment created",
         });
+
+        // router.refresh();
+        router.push(`/assessments/add/${assessment.id}/tasks`);
+
+        // router go to next step "tasks", i need the id :)
       } catch (e) {
         // TODO: how to handle errors in with server actions
         toast({
@@ -98,10 +103,11 @@ export function RoleStageForm({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <TextareaAutosize
+                      minRows={5}
                       autoFocus
                       id="description"
                       placeholder="description"
-                      className="h-[600px] w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
+                      className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
                       {...field}
                     />
                   </FormControl>
@@ -113,7 +119,7 @@ export function RoleStageForm({
 
             <div className="flex ">
               <Button type="submit" isLoading={isLoading}>
-                Save
+                Next step
               </Button>
             </div>
           </div>

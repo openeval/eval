@@ -23,13 +23,13 @@ export default function SearchIssuesBar() {
     [searchParams]
   );
 
-  const [searchQuery, setSearchQuery] = useState(q || "");
+  const [searchQuery, setSearchQuery] = useState<string>(q || "");
 
-  const handleChange = (event) => {
+  const handleChange = (event: KeyboardEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       router.push(pathname + "?" + createQueryString("q", event.target.value));
     }

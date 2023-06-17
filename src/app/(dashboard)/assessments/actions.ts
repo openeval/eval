@@ -37,7 +37,7 @@ export async function createAssessment(data: CreateAssessmentDtoType) {
       ...data,
     });
 
-    await prisma.assessment.create({
+    const assessment = await prisma.assessment.create({
       data: {
         ...data,
         status: AssessmentStatus.DRAFT,
@@ -46,6 +46,8 @@ export async function createAssessment(data: CreateAssessmentDtoType) {
         createdBy: { connect: { id: user.id } },
       },
     });
+
+    return assessment;
   } catch (error) {
     // TODO : how to capture errors in server actions (no documented)
 
