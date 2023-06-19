@@ -18,8 +18,8 @@ import { Switch } from "~/components/ui/Switch";
 
 interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  assessment: { title: string; description: string };
-  assessmentId?: string;
+  assessmentId: string;
+  onSuccess: Function;
 }
 
 const invitationSchema = z.object({
@@ -33,7 +33,7 @@ type FormData = z.infer<typeof invitationSchema>;
 export function InviteCandidateForm({
   assessmentId,
   className,
-  onSubmit,
+  onSuccess,
   ...props
 }: InviteCandidateFormProps) {
   const {
@@ -61,13 +61,11 @@ export function InviteCandidateForm({
     setIsLoading(false);
 
     if (response.ok) {
-      const assessment = await response.json();
-      router.refresh();
-      router.push(`/assessments`);
+      onSuccess && onSuccess();
     } else {
       return toast({
         title: "Something went wrong.",
-        description: "Your post was not created. Please try again.",
+        description: "Your invitation was not created. Please try again.",
         variant: "destructive",
       });
     }

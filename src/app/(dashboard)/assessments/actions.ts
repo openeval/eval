@@ -9,7 +9,7 @@ import {
 } from "~/dto/CreateAssessmentDto";
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import type { Prisma } from "@prisma/client";
+import type { Assessment, Prisma } from "@prisma/client";
 
 import { AssessmentStatus } from "@prisma/client";
 import {
@@ -75,7 +75,7 @@ export async function updateAssessment(
     });
 
     await prisma.assessment.update({
-      where,
+      where: { ...where, createdById: session.user.id },
       data,
     });
 

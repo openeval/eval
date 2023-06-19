@@ -1,58 +1,15 @@
-import { prisma } from "~/server/db";
-import { notFound } from "next/navigation";
-import { Typography } from "~/components/ui/Typography";
-import { AssessmentNav } from "~/components/AssessmentNav";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "~/server/auth";
 import { StepsNav } from "./StepsNav";
-import {
-  ChevronRight,
-  ChevronsRight,
-  Users,
-  Settings,
-  FileBadge,
-  ListChecks,
-  FileText,
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 type AssessmentDetailPageProps = {
   children: React.ReactNode;
 };
 
-export default async function Layout({
-  params,
-  children,
-}: AssessmentDetailPageProps) {
+export default async function Layout({ children }: AssessmentDetailPageProps) {
   const user = await getCurrentUser();
-
-  let currentStep = "details";
-  let stepsItems = [
-    {
-      name: "details",
-      title: "Details",
-      description: "Role description",
-      icon: FileText,
-    },
-    {
-      name: "tasks",
-      title: "Tasks",
-      description: "Role description",
-      icon: ListChecks,
-    },
-    {
-      name: "settings",
-      title: "Settings",
-      description: "Role description",
-      icon: Settings,
-    },
-    {
-      name: "invite",
-      title: "Invite",
-      description: "Role description",
-      icon: Users,
-    },
-  ];
 
   if (!user) {
     redirect("/login");

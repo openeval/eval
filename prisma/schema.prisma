@@ -8,7 +8,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol"]
+  previewFeatures = ["jsonProtocol", "extendedWhereUnique"]
 }
 
 //  generate zod schemas by model
@@ -131,7 +131,7 @@ model Membership {
 // TODO: DEFINE STATUS
 enum CandidateStatus {
   PENDING
-  ACCEPTED
+  ACEPTED
   ARCHIVED
 }
 

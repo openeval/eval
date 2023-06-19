@@ -6,7 +6,7 @@ type AssessmentDetailPageProps = {
   params: { assessmentId: string };
 };
 
-import { updateAssessment } from "../actions";
+import { updateAssessment } from "../../actions";
 
 async function fetchAssessment(id: string) {
   const assessment = await prisma.assessment.findFirst({ where: { id } });

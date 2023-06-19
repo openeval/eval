@@ -1,15 +1,32 @@
 "use client";
-
+import * as React from "react";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import { Steps } from "~/components/ui/Steps";
 import { Users, Settings, ListChecks, FileText } from "lucide-react";
+import { absoluteUrl } from "~/lib/utils";
+
+type StepItem = {
+  name: string;
+  title: string;
+  description: string;
+  icon: React.FC<{ className: string }>;
+  href : string;
+};
 
 export function StepsNav() {
   const path = usePathname();
-  const { assessmentId }: { assessmentId?: string } = useParams();
+  const params = useParams();
 
-  const items = [
+  function getStepPath(step: StepItem, assessmentId?: string | string[]) {
+    let path = `/assessments/add`;
+    if (assessmentId) {
+      path += `/${assessmentId}/${step.name}`;
+    }
+    return path;
+  }
+
+  const items: StepItem[] = [
     {
       name: "details",
       title: "Details",
@@ -22,21 +39,21 @@ export function StepsNav() {
       title: "Tasks",
       description: "Role description",
       icon: ListChecks,
-      href: `/assessments/add/${assessmentId}/tasks`,
+      href: `/assessments/add/${params?.assessmentId|| ''}/tasks`,
     },
     {
       name: "settings",
       title: "Settings",
       description: "Role description",
       icon: Settings,
-      href: `/assessments/add/${assessmentId}/settings`,
+      href: `/assessments/add/${params?.assessmentId|| ''}/settings`,
     },
     {
       name: "invite",
       title: "Invite",
       description: "Role description",
       icon: Users,
-      href: `/assessments/add/`,
+      href: `/assessments/add/${params?.assessmentId}/invite`
     },
   ];
 
@@ -44,14 +61,12 @@ export function StepsNav() {
     <Steps className="mb-8">
       {items.map((step, index) => {
         return (
-          <Steps.Item isActive={path === step.href} key={index} asChild>
-            <Link href={step.href}>
-              <Steps.Icon icon={step.icon} />
-              <Steps.Content>
-                <Steps.Title>{step.title}</Steps.Title>
-                <Steps.Description>{step.description} </Steps.Description>
-              </Steps.Content>
-            </Link>
+          <Steps.Item isActive={path === step.href} key={index}>
+            <Steps.Icon icon={step.icon} />
+            <Steps.Content>
+              <Steps.Title>{step.title}</Steps.Title>
+              <Steps.Description>{step.description} </Steps.Description>
+            </Steps.Content>
           </Steps.Item>
         );
       })}

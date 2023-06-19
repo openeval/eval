@@ -21,15 +21,12 @@ import {
 import { Input } from "~/components/ui/Input";
 import { useRouter } from "next/navigation";
 
-import type { Prisma } from "@prisma/client";
-
 const assessmentSchema = z.object({
   title: z.string(),
   description: z.string(),
 });
 
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  assessment: Partial<Assessment>;
   action: (data: FormData) => Promise<unknown>;
 }
 
@@ -42,8 +39,6 @@ export function RoleStageForm({
   const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(assessmentSchema),
-    // @ts-expect-error react-hook-form issue
-    values: props.assessment,
   });
 
   const [isLoading, startActionTransition] = React.useTransition();
@@ -52,7 +47,7 @@ export function RoleStageForm({
     // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
-        const assessment = await props.action(data);
+        const assessment: Assessment = (await props.action(data)) as Assessment;
         toast({
           title: "Success.",
           description: "Assessment created",
@@ -107,7 +102,7 @@ export function RoleStageForm({
                       autoFocus
                       id="description"
                       placeholder="description"
-                      className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
+                      className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent px-3 py-2 focus:outline-none "
                       {...field}
                     />
                   </FormControl>

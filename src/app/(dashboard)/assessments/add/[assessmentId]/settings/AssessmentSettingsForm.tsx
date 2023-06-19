@@ -16,10 +16,10 @@ import {
 } from "~/components/ui/Select";
 import { Button } from "~/components/ui/Button";
 
-import { type Assessment } from "@prisma/client";
+import { AssessmentStatus, type Assessment } from "@prisma/client";
 import { Card } from "~/components/ui/Card";
 import { Switch } from "~/components/ui/Switch";
-
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -58,18 +58,22 @@ export function AssessmentSettingsForm({
     // @ts-expect-error react-hook-form issue
     values: props.assessment,
   });
+  const router = useRouter();
 
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
+    const payload = { ...data, status: AssessmentStatus.ACTIVE };
+
     // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
-        await props.action({ id: props.assessment.id }, data);
+        await props.action({ id: props.assessment.id }, payload);
         toast({
           title: "Success.",
           description: "Assessment updated",
         });
+        router.push(`/assessments/add/${props.assessment.id}/invite`);
       } catch (e) {
         // TODO: how to handle errors in with server actions
         toast({
@@ -143,7 +147,7 @@ export function AssessmentSettingsForm({
             </Card.Content>
             <Card.Footer>
               <Button type="submit" isLoading={isLoading}>
-                Save
+                Next Step
               </Button>
             </Card.Footer>
           </Card>
