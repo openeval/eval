@@ -5,16 +5,12 @@ import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
 
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
-import { Textarea } from "~/components/ui/Textarea";
-import { type Assessment } from "@prisma/client";
 import { Card } from "~/components/ui/Card";
-import { Switch } from "~/components/ui/Switch";
 
 interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -45,11 +41,10 @@ export function InviteCandidateForm({
     resolver: zodResolver(invitationSchema),
   });
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const router = useRouter();
 
   async function onHandleSubmit(data: FormData) {
     setIsLoading(true);
-    // Mutate external data source
+
     const response = await fetch(`/api/candidates/invite`, {
       method: "POST",
       headers: {
@@ -76,10 +71,6 @@ export function InviteCandidateForm({
         <Card>
           <Card.Header>
             <Card.Title>Invite</Card.Title>
-            {/* <Card.Description>
-              Please enter your full name or a display name you are comfortable
-              with.
-            </Card.Description> */}
           </Card.Header>
           <Card.Content className="grid gap-4">
             <div className="grid gap-1">

@@ -11,7 +11,7 @@ type StepItem = {
   title: string;
   description: string;
   icon: React.FC<{ className: string }>;
-  href : string;
+  href: string;
 };
 
 export function StepsNav() {
@@ -37,23 +37,23 @@ export function StepsNav() {
     {
       name: "tasks",
       title: "Tasks",
-      description: "Role description",
+      description: "open source issues",
       icon: ListChecks,
-      href: `/assessments/add/${params?.assessmentId|| ''}/tasks`,
+      href: `/assessments/add/${params?.assessmentId || ""}/tasks`,
     },
     {
       name: "settings",
       title: "Settings",
-      description: "Role description",
+      description: "Assigment config",
       icon: Settings,
-      href: `/assessments/add/${params?.assessmentId|| ''}/settings`,
+      href: `/assessments/add/${params?.assessmentId || ""}/settings`,
     },
     {
       name: "invite",
-      title: "Invite",
-      description: "Role description",
+      title: "Share",
+      description: "invite and share",
       icon: Users,
-      href: `/assessments/add/${params?.assessmentId}/invite`
+      href: `/assessments/add/${params?.assessmentId}/invite`,
     },
   ];
 

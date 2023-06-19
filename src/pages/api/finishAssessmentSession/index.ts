@@ -2,11 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { prisma } from "~/server/db";
-import { Prisma } from "@prisma/client";
 
 import { z } from "zod";
-
-import { AssessmentUpdateInputSchema } from "prisma/zod";
 
 export default async function handle(
   req: NextApiRequest,
