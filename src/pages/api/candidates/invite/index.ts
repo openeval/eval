@@ -7,14 +7,11 @@ import slugify from "slugify";
 import { z } from "zod";
 import { transporter } from "~/server/mailer";
 import { InviteCandidateSchema } from "~/dto/InviteCandidateDto";
-import {
-  AssessmentCreateInputSchema,
-  AssessmentUpdateInputSchema,
-  CandidateCreateInputSchema,
-} from "prisma/zod";
+import { absoluteUrl } from "~/lib/utils";
 
 import { ApiError, ERROR_CODES } from "~/server/error";
 
+// TODO: move to nextjs actions
 export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
@@ -37,6 +34,11 @@ export default async function handle(
 
       const { assessmentId, ...data } = body;
 
+      const assessment = await prisma.assessment.findFirstOrThrow({
+        where: { id: assessmentId },
+      });
+
+      // check if users has active assessment sessions
       const invitation = await prisma.candidate.findFirst({
         where: {
           email: data.email,
@@ -72,12 +74,16 @@ export default async function handle(
       });
 
       // TODO: create a better template
-      // await transporter.sendMail({
-      //   to: response.email, // list of receivers
-      //   subject: "Hello ✔", // Subject line
-      //   text: "You have a new invitation to an assessment", // plain text body
-      //   html: "<b>Hello world?</b>", // html body
-      // });
+      await transporter.sendMail({
+        to: response.email, // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "You have a new invitation to an assessment", // plain text body
+        html: `<b>Hello ${data.name},</b>
+        <br/>
+        <br/>
+        Please click in the link below to start your assessment <br/> 
+        ${absoluteUrl("/")}a/${assessment.id}/${slugify(assessment.title)}`, // html body
+      });
 
       return res.status(200).json(response);
     } catch (error) {
