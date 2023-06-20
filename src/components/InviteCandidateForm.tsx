@@ -60,7 +60,7 @@ export function InviteCandidateForm({
     } else {
       return toast({
         title: "Something went wrong.",
-        description: "Your invitation was not created. Please try again.",
+        description: "Please try again.",
         variant: "destructive",
       });
     }

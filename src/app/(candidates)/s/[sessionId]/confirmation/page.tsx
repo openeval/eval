@@ -1,8 +1,6 @@
 import { cache } from "react";
 import { prisma } from "~/server/db";
-import { Button } from "~/components/ui/Button";
 import { notFound } from "next/navigation";
-import { searchIssues } from "~/server/github";
 import { getCurrentUser } from "~/server/auth";
 interface PageProps {
   params: { sessionId: string };

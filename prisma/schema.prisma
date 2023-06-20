@@ -131,7 +131,7 @@ model Membership {
 // TODO: DEFINE STATUS
 enum CandidateStatus {
   PENDING
-  ACEPTED
+  ACCEPTED
   ARCHIVED
 }
 
@@ -145,6 +145,7 @@ model Candidate {
   assessments        Assessment[]
   // assessmentId       String?             @map("assessment_id") @db.Uuid
   name               String
+  status             CandidateStatus     @default(PENDING) @map("status")
   lastName           String              @map("last_name")
   email              String              @unique
   createdAt          DateTime            @default(now()) @map("created_at")

@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { prisma } from "~/server/db";
-import { Prisma } from "@prisma/client";
+import { Prisma, CandidateStatus } from "@prisma/client";
 import slugify from "slugify";
 import { z } from "zod";
 import { transporter } from "~/server/mailer";
@@ -12,6 +12,8 @@ import {
   AssessmentUpdateInputSchema,
   CandidateCreateInputSchema,
 } from "prisma/zod";
+
+import { ApiError, ERROR_CODES } from "~/server/error";
 
 export default async function handle(
   req: NextApiRequest,
@@ -35,6 +37,26 @@ export default async function handle(
 
       const { assessmentId, ...data } = body;
 
+      const invitation = await prisma.candidate.findFirst({
+        where: {
+          email: data.email,
+          organizationId: user.activeOrgId,
+          assessments: {
+            some: {
+              id: assessmentId,
+            },
+          },
+          status: { notIn: CandidateStatus.PENDING },
+        },
+      });
+
+      if (invitation) {
+        throw new ApiError(
+          ERROR_CODES.BAD_REQUEST,
+          "Candidate already invited"
+        );
+      }
+
       response = await prisma.candidate.upsert({
         where: { email: data.email },
         update: {
@@ -49,6 +71,7 @@ export default async function handle(
         },
       });
 
+      // TODO: create a better template
       // await transporter.sendMail({
       //   to: response.email, // list of receivers
       //   subject: "Hello ✔", // Subject line
@@ -62,6 +85,12 @@ export default async function handle(
 
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
+      }
+
+      if (error instanceof ApiError) {
+        return res
+          .status(error.statusCode)
+          .json({ code: error.statusCode, message: error.message });
       }
       return res.status(500).end();
     }

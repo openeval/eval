@@ -20,3 +20,11 @@ export function formatDate(input: string | number): string {
 export function absoluteUrl(path: string) {
   return `${env.NEXT_PUBLIC_APP_URL}${path}`;
 }
+
+/**
+ * @internal
+ */
+export function isObject(value: unknown): value is Record<string, unknown> {
+  // check that value is object
+  return !!value && !Array.isArray(value) && typeof value === "object";
+}
