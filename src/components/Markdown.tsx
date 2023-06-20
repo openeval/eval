@@ -12,7 +12,7 @@ import { cn } from "~/lib/utils";
 interface ComponentTypes {
   className?: string;
   href?: string;
-  [key: string]: any;
+  // [key: string]: any;
 }
 import { Callout } from "~/components/ui/Callout";
 

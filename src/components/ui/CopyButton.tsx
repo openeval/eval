@@ -10,19 +10,11 @@ interface CopyButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   src?: string;
 }
 
-async function copyToClipboardWithMeta(
-  value: string,
-  meta?: Record<string, unknown>
-) {
+async function copyToClipboardWithMeta(value: string) {
   await navigator.clipboard.writeText(value);
 }
 
-export function CopyButton({
-  value,
-  className,
-  src,
-  ...props
-}: CopyButtonProps) {
+export function CopyButton({ value, className, ...props }: CopyButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -38,9 +30,7 @@ export function CopyButton({
         className
       )}
       onClick={async () => {
-        await copyToClipboardWithMeta(value, {
-          component: src,
-        });
+        await copyToClipboardWithMeta(value);
         setHasCopied(true);
       }}
       {...props}

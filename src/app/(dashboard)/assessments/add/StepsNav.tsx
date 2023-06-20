@@ -1,10 +1,8 @@
 "use client";
 import * as React from "react";
-import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import { Steps } from "~/components/ui/Steps";
 import { Users, Settings, ListChecks, FileText } from "lucide-react";
-import { absoluteUrl } from "~/lib/utils";
 
 type StepItem = {
   name: string;
@@ -18,7 +16,7 @@ export function StepsNav() {
   const path = usePathname();
   const params = useParams();
 
-  function getStepPath(step: StepItem, assessmentId?: string | string[]) {
+  function _getStepPath(step: StepItem, assessmentId?: string | string[]) {
     let path = `/assessments/add`;
     if (assessmentId) {
       path += `/${assessmentId}/${step.name}`;

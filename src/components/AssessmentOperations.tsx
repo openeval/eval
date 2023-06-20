@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "~/hooks/use-toast";
-import { Assessment } from "@prisma/client";
+import { type Assessment } from "@prisma/client";
 
 import { CircleEllipsis, Trash, Loader2 as SpinnerIcon } from "lucide-react";
 

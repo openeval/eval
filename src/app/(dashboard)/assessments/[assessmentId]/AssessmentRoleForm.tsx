@@ -102,7 +102,7 @@ export function AssessmentRoleForm({
                       autoFocus
                       id="description"
                       placeholder="description"
-                      className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent py-2 px-3 focus:outline-none "
+                      className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent px-3 py-2 focus:outline-none "
                       {...field}
                     />
                   </FormControl>

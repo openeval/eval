@@ -9,12 +9,11 @@ import {
 } from "~/dto/CreateAssessmentDto";
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import type { Assessment, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 import { AssessmentStatus } from "@prisma/client";
 import {
   UpdateAssessmentDto,
-  type UpdateAssessmentDtoType,
 } from "~/dto/UpdateAssessmentDto";
 
 // action should be imported in server components and use prop drilling

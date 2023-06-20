@@ -1,15 +1,12 @@
 import { notFound } from "next/navigation";
 import { prisma } from "~/server/db";
 import { AssessmentSettingsForm } from "./AssessmentSettingsForm";
-import slugify from "slugify";
-import { absoluteUrl } from "~/lib/utils";
 import { updateAssessment } from "../../actions";
 
 type AssessmentDetailPageProps = {
   params: { assessmentId: string };
 };
 
-import { CopyButton } from "~/components/ui/CopyButton";
 
 async function fetchAssessment(id: string) {
   const assessment = await prisma.assessment.findFirst({ where: { id } });

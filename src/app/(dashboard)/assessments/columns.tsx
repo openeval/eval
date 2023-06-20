@@ -3,14 +3,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "~/components/ui/Badge";
-import { Checkbox } from "~/components/ui/Checkbox";
 import { formatDate } from "~/lib/utils";
 import Link from "next/link";
 import type { AssessmentSchema } from "prisma/zod";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Switch } from "~/components/ui/Switch";
-import z from "zoid";
+import type z from "zoid";
 
 export type Item = z.infer<
   typeof AssessmentSchema & { _count: { candidates: string } }

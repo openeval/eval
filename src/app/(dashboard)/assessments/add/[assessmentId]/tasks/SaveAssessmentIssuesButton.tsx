@@ -2,18 +2,10 @@
 
 import { Button } from "~/components/ui/Button";
 import { toast } from "~/hooks/use-toast";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCallback, useState, type KeyboardEvent } from "react";
-import { type Assessment } from "@prisma/client";
+import { useSearchParams, useRouter } from "next/navigation";
 import { siteConfig } from "~/config/site";
-import { z } from "zod";
 import * as React from "react";
-import { Prisma } from "@prisma/client";
-const assessmentSchema = z.object({
-  ghSearchQuery: z.string(),
-});
-
-type FormData = z.infer<typeof assessmentSchema>;
+import { type Prisma } from "@prisma/client";
 
 interface SaveAssessmentIssuesButton {
   assessmentId?: string;

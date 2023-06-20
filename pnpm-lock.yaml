@@ -41,6 +41,7 @@ specifiers:
   eslint-config-next: ^13.4.6
   eslint-config-prettier: ^8.8.0
   eslint-plugin-tailwindcss: ^3.12.1
+  eslint-plugin-unused-imports: ^2.0.0
   lucide-react: ^0.240.0
   next: 13.4.6
   next-auth: ^4.22.1
@@ -135,6 +136,7 @@ devDependencies:
   eslint-config-next: 13.4.6_2jcgcerbs6bi4debdtwega5q6u
   eslint-config-prettier: 8.8.0_eslint@8.43.0
   eslint-plugin-tailwindcss: 3.12.1_tailwindcss@3.3.2
+  eslint-plugin-unused-imports: 2.0.0_kkryebam4ctnq2swecv7fy3c6e
   postcss: 8.4.24
   prettier: 2.8.8
   prettier-plugin-tailwindcss: 0.3.0_prettier@2.8.8
@@ -3399,6 +3401,26 @@ packages:
       fast-glob: 3.2.12
       postcss: 8.4.24
       tailwindcss: 3.3.2
+    dev: true
+
+  /eslint-plugin-unused-imports/2.0.0_kkryebam4ctnq2swecv7fy3c6e:
+    resolution: {integrity: sha512-3APeS/tQlTrFa167ThtP0Zm0vctjr4M44HMpeg1P4bK6wItarumq0Ma82xorMKdFsWpphQBlRPzw/pxiVELX1A==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': ^5.0.0
+      eslint: ^8.0.0
+    peerDependenciesMeta:
+      '@typescript-eslint/eslint-plugin':
+        optional: true
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 5.60.0_55md6ifl6r4bw33evi7aj5t6pi
+      eslint: 8.43.0
+      eslint-rule-composer: 0.3.0
+    dev: true
+
+  /eslint-rule-composer/0.3.0:
+    resolution: {integrity: sha512-bt+Sh8CtDmn2OajxvNO+BX7Wn4CIWMpTRm3MaiKPCQcnnlm0CS2mhui6QaoeQugs+3Kj2ESKEEGJUdVafwhiCg==}
+    engines: {node: '>=4.0.0'}
     dev: true
 
   /eslint-scope/5.1.1:

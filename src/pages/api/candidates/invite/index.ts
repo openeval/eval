@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { prisma } from "~/server/db";
-import { Prisma, CandidateStatus } from "@prisma/client";
+import { CandidateStatus } from "@prisma/client";
 import slugify from "slugify";
 import { z } from "zod";
 import { transporter } from "~/server/mailer";

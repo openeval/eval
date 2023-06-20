@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { prisma } from "~/server/db";
+import { Prisma } from "@prisma/client";
 
 import { z } from "zod";
 
@@ -29,9 +30,10 @@ export default async function handle(
         ...req.body,
       });
 
-      const candidate = await prisma.candidate.findFirst({
+      await prisma.assessmentSession.findFirstOrThrow({
         where: {
-          email: user.email as string,
+          id: data.sessionId,
+          candidate: { id: user.id },
         },
       });
 
@@ -49,6 +51,11 @@ export default async function handle(
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
       }
+
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return res.status(400).json({ message: "bad request" });
+      }
+
       return res.status(500).end();
     }
   }

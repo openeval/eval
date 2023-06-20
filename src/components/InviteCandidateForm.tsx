@@ -1,9 +1,7 @@
-"use client";
-
 import * as React from "react";
 import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "~/lib/utils";
 
@@ -15,7 +13,7 @@ import { Card } from "~/components/ui/Card";
 interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
   assessmentId: string;
-  onSuccess: Function;
+  onSuccess: () => void;
 }
 
 const invitationSchema = z.object({
@@ -30,12 +28,10 @@ export function InviteCandidateForm({
   assessmentId,
   className,
   onSuccess,
-  ...props
 }: InviteCandidateFormProps) {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(invitationSchema),

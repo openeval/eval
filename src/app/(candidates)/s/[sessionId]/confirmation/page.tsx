@@ -16,7 +16,7 @@ const getAssessmentSessionById = cache(async (id: string) => {
 });
 
 export default async function Page({ params }: PageProps) {
-  const user = await getCurrentUser();
+  const _user = await getCurrentUser();
 
   const session = await getAssessmentSessionById(params.sessionId);
 
