@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { type VariantProps, cva } from "class-variance-authority";
-import { Github, Loader2 as SpinnerIcon } from "lucide-react";
+import { Loader2 as SpinnerIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 const buttonVariants = cva(
