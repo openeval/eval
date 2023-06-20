@@ -31,7 +31,8 @@ type CandidateDetailPageProps = {
 export default async function CandidateDetailPage({
   params,
 }: CandidateDetailPageProps) {
-  const user = await getCurrentUser();
+  const _user = await getCurrentUser();
+  
   const candidate = await getCandidate(params.candidateId, params.assessmentId);
 
   const queryString = `created:${format(

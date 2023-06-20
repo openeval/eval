@@ -6,7 +6,7 @@ import { cache } from "react";
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { searchIssues } from "~/server/github";
 import { Separator } from "~/components/ui/Separator";
-import SaveAssessmentIssuesButton from "~/components/SaveAssessmentIssuesButton";
+import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
 const getIssues = cache(
   async (querySearch?: { [key: string]: string | string[] | undefined }) => {
     return await searchIssues({ querySearch: querySearch?.q });

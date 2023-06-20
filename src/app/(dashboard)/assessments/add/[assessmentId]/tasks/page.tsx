@@ -26,7 +26,7 @@ export default async function TaskPage({
     redirect("/login");
   }
 
-  // const issues = await getIssues(searchParams);
+  const _issues = await getIssues(searchParams);
   return (
     <div>
       <div className="mb-8 flex justify-between px-2">
