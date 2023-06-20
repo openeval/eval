@@ -41,5 +41,4 @@
     }
   ],
   "plugins": ["tailwindcss","@typescript-eslint","unused-imports"]
-
 }

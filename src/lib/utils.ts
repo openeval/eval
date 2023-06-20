@@ -4,7 +4,6 @@ import { twMerge } from "tailwind-merge";
 import { env } from "~/env.mjs";
 
 export function cn(...inputs: ClassValue[]): string {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
   return twMerge(clsx(inputs));
 }
 
