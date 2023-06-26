@@ -11,7 +11,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { type User } from "@prisma/client";
-
+import { inviteEmailProvider } from "./invite";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -115,7 +115,15 @@ export const authOptions: NextAuthOptions = {
       },
       from: env.SMTP_FROM,
     }),
+    inviteEmailProvider,
   ],
+  // TODO: set the correct theme from tailwind
+  theme: {
+    colorScheme: "auto",
+    logo: "",
+    brandColor: "f2f2f2f2",
+    buttonText: "f2f2f2f2",
+  },
 };
 
 /**
