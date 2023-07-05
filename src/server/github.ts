@@ -47,4 +47,7 @@ export async function getProfile(userId: string): Promise<Profile> {
   return response?.data;
 }
 
+export async function getInstallations() {
+  return await octokit.request("GET /installation/repositories", {});
+}
 export { octokit, searchIssues };

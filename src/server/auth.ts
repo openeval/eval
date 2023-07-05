@@ -10,7 +10,7 @@ import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-import { type User } from "@prisma/client";
+import { type User, type UserType } from "@prisma/client";
 import { inviteEmailProvider } from "./invite";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -36,6 +36,7 @@ declare module "next-auth/jwt" {
     name: string | null;
     email: string | null;
     activeOrgId: string | null;
+    type: UserType;
     completedOnboarding: boolean;
   }
 }
@@ -67,6 +68,7 @@ export const authOptions: NextAuthOptions = {
         name: dbUser.name,
         email: dbUser.email,
         activeOrgId: dbUser.activeOrgId,
+        type: dbUser.type,
         completedOnboarding: dbUser.completedOnboarding,
       };
     },
@@ -76,6 +78,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.activeOrgId = token.activeOrgId;
+        session.user.type = token.type;
         session.user.completedOnboarding = token.completedOnboarding;
       }
       return session;
@@ -89,6 +92,17 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
     newUser: "/onboarding",
+  },
+  events: {
+    async createUser(message) {
+      /* user created */
+    },
+    async updateUser(message) {
+      /* user updated - e.g. their email was verified */
+    },
+    async linkAccount(message) {
+      /* account (e.g. Twitter) linked to a user */
+    },
   },
   providers: [
     /**

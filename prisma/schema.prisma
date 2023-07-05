@@ -73,7 +73,7 @@ model User {
   sessions            Session[]
   createdAssessments  Assessment[]
   memberships         Membership[]
-  type                UserType?     @map("type")
+  type                UserType?     @map("type") //TODO: we are not discriminating by type yet
   candidate           Candidate?
   activeOrgId         String?       @db.Uuid
   activeOrg           Organization? @relation(fields: [activeOrgId], references: [id])
@@ -132,6 +132,7 @@ model Membership {
 enum CandidateStatus {
   PENDING
   ACCEPTED
+  VERIFIED
   ARCHIVED
 }
 

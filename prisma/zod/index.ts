@@ -44,7 +44,7 @@ export const MembershipRoleSchema = z.enum(['MEMBER','HIRING_MANAGER','RECRUITER
 
 export type MembershipRoleType = `${z.infer<typeof MembershipRoleSchema>}`
 
-export const CandidateStatusSchema = z.enum(['PENDING','ACCEPTED','ARCHIVED']);
+export const CandidateStatusSchema = z.enum(['PENDING','ACCEPTED','VERIFIED','ARCHIVED']);
 
 export type CandidateStatusType = `${z.infer<typeof CandidateStatusSchema>}`
 

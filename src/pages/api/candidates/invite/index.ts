@@ -42,6 +42,7 @@ export default async function handle(
         data.email
       );
 
+      console.log(invitedCandidate);
       if (invitedCandidate) {
         throw new ApiError(
           ERROR_CODES.BAD_REQUEST,
@@ -64,7 +65,7 @@ export default async function handle(
       });
 
       // TODO: create a better template
-      await sendInvitationEmail("idhard@gmail.com", assessment);
+      await sendInvitationEmail(data.email, assessment);
 
       return res.status(200).json(response);
     } catch (error) {

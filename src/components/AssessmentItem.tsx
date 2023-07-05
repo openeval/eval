@@ -27,7 +27,6 @@ export function AssessmentItem({ assessment }: AssessmentItemProps) {
           </p>
         </div>
       </div>
-      <div>{assessment.candidates.length} Candidates</div>
       <AssessmentOperations
         assessment={{ id: assessment.id, title: assessment.title }}
       />

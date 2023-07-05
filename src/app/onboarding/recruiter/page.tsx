@@ -1,8 +1,10 @@
+import { CreateOrganizationForm } from "~/components/CreateOrganizationForm";
+
 import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { UserTypeForm } from "./UserTypeForm";
-import { updateUserType } from "./actions";
+import { env } from "~/env.mjs";
+
 //we get callback,  can we pass params ?
 export default async function Onboarding() {
   const user = await getCurrentUser();
@@ -18,9 +20,12 @@ export default async function Onboarding() {
   //is a candidate comming from an assessment
   const onboadingFlow = cookieStore.get("onboardingFlow");
 
+  if (onboadingFlow) {
+  }
+
   return (
     <div>
-      <UserTypeForm action={updateUserType} />
+      <CreateOrganizationForm />
     </div>
   );
 }
