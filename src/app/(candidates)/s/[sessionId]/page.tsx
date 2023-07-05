@@ -9,7 +9,7 @@ interface PageProps {
 }
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { Separator } from "~/components/ui/Separator";
-import { Typografy } from "~/components/ui/Typography";
+import { Typography } from "~/components/ui/Typography";
 const getAssessmentSessionById = cache(async (id: string) => {
   return await prisma.assessmentSession.findFirst({
     where: {
@@ -54,36 +54,36 @@ export default async function Page({ params }: PageProps) {
     <div>
       <div className="flex justify-between">
         <div className="grid gap-1">
-          <Typografy variant="h1">{session.assessment.title}</Typografy>
-          <Typografy variant="small">closes at 21/02/2022</Typografy>
+          <Typography variant="h1">{session.assessment.title}</Typography>
+          <Typography variant="small">closes at 21/02/2022</Typography>
         </div>
         <FinishAssessmentSessionButton sessionId={params.sessionId} />
       </div>
 
-      <Typografy variant="p">
+      <Typography variant="p">
         To qualify for the role , make an open source contribution to any of the
         issues listed below. we will collect your contributions and send it to
         the recruiter when you submit your assessment
-      </Typografy>
+      </Typography>
 
-      <Typografy variant={"h3"}>Requirements</Typografy>
-      <Typografy variant={"ul"}>
+      <Typography variant={"h3"}>Requirements</Typography>
+      <Typography variant={"ul"}>
         <li>One pull request</li>
-      </Typografy>
+      </Typography>
       <Separator className="my-4" />
 
-      <Typografy variant={"h3"}>Issues</Typografy>
+      <Typography variant={"h3"}>Issues</Typography>
       <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
         {issues.map((item) => (
           <OpenTaskItem key={item.id} item={item} />
         ))}
       </div>
 
-      <Typografy variant={"h3"}>Contributions</Typografy>
-      <Typografy variant={"p"}>
+      <Typography variant={"h3"}>Contributions</Typography>
+      <Typography variant={"p"}>
         Here is the list of open contribution. We only track pull requests for
         the related repositories{" "}
-      </Typografy>
+      </Typography>
       <div className="mt-8 divide-y divide-neutral-200 rounded-md border border-slate-200">
         {contributions.map((item) => (
           <OpenTaskItem key={item.id} item={item} />

@@ -5,7 +5,6 @@ import { X } from "lucide-react";
 
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
-import { DataTableViewOptions } from "~/components/ui/data-table-view-options";
 import { AssessmentStatus } from "@prisma/client";
 
 import { DataTableFacetedFilter } from "~/components/ui/data-table-faceted-filter";

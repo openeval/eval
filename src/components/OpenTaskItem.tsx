@@ -55,7 +55,7 @@ export function OpenTaskItem({ item }: OpenTaskItemProps) {
         </div>
       </div>
 
-      <div className="no-wrap col-span-2 hidden justify-between pt-2 pr-3 text-right text-zinc-400 sm:flex">
+      <div className="no-wrap col-span-2 hidden justify-between pr-3 pt-2 text-right text-zinc-400 sm:flex">
         <span className="ml-2 flex cursor-pointer font-medium hover:text-sky-500">
           {item.linkedPR ? (
             <>

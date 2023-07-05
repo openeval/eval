@@ -8,7 +8,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol"]
+  previewFeatures = ["jsonProtocol", "extendedWhereUnique"]
 }
 
 //  generate zod schemas by model
@@ -145,6 +145,7 @@ model Candidate {
   assessments        Assessment[]
   // assessmentId       String?             @map("assessment_id") @db.Uuid
   name               String
+  status             CandidateStatus     @default(PENDING) @map("status")
   lastName           String              @map("last_name")
   email              String              @unique
   createdAt          DateTime            @default(now()) @map("created_at")

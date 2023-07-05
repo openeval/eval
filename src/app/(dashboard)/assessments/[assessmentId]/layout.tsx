@@ -1,6 +1,6 @@
 import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
-import { Typografy } from "~/components/ui/Typography";
+import { Typography } from "~/components/ui/Typography";
 import { ChevronRight } from "lucide-react";
 import { AssessmentNav } from "~/components/AssessmentNav";
 import Link from "next/link";
@@ -44,9 +44,9 @@ export default async function Layout({
         </div>
       </div>
       <div className="mb-8">
-        <Typografy variant={"h1"} className="mb-8">
+        <Typography variant={"h1"} className="mb-8">
           {assessment.title}
-        </Typografy>
+        </Typography>
         <AssessmentNav assessmentId={assessment.id} />
       </div>
       {children}

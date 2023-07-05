@@ -20,11 +20,13 @@ const Header = async () => {
           </Link>
         </div>
 
-        <div className="flex flex-1 items-center justify-end space-x-2 sm:space-x-4">
-          <div className="w-auto ">
-            <UserAccountNav user={user} />
+        {user && (
+          <div className="flex flex-1 items-center justify-end space-x-2 sm:space-x-4">
+            <div className="w-auto ">
+              <UserAccountNav user={user} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

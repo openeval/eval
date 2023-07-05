@@ -21,7 +21,6 @@ const server = z.object({
   // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
-  NEXT_PUBLIC_APP_URL: z.string().min(1),
   SMTP_HOST: z.string().min(1),
   SMTP_PORT: z.string().min(1),
   SMTP_USER: z.string().min(1),
@@ -35,7 +34,7 @@ const server = z.object({
  * built with invalid env vars. To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 const client = z.object({
-  // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
+  NEXT_PUBLIC_APP_URL: z.string().min(1),
 });
 
 /**
@@ -58,7 +57,6 @@ const processEnv = {
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   SMTP_FROM: process.env.SMTP_FROM,
   GITHUB_API_AUTH_TOKEN: process.env.GITHUB_API_AUTH_TOKEN,
-  // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 
 // Don't touch the part below

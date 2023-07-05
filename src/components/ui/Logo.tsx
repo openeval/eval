@@ -7,7 +7,8 @@ interface LogoProps {
 export function Logo({ className, ...props }: LogoProps) {
   return (
     <Image
-      src="logo.svg"
+      {...props}
+      src="/logo.svg"
       alt="logo"
       className={cn(className)}
       priority

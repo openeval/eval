@@ -3,7 +3,7 @@ import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "~/server/auth";
 import Markdown from "~/components/Markdown";
-import { Typografy } from "~/components/ui/Typography";
+import { Typography } from "~/components/ui/Typography";
 interface PageProps {
   params: { assessmentId: string };
 }
@@ -28,9 +28,9 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div>
-      <Typografy className="mb-4" variant="h1">
+      <Typography className="mb-4" variant="h1">
         {assessment.title}
-      </Typografy>
+      </Typography>
       <div className="pb-12">
         <div className="prose pb-8">
           <Markdown content={assessment.description} />

@@ -14,14 +14,13 @@ import type { Prisma } from "@prisma/client";
 import { AssessmentStatus } from "@prisma/client";
 import {
   UpdateAssessmentDto,
-  type UpdateAssessmentDtoType,
 } from "~/dto/UpdateAssessmentDto";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export async function createAssessment(req: CreateAssessmentDtoType) {
+export async function createAssessment(data: CreateAssessmentDtoType) {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -33,11 +32,11 @@ export async function createAssessment(req: CreateAssessmentDtoType) {
   const { user } = session;
 
   try {
-    const data = CreateAssessmentDto.parse({
-      ...req,
+    CreateAssessmentDto.parse({
+      ...data,
     });
 
-    await prisma.assessment.create({
+    const assessment = await prisma.assessment.create({
       data: {
         ...data,
         status: AssessmentStatus.DRAFT,
@@ -46,6 +45,8 @@ export async function createAssessment(req: CreateAssessmentDtoType) {
         createdBy: { connect: { id: user.id } },
       },
     });
+
+    return assessment;
   } catch (error) {
     // TODO : how to capture errors in server actions (no documented)
 
@@ -73,7 +74,7 @@ export async function updateAssessment(
     });
 
     await prisma.assessment.update({
-      where,
+      where: { ...where, createdById: session.user.id },
       data,
     });
 

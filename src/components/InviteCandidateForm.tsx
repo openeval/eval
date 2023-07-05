@@ -1,55 +1,46 @@
-"use client";
-
 import * as React from "react";
 import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import { cn } from "~/lib/utils";
 
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
-import { Textarea } from "~/components/ui/Textarea";
-import { type Assessment } from "@prisma/client";
 import { Card } from "~/components/ui/Card";
-import { Switch } from "~/components/ui/Switch";
 
 interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  assessment: { title: string; description: string };
-  assessmentId?: string;
+  assessmentId: string;
+  onSuccess: () => void;
 }
 
-const assessmentSchema = z.object({
+const invitationSchema = z.object({
   name: z.string(),
   lastName: z.string(),
   email: z.string().email(),
 });
 
-type FormData = z.infer<typeof assessmentSchema>;
+type FormData = z.infer<typeof invitationSchema>;
 
 export function InviteCandidateForm({
   assessmentId,
   className,
-  onSubmit,
-  ...props
+  onSuccess,
 }: InviteCandidateFormProps) {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(assessmentSchema),
+    resolver: zodResolver(invitationSchema),
   });
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const router = useRouter();
 
   async function onHandleSubmit(data: FormData) {
     setIsLoading(true);
-    // Mutate external data source
+
     const response = await fetch(`/api/candidates/invite`, {
       method: "POST",
       headers: {
@@ -61,13 +52,11 @@ export function InviteCandidateForm({
     setIsLoading(false);
 
     if (response.ok) {
-      const assessment = await response.json();
-      router.refresh();
-      router.push(`/assessments`);
+      onSuccess && onSuccess();
     } else {
       return toast({
         title: "Something went wrong.",
-        description: "Your post was not created. Please try again.",
+        description: "Please try again.",
         variant: "destructive",
       });
     }
@@ -78,10 +67,6 @@ export function InviteCandidateForm({
         <Card>
           <Card.Header>
             <Card.Title>Invite</Card.Title>
-            {/* <Card.Description>
-              Please enter your full name or a display name you are comfortable
-              with.
-            </Card.Description> */}
           </Card.Header>
           <Card.Content className="grid gap-4">
             <div className="grid gap-1">

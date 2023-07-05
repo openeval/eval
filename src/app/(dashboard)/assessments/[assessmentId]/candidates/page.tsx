@@ -1,7 +1,7 @@
 import { Users } from "lucide-react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import prisma from "~/server/db";
-import { type Candidate, type User } from "@prisma/client";
+import { type Candidate } from "@prisma/client";
 import { CandidateItem } from "~/components/CandidateItem";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 

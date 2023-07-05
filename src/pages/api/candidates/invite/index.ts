@@ -2,17 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { prisma } from "~/server/db";
-import { Prisma } from "@prisma/client";
-import slugify from "slugify";
 import { z } from "zod";
-import { transporter } from "~/server/mailer";
 import { InviteCandidateSchema } from "~/dto/InviteCandidateDto";
-import {
-  AssessmentCreateInputSchema,
-  AssessmentUpdateInputSchema,
-  CandidateCreateInputSchema,
-} from "prisma/zod";
+import { findInvitedCandidate } from "~/server/repositories/Candidates";
+import { ApiError, ERROR_CODES } from "~/server/error";
+import sendInvitationEmail from "~/server/invite";
 
+// TODO: move to nextjs actions
 export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
@@ -35,8 +31,26 @@ export default async function handle(
 
       const { assessmentId, ...data } = body;
 
+      const assessment = await prisma.assessment.findFirstOrThrow({
+        where: { id: assessmentId },
+      });
+
+      // check if users has active assessment sessions
+      const invitedCandidate = await findInvitedCandidate(
+        user,
+        assessmentId,
+        data.email
+      );
+
+      if (invitedCandidate) {
+        throw new ApiError(
+          ERROR_CODES.BAD_REQUEST,
+          "Candidate already invited"
+        );
+      }
+
       response = await prisma.candidate.upsert({
-        where: { email: data.email },
+        where: { email: data.email, organizationId: user.activeOrgId },
         update: {
           // we make sure if the candidate exist to invite it to the assessment
           assessments: { connect: { id: assessmentId } },
@@ -49,12 +63,8 @@ export default async function handle(
         },
       });
 
-      // await transporter.sendMail({
-      //   to: response.email, // list of receivers
-      //   subject: "Hello ✔", // Subject line
-      //   text: "You have a new invitation to an assessment", // plain text body
-      //   html: "<b>Hello world?</b>", // html body
-      // });
+      // TODO: create a better template
+      await sendInvitationEmail("idhard@gmail.com", assessment);
 
       return res.status(200).json(response);
     } catch (error) {
@@ -62,6 +72,12 @@ export default async function handle(
 
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
+      }
+
+      if (error instanceof ApiError) {
+        return res
+          .status(error.statusCode)
+          .json({ code: error.statusCode, message: error.message });
       }
       return res.status(500).end();
     }

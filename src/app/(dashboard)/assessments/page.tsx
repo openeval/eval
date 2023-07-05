@@ -9,7 +9,6 @@ import { buttonVariants } from "~/components/ui/Button";
 import { cache } from "react";
 import prisma from "~/server/db";
 import { type User } from "@prisma/client";
-import { AssessmentItem } from "~/components/AssessmentItem";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "~/components/ui/Input";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useCallback, useState, type KeyboardEvent } from "react";
+import { useCallback, useState } from "react";
 
 export default function SearchIssuesBar() {
   const router = useRouter();
@@ -23,23 +23,20 @@ export default function SearchIssuesBar() {
     [searchParams]
   );
 
-  const [searchQuery, setSearchQuery] = useState(q || "");
+  const [searchQuery, setSearchQuery] = useState<string>(q || "");
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      router.push(pathname + "?" + createQueryString("q", event.target.value));
+      router.push(`${pathname}?${createQueryString("q", event.target.value)}`);
     }
   };
 
   return (
     <div className="flex flex-row">
-      {/* <Button className="border-lightgray bg-dark flex  items-center rounded-l-md border border-r-0 px-4 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-        Filters <ChevronDown className="ml-1 mt-px h-4 w-4" />
-      </Button> */}
       <label className="relative w-full">
         <span className="sr-only">Search</span>
         <span className="absolute inset-y-0 left-0 flex items-center px-2">
