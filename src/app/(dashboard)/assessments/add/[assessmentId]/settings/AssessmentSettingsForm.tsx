@@ -17,7 +17,13 @@ import {
 import { Button } from "~/components/ui/Button";
 
 import { AssessmentStatus, type Assessment } from "@prisma/client";
-import { Card } from "~/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/Card";
 import { Switch } from "~/components/ui/Switch";
 import { useRouter } from "next/navigation";
 import {
@@ -63,7 +69,6 @@ export function AssessmentSettingsForm({
   async function onSubmit(data: FormData) {
     const payload = { ...data, status: AssessmentStatus.ACTIVE };
 
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         await props.action({ id: props.assessment.id }, payload);
@@ -89,10 +94,10 @@ export function AssessmentSettingsForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card>
-            <Card.Header>
-              <Card.Title>Settings</Card.Title>
-            </Card.Header>
-            <Card.Content className="grid gap-4">
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
               <FormField
                 control={form.control}
                 name="published"
@@ -142,12 +147,12 @@ export function AssessmentSettingsForm({
                   </FormItem>
                 )}
               />
-            </Card.Content>
-            <Card.Footer>
-              <Button type="submit" isLoading={isLoading}>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" disabled={isLoading}>
                 Next Step
               </Button>
-            </Card.Footer>
+            </CardFooter>
           </Card>
         </form>
       </Form>

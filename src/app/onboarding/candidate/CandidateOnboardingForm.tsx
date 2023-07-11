@@ -4,8 +4,7 @@ import * as React from "react";
 import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { cn } from "~/lib/utils";
+import type Prisma from "@prisma/client";
 import {
   Card,
   CardContent,
@@ -25,12 +24,10 @@ import {
 } from "~/components/ui/Form";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
-import { Label } from "~/components/ui/Label";
-import { type Prisma } from "@prisma/client";
 import { z } from "zod";
 type CandidateOnboardingFormProps = {
   onSuccess: () => void;
-  className?: string;
+  action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
 };
 
 const candidateSchema = z.object({
@@ -41,48 +38,34 @@ const candidateSchema = z.object({
 type FormData = z.infer<typeof candidateSchema>;
 
 export function CandidateOnboardingForm({
-  className,
   ...props
 }: CandidateOnboardingFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(candidateSchema),
-    // values: { type: "candidate" },
   });
 
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const router = useRouter();
+  const [isLoading, startActionTransition] = React.useTransition();
+
   async function onSubmit(data: FormData) {
-    setIsLoading(true);
-    props.onSuccess();
-    // // Mutate external data source
-    // const response = await fetch(`/api/org`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-
-    // if (response.ok) {
-    //   // This forces a cache invalidation.
-    //   router.refresh();
-
-    //   router.push("/assessments");
-    // } else {
-    //   toast({
-    //     title: "Something went wrong.",
-    //     description: "Your request failed. Please try again.",
-    //     variant: "destructive",
-    //   });
-    // }
-
-    setIsLoading(false);
+    startActionTransition(async () => {
+      try {
+        await props.action(data);
+        props.onSuccess();
+      } catch (e) {
+        // TODO: how to handle errors in with server actions
+        toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    });
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="mx-auto max-w-md">
+        <Card>
           <CardHeader>
             <CardTitle>My profile</CardTitle>
             <CardDescription>what is your main profession</CardDescription>
@@ -93,7 +76,7 @@ export function CandidateOnboardingForm({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel> Name</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Jonh" {...field} />
                   </FormControl>
@@ -109,7 +92,7 @@ export function CandidateOnboardingForm({
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel> Name</FormLabel>
+                  <FormLabel>Last name</FormLabel>
                   <FormControl>
                     <Input placeholder="Doeh" {...field} />
                   </FormControl>
@@ -122,7 +105,7 @@ export function CandidateOnboardingForm({
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full" isLoading={isLoading}>
+            <Button className="w-full" disabled={isLoading}>
               Continue
             </Button>
           </CardFooter>

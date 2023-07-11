@@ -39,3 +39,11 @@ export async function linkInvitedUser(
     },
   });
 }
+
+export async function update(where, data) {
+  return await prisma.candidate.update({ where, data });
+}
+
+export async function create(data) {
+  return await prisma.candidate.create({ data });
+}

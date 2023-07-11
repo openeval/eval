@@ -12,7 +12,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     // TODO: augmentate createUser instead of replace it
     authOptions.events = {
       ...authOptions.events,
-      async createUser(message) {
+      async signIn(message) {
         const { user } = message;
         if (assessmentId) {
           await linkInvitedUser(user, assessmentId as string);

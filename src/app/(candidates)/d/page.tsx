@@ -3,9 +3,6 @@ import { redirect } from "next/navigation";
 import { Separator } from "~/components/ui/Separator";
 import { GitBranch } from "lucide-react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
-import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/Button";
 import { cache } from "react";
 import prisma from "~/server/db";
 import { type User } from "@prisma/client";
@@ -60,16 +57,13 @@ export default async function AssessmentsPage() {
       {!assessments.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
-          <EmptyPlaceholder.Title> No assessments added</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title>
+            {" "}
+            You have no assessments yet
+          </EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
-            Get started by creating a new one.
+            Get started by applying to a new one.
           </EmptyPlaceholder.Description>
-          <Link
-            href={"/assessments/add"}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            Add Candidate
-          </Link>
         </EmptyPlaceholder>
       )}
     </>

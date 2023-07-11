@@ -1,8 +1,4 @@
 import { Separator } from "~/components/ui/Separator";
-import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/Button";
-
 import { AssessmentItem } from "~/components/AssessmentItem";
 
 // careful loading is used everywhere here :)
@@ -15,12 +11,6 @@ export default function DashboardLoading() {
             Assessments
           </h1>
         </div>
-        <Link
-          href={"/assessments/add"}
-          className={cn(buttonVariants({ variant: "default" }))}
-        >
-          Add Assessment
-        </Link>
       </div>
 
       <Separator className="my-4" />

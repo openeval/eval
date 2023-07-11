@@ -23,6 +23,7 @@ import {
   FormItem,
   FormMessage,
 } from "~/components/ui/Form";
+import { UserType } from "@prisma/client";
 
 const userTypeSchema = z.object({
   type: z.string(),
@@ -31,16 +32,16 @@ const userTypeSchema = z.object({
 type FormData = z.infer<typeof userTypeSchema>;
 
 type UserTypeFormProps = {
-  action : () => void;
-}
+  action: (data) => Promise<unknown>;
+};
 
-export function UserTypeForm({ action }) {
+export function UserTypeForm({ action }: UserTypeFormProps) {
   const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(userTypeSchema),
     defaultValues: {
-      type: "candidate",
+      type: UserType.CANDIDATE,
     },
     // values: { type: "candidate" },
   });
@@ -55,8 +56,8 @@ export function UserTypeForm({ action }) {
           description: "account updated",
         });
 
-        // router.refresh();
-        router.push(`/onboarding/${data.type}`);
+        await action(data);
+        router.push(`/onboarding/${data.type.toLowerCase()}`);
 
         // router go to next step "tasks", i need the id :)
       } catch (e) {
@@ -96,7 +97,7 @@ export function UserTypeForm({ action }) {
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                         >
                           <RadioGroupItem
-                            value="candidate"
+                            value={UserType.CANDIDATE}
                             id="candidate"
                             className="sr-only"
                           />
@@ -107,7 +108,7 @@ export function UserTypeForm({ action }) {
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                         >
                           <RadioGroupItem
-                            value="recruiter"
+                            value={UserType.RECRUITER}
                             id="recruiter"
                             className="sr-only"
                           />
@@ -122,7 +123,7 @@ export function UserTypeForm({ action }) {
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full" isLoading={isLoading}>
+            <Button className="w-full" disabled={isLoading}>
               Continue
             </Button>
           </CardFooter>

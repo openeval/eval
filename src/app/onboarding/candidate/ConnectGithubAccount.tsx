@@ -2,17 +2,13 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/Card";
 import { Github } from "lucide-react";
-import Link from "next/link";
-import { buttonVariants } from "~/components/ui/Button";
-import { env } from "~/env.mjs";
-
-import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/Button";
+import { signIn } from "next-auth/react";
 
 export function ConnectGithubAccount() {
   return (
@@ -25,19 +21,22 @@ export function ConnectGithubAccount() {
         we use Github to track and follow your assessments progress we only read
         information from your contributions to public repositories.
       </CardContent>
-      <CardFooter>
-        <Link
-          href={`https://github.com/login/oauth/authorize?client_id=${env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID}`}
-          passHref
+      <CardFooter className="flex flex-col gap-4">
+        <Button
+          className="w-full"
+          onClick={() => {
+            // setIsGitHubLoading(true);
+            void signIn("github", {
+              redirect: false,
+              callbackUrl: "/onboarding/candidate?step=success",
+            });
+          }}
         >
-          <button
-            type="button"
-            className={cn(buttonVariants({ variant: "outline" }))}
-          >
-            <Github className="mr-2 h-4 w-4" />
-            Github
-          </button>
-        </Link>
+          <Github className="mr-2 h-4 w-4" />
+          Github
+        </Button>
+
+        <Button variant="ghost">Skip</Button>
       </CardFooter>
     </Card>
   );

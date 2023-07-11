@@ -12,6 +12,8 @@ import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { type User, type UserType } from "@prisma/client";
 import { inviteEmailProvider } from "./invite";
+import { update as updateCandidate } from "~/server/repositories/Candidates";
+import { CandidateStatus } from "@prisma/client";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -49,7 +51,7 @@ declare module "next-auth/jwt" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     // this function is called before session callback
-    async jwt({ token, user }) {
+    jwt: async ({ token, user }) => {
       const dbUser = await prisma.user.findFirst({
         where: {
           email: token.email,
@@ -58,29 +60,29 @@ export const authOptions: NextAuthOptions = {
 
       if (!dbUser) {
         if (user) {
-          token.id = user?.id;
+          token.user = user;
         }
         return token;
       }
 
       return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        activeOrgId: dbUser.activeOrgId,
-        type: dbUser.type,
-        completedOnboarding: dbUser.completedOnboarding,
+        ...token,
+        user: {
+          id: dbUser.id,
+          name: dbUser.name,
+          email: dbUser.email,
+          activeOrgId: dbUser.activeOrgId,
+          type: dbUser.type,
+          completedOnboarding: dbUser.completedOnboarding,
+        },
       };
     },
-    session({ token, session }): Session {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.activeOrgId = token.activeOrgId;
-        session.user.type = token.type;
-        session.user.completedOnboarding = token.completedOnboarding;
-      }
+    session: async ({ session, token }) => {
+      session.user = {
+        ...session.user,
+        // @ts-expect-error session type
+        id: token.sub,
+      };
       return session;
     },
   },
@@ -100,8 +102,17 @@ export const authOptions: NextAuthOptions = {
     async updateUser(message) {
       /* user updated - e.g. their email was verified */
     },
-    async linkAccount(message) {
-      /* account (e.g. Twitter) linked to a user */
+    async linkAccount({ account, user, profile }) {
+      if (account.provider === "github") {
+        // candidates need to link their github account to verify their profiles
+        // this happens when a candidate is invited (created by organization) and
+        // when the candidate is created in the onboarding process
+        await updateCandidate(
+          { userId: user.id },
+          //@ts-expect-error defined profile
+          { status: CandidateStatus.VERIFIED, ghUsername: profile.gh_username }
+        );
+      }
     },
   },
   providers: [
@@ -117,6 +128,16 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
+      profile(profile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name || profile.login,
+          gh_username: profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+        };
+      },
+      // allowDangerousEmailAccountLinking: true,
     }),
     EmailProvider({
       server: {
