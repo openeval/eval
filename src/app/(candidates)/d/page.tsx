@@ -6,7 +6,7 @@ import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { cache } from "react";
 import prisma from "~/server/db";
 import { type User } from "@prisma/client";
-import { AssessmentItem } from "~/components/AssessmentItem";
+import { AssessmentItem } from "./AssessmentItem";
 
 export const metadata = {
   title: "Assessments",
@@ -14,9 +14,12 @@ export const metadata = {
 
 const getAssessments = cache(async (userId: User["id"]) => {
   // TODO: set correct assessments
-  return await prisma.assessment.findMany({
+  return await prisma.candidate.findFirstOrThrow({
     where: {
-      createdById: userId,
+      userId: userId,
+    },
+    select: {
+      assessments: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -31,7 +34,7 @@ export default async function AssessmentsPage() {
     redirect("/login");
   }
 
-  const assessments = await getAssessments(user.id);
+  const { assessments } = await getAssessments(user.id);
 
   return (
     <>
@@ -62,7 +65,7 @@ export default async function AssessmentsPage() {
             You have no assessments yet
           </EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
-            Get started by applying to a new one.
+            Your invitations will appear here.
           </EmptyPlaceholder.Description>
         </EmptyPlaceholder>
       )}

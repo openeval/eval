@@ -9,8 +9,12 @@ import {
 import { Github } from "lucide-react";
 import { Button } from "~/components/ui/Button";
 import { signIn } from "next-auth/react";
-
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 export function ConnectGithubAccount() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get("callbackUrl");
+
   return (
     <Card>
       <CardHeader>
@@ -25,18 +29,20 @@ export function ConnectGithubAccount() {
         <Button
           className="w-full"
           onClick={() => {
-            // setIsGitHubLoading(true);
             void signIn("github", {
               redirect: false,
-              callbackUrl: "/onboarding/candidate?step=success",
+              callbackUrl: callbackUrl || "/onboarding/candidate?step=success",
             });
           }}
         >
           <Github className="mr-2 h-4 w-4" />
           Github
         </Button>
-
-        <Button variant="ghost">Skip</Button>
+        <Button asChild className="w-full" variant="ghost">
+          <Link href={callbackUrl || "/onboarding/candidate?step=success"}>
+            Skip
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   );

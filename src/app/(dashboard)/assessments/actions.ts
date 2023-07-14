@@ -12,9 +12,7 @@ import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 
 import { AssessmentStatus } from "@prisma/client";
-import {
-  UpdateAssessmentDto,
-} from "~/dto/UpdateAssessmentDto";
+import { UpdateAssessmentDto } from "~/dto/UpdateAssessmentDto";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
@@ -30,7 +28,6 @@ export async function createAssessment(data: CreateAssessmentDtoType) {
   }
 
   const { user } = session;
-
   try {
     CreateAssessmentDto.parse({
       ...data,

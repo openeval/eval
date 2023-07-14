@@ -42,7 +42,7 @@ interface AssessmentSettingsFormProps
   assessment: Partial<Assessment>;
   action: (
     where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput
+    data: Prisma.AssessmentUpdateInput,
   ) => Promise<unknown>;
 }
 
@@ -134,10 +134,10 @@ export function AssessmentSettingsForm({
                         <SelectValue placeholder="Select a period" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ONE_DAY">1 day</SelectItem>
-                        <SelectItem value="ONE_WEEK">1 week</SelectItem>
-                        <SelectItem value="TWO_WEEK">2 weeks</SelectItem>
-                        <SelectItem value="ONE_MONTH">1 month</SelectItem>
+                        <SelectItem value="1">1 day</SelectItem>
+                        <SelectItem value="7">1 week</SelectItem>
+                        <SelectItem value="14">2 weeks</SelectItem>
+                        <SelectItem value="30">1 month</SelectItem>
                       </SelectContent>
                     </Select>
 

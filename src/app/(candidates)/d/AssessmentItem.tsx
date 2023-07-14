@@ -6,9 +6,7 @@ import { AssessmentOperations } from "./AssessmentOperations";
 import { Skeleton } from "~/components/ui/Skeleton";
 
 interface AssessmentItemProps {
-  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt"> & {
-    candidates: [Candidate];
-  };
+  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt">;
 }
 
 export function AssessmentItem({ assessment }: AssessmentItemProps) {

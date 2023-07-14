@@ -1,18 +1,12 @@
 import "~/styles/globals.css";
 import Header from "~/components/Header";
 import { SideNav } from "~/components/SideNav";
-import { siteConfig } from "~/config/site";
 
 const sidebarNav = [
   {
     title: "Assessments",
-    href: "/assessments",
+    href: "/d",
     icon: "FileBadge",
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: "Settings",
   },
 ];
 

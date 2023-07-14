@@ -17,20 +17,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/AlertDialog";
+import type { AssessmentSession } from "@prisma/client";
 
 interface StartAssessmentButtonProps {
   assessmentId: string;
   user?: User;
   className?: string;
+  action: (data) => Promise<AssessmentSession>;
 }
 // add alert to start
 export default function StartAssessmentButton({
   user,
   assessmentId,
   className,
+  action,
 }: StartAssessmentButtonProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const router = useRouter();
+  const [isLoading, startActionTransition] = React.useTransition();
 
   const handleStart = async () => {
     await signIn("github", {
@@ -42,36 +45,21 @@ export default function StartAssessmentButton({
   const onStartSession = async () => {
     //given the current user
     // create an assessment session
-    // linke the user to the candidate linked to its email if exist
-    // otherwise create a new candidate
-    setIsLoading(true);
+    startActionTransition(async () => {
+      try {
+        const session = await action(assessmentId);
 
-    const data = { assessmentId };
-    // Mutate external data source
-    const response = await fetch(`/api/startAssessmentSession`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+        // router.refresh();
+        router.push(`/s/${session.id}`);
+      } catch (e) {
+        // TODO: how to handle errors in with server actions
+        toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
     });
-
-    if (response.ok) {
-      // This forces a cache invalidation.
-      router.refresh();
-
-      const session = await response.json();
-
-      router.push(`/s/${session.id}`);
-    } else {
-      toast({
-        title: "Something went wrong.",
-        description: "Your request failed. Please try again.",
-        variant: "destructive",
-      });
-    }
-
-    setIsLoading(false);
   };
 
   if (!user) {

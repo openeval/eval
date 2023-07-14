@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { type Candidate } from "@prisma/client";
+import { type AssessmentSession, type Candidate } from "@prisma/client";
 
 import { formatDate } from "~/lib/utils";
 import { CandidateOperations } from "~/components/CandidateOperations";
@@ -9,7 +9,7 @@ interface CandidateItemProps {
   candidate: Pick<
     Candidate,
     "id" | "name" | "lastName" | "email" | "createdAt"
-  >;
+  > & { assessmentSessions?: AssessmentSession[] };
   assessmentId?: string;
 }
 
@@ -36,10 +36,13 @@ export function CandidateItem({ candidate, assessmentId }: CandidateItemProps) {
           </p>
         </div>
       </div>
+      {candidate.assessmentSessions && (
+        <div>{candidate.assessmentSessions[0].status}</div>
+      )}
+
       <CandidateOperations
         candidate={{ id: candidate.id, name: candidate.name }}
       />
-      {/* <CandidateDeleteButton Candidate={{ id: Candidate.id, name: Candidate.name }} /> */}
     </div>
   );
 }

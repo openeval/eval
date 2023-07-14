@@ -3,7 +3,6 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
-  type Session,
 } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import EmailProvider from "next-auth/providers/email";
@@ -81,6 +80,7 @@ export const authOptions: NextAuthOptions = {
       session.user = {
         ...session.user,
         // @ts-expect-error session type
+        ...token.user,
         id: token.sub,
       };
       return session;

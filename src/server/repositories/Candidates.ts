@@ -4,7 +4,7 @@ import { CandidateStatus, type User } from "@prisma/client";
 export async function findInvitedCandidate(
   user: User,
   assessmentId: string,
-  email: string
+  email: string,
 ) {
   return await prisma.candidate.findFirst({
     where: {
@@ -22,7 +22,7 @@ export async function findInvitedCandidate(
 
 export async function linkInvitedUser(
   user: Partial<User>,
-  assessmentId: string
+  assessmentId: string,
 ) {
   return await prisma.candidate.updateMany({
     where: {
@@ -46,4 +46,12 @@ export async function update(where, data) {
 
 export async function create(data) {
   return await prisma.candidate.create({ data });
+}
+
+export async function findCandidateByUserId(userId) {
+  return await prisma.candidate.findFirst({
+    where: {
+      userId,
+    },
+  });
 }

@@ -6,13 +6,19 @@ import { CandidateItem } from "~/components/CandidateItem";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 
 const getCandidates = async (
-  assessmentId: string
+  assessmentId: string,
 ): Promise<Candidate[] | null> => {
   const data = await prisma.assessment.findFirst({
     where: {
       id: assessmentId,
     },
-    include: { candidates: true },
+    include: {
+      candidates: {
+        include: {
+          assessmentSessions: { where: { assessmentId } },
+        },
+      },
+    },
     orderBy: {
       updatedAt: "desc",
     },

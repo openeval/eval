@@ -6,11 +6,9 @@ import { Prisma } from "@prisma/client";
 
 import { z } from "zod";
 
-import { AssessmentUpdateInputSchema } from "prisma/zod";
-
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   let response, data;
 
@@ -54,32 +52,6 @@ export default async function handle(
     } catch (error) {
       console.error(error);
 
-      if (error instanceof z.ZodError) {
-        return res.status(422).json(error.issues);
-      }
-      return res.status(500).end();
-    }
-  }
-
-  // TODO: handle the update of a session, what are the cases  ?
-  if (req.method === "PUT") {
-    try {
-      data = AssessmentUpdateInputSchema.parse(req.body);
-
-      response = await prisma.assessment.update({
-        where: { id: data.id as string },
-        data,
-      });
-
-      return res.status(200).json(response);
-    } catch (error) {
-      console.error(error);
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2025"
-      ) {
-        return res.status(404).json({ message: "Entity not found" });
-      }
       if (error instanceof z.ZodError) {
         return res.status(422).json(error.issues);
       }

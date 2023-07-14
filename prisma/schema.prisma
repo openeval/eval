@@ -186,7 +186,7 @@ model Assessment {
   candidates         Candidate[]
   applicantSessions  AssessmentSession[]
   ghIssuesQuerySeach String?             @map("gh_issues_query_seach")
-  evaluationPeriod   String?             @map("evaluation_period")
+  evaluationPeriod   Int                 @default(1) @map("evaluation_period")
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
   published          Boolean             @default(false)

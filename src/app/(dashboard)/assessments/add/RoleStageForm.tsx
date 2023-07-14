@@ -44,7 +44,6 @@ export function RoleStageForm({
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         const assessment: Assessment = (await props.action(data)) as Assessment;
@@ -113,7 +112,7 @@ export function RoleStageForm({
             />
 
             <div className="flex ">
-              <Button type="submit" isLoading={isLoading}>
+              <Button type="submit" disabled={isLoading}>
                 Next step
               </Button>
             </div>
