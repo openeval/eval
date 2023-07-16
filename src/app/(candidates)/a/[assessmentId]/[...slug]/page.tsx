@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { getCurrentUser } from "~/server/auth";
 import Markdown from "~/components/Markdown";
 import { Typography } from "~/components/ui/Typography";
+import StartAssessmentButton from "~/components/StartAssessmentButton";
+import { startAssessmentSessionAction } from "./actions";
+
 interface PageProps {
   params: { assessmentId: string };
 }
-import StartAssessmentButton from "~/components/StartAssessmentButton";
 
 const getAssessmentById = cache(async (id: string) => {
   return await prisma.assessment.findFirst({
@@ -43,6 +45,7 @@ export default async function Page({ params }: PageProps) {
             <StartAssessmentButton
               assessmentId={params.assessmentId}
               user={user}
+              action={startAssessmentSessionAction}
             />
           </div>
         </div>

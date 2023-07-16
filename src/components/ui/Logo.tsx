@@ -8,7 +8,7 @@ export function Logo({ className, ...props }: LogoProps) {
   return (
     <Image
       {...props}
-      src="/logo.svg"
+      src="logo.svg"
       alt="logo"
       className={cn(className)}
       priority

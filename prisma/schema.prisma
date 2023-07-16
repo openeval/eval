@@ -67,13 +67,13 @@ model User {
   name                String?
   email               String?       @unique
   emailVerified       DateTime?     @map("email_verified")
-  completedOnboarding Boolean       @default(false)
+  completedOnboarding Boolean       @default(false) @map("completed_onboarding")
   image               String?
   accounts            Account[]
   sessions            Session[]
   createdAssessments  Assessment[]
   memberships         Membership[]
-  type                UserType?     @map("type")
+  type                UserType?     @map("type") //TODO: we are not discriminating by type yet
   candidate           Candidate?
   activeOrgId         String?       @db.Uuid
   activeOrg           Organization? @relation(fields: [activeOrgId], references: [id])
@@ -132,6 +132,7 @@ model Membership {
 enum CandidateStatus {
   PENDING
   ACCEPTED
+  VERIFIED
   ARCHIVED
 }
 
@@ -145,13 +146,14 @@ model Candidate {
   assessments        Assessment[]
   // assessmentId       String?             @map("assessment_id") @db.Uuid
   name               String
+  ghUsername         String?             @map("gh_username")
   status             CandidateStatus     @default(PENDING) @map("status")
   lastName           String              @map("last_name")
   email              String              @unique
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
-  createdBy          User                @relation("userCandidateCreated", fields: [createdById], references: [id])
-  createdById        String              @map("created_by_id") @db.Uuid
+  createdBy          User?               @relation("userCandidateCreated", fields: [createdById], references: [id])
+  createdById        String?             @map("created_by_id") @db.Uuid
 
   @@unique([id, email, organizationId])
   @@map("candidate")
@@ -183,8 +185,8 @@ model Assessment {
   organizationId     String              @map("organization_id") @db.Uuid
   candidates         Candidate[]
   applicantSessions  AssessmentSession[]
-  ghIssuesQuerySeach String?
-  evaluationPeriod   String?
+  ghIssuesQuerySeach String?             @map("gh_issues_query_seach")
+  evaluationPeriod   Int                 @default(1) @map("evaluation_period")
   createdAt          DateTime            @default(now()) @map("created_at")
   updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
   published          Boolean             @default(false)

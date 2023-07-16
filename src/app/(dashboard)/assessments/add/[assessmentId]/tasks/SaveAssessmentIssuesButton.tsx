@@ -27,7 +27,6 @@ export default function SaveAssessmentIssuesButton({
 
   const router = useRouter();
   async function onSubmit() {
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         await action({ id: assessmentId }, { ghIssuesQuerySeach: q });
@@ -49,7 +48,7 @@ export default function SaveAssessmentIssuesButton({
   }
 
   return (
-    <Button onClick={() => onSubmit()} isLoading={isLoading}>
+    <Button onClick={() => onSubmit()} disabled={isLoading}>
       Next
     </Button>
   );

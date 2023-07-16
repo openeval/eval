@@ -8,8 +8,13 @@ import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
-import { Card } from "~/components/ui/Card";
-
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/Card";
 interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
   assessmentId: string;
@@ -65,10 +70,10 @@ export function InviteCandidateForm({
     <div className={cn("mt-8 grid gap-6", className)}>
       <form onSubmit={handleSubmit(onHandleSubmit)}>
         <Card>
-          <Card.Header>
-            <Card.Title>Invite</Card.Title>
-          </Card.Header>
-          <Card.Content className="grid gap-4">
+          <CardHeader>
+            <CardTitle>Invite</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
             <div className="grid gap-1">
               <Label className="" htmlFor="name">
                 Name
@@ -102,12 +107,12 @@ export function InviteCandidateForm({
                 </p>
               )}
             </div>
-          </Card.Content>
-          <Card.Footer>
-            <Button type="submit" isLoading={isLoading}>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={isLoading}>
               Invite
             </Button>
-          </Card.Footer>
+          </CardFooter>
         </Card>
       </form>
     </div>

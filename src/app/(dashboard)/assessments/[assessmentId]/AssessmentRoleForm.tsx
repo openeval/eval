@@ -49,7 +49,6 @@ export function AssessmentRoleForm({
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         await props.action({ id: props.assessment.id }, data);

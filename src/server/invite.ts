@@ -189,7 +189,7 @@ export default async function sendInvitationEmail(
     callbackUrl,
     token,
     email: identifier,
-    assesmentId: assessment.id,
+    assessmentId: assessment.id,
   });
   const _url = `${url}/callback/${provider.id}?${params}`;
 

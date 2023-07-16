@@ -17,7 +17,13 @@ import {
 import { Button } from "~/components/ui/Button";
 
 import { type Assessment } from "@prisma/client";
-import { Card } from "~/components/ui/Card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/Card";
 import { Switch } from "~/components/ui/Switch";
 
 import {
@@ -36,7 +42,7 @@ interface AssessmentSettingsFormProps
   assessment: Partial<Assessment>;
   action: (
     where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput
+    data: Prisma.AssessmentUpdateInput,
   ) => Promise<unknown>;
 }
 
@@ -60,7 +66,6 @@ export function AssessmentSettingsForm({
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         await props.action({ id: props.assessment.id }, data);
@@ -85,10 +90,10 @@ export function AssessmentSettingsForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card>
-            <Card.Header>
-              <Card.Title>Settings</Card.Title>
-            </Card.Header>
-            <Card.Content className="grid gap-4">
+            <CardHeader>
+              <CardTitle>Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
               <FormField
                 control={form.control}
                 name="published"
@@ -125,10 +130,10 @@ export function AssessmentSettingsForm({
                         <SelectValue placeholder="Select a period" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ONE_DAY">1 day</SelectItem>
-                        <SelectItem value="ONE_WEEK">1 week</SelectItem>
-                        <SelectItem value="TWO_WEEK">2 weeks</SelectItem>
-                        <SelectItem value="ONE_MONTH">1 month</SelectItem>
+                        <SelectItem value="1">1 day</SelectItem>
+                        <SelectItem value="7">1 week</SelectItem>
+                        <SelectItem value="14">2 weeks</SelectItem>
+                        <SelectItem value="30">1 month</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -138,12 +143,12 @@ export function AssessmentSettingsForm({
                   </FormItem>
                 )}
               />
-            </Card.Content>
-            <Card.Footer>
-              <Button type="submit" isLoading={isLoading}>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" disabled={isLoading}>
                 Save
               </Button>
-            </Card.Footer>
+            </CardFooter>
           </Card>
         </form>
       </Form>

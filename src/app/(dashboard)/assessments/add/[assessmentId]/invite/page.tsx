@@ -56,7 +56,8 @@ export default async function AssessmentCandidatePage({
             <div className="mr-2">Public url</div>
             <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 px-2 dark:border-slate-700 dark:bg-black">
               <code className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-50">
-                {absoluteUrl("/")}a/{assessment.id}/{slugify(assessment.title)}
+                {absoluteUrl("/").toString()}a/{assessment.id}/
+                {slugify(assessment.title)}
               </code>
               <CopyButton
                 value={`${absoluteUrl("/")}a/${assessment.id}/

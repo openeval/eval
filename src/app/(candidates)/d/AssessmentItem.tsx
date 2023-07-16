@@ -2,13 +2,11 @@ import Link from "next/link";
 import { type Assessment, type Candidate } from "@prisma/client";
 
 import { formatDate } from "~/lib/utils";
-import { AssessmentOperations } from "~/components/AssessmentOperations";
+import { AssessmentOperations } from "./AssessmentOperations";
 import { Skeleton } from "~/components/ui/Skeleton";
 
 interface AssessmentItemProps {
-  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt"> & {
-    candidates: [Candidate];
-  };
+  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt">;
 }
 
 export function AssessmentItem({ assessment }: AssessmentItemProps) {
@@ -30,7 +28,6 @@ export function AssessmentItem({ assessment }: AssessmentItemProps) {
       <AssessmentOperations
         assessment={{ id: assessment.id, title: assessment.title }}
       />
-      {/* <assessmentDeleteButton assessment={{ id: assessment.id, title: assessment.title }} /> */}
     </div>
   );
 }
