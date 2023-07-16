@@ -1,14 +1,12 @@
 "use server";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
-import { revalidatePath } from "next/cache";
 import { add } from "date-fns";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as candidatesRepo from "~/server/repositories/Candidates";
-import { AssessmentStatus } from "@prisma/client";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
@@ -16,7 +14,6 @@ import { AssessmentStatus } from "@prisma/client";
 
 export async function startAssessmentSessionAction(assessmentId) {
   const session = await getServerSession(authOptions);
-  let response;
   // users shound't be able to execute an action without a session
   // this is a security prevention
   if (!session) {
@@ -29,7 +26,6 @@ export async function startAssessmentSessionAction(assessmentId) {
     const assessment = await assessmentsRepo.findOneById(assessmentId);
 
     const candidate = await candidatesRepo.findCandidateByUserId(user.id);
-    console.log(candidate);
     // what to do if candidate doesn't exist ?
 
     const session = await assessmentSessionsRepo.findActiveSession(
@@ -41,7 +37,7 @@ export async function startAssessmentSessionAction(assessmentId) {
       return { error: "candidate already started a session" };
     }
 
-    response = await assessmentSessionsRepo.create({
+    const response = await assessmentSessionsRepo.create({
       assessment: { connect: { id: assessmentId } },
       sessionToken: "TODO_SESSION_TOKEN",
       expiresAt: add(new Date(), { days: assessment.evaluationPeriod || 1 }),
@@ -53,8 +49,6 @@ export async function startAssessmentSessionAction(assessmentId) {
 
     return response;
   } catch (error) {
-    console.error(error);
-
     if (error instanceof z.ZodError) {
       return { error: error.issues };
     }

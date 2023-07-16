@@ -32,18 +32,22 @@ export default async function CandidateDetailPage({
   params,
 }: CandidateDetailPageProps) {
   const _user = await getCurrentUser();
-  
+
   const candidate = await getCandidate(params.candidateId, params.assessmentId);
 
   const queryString = `created:${format(
     new Date(candidate.assessmentSessions[0]?.startedAt),
-    "yyyy-MM-dd"
-  )}..${format(
-    new Date(candidate.assessmentSessions[0]?.finishedAt),
-    "yyyy-MM-dd"
-  )}`;
+    "yyyy-MM-dd",
+  )}${
+    candidate.assessmentSessions[0]?.finishedAt &&
+    ".." +
+      format(
+        new Date(candidate.assessmentSessions[0]?.finishedAt),
+        "yyyy-MM-dd",
+      )
+  }`;
   const githubUserId = candidate.user?.accounts.find(
-    (a) => a.provider === "github"
+    (a) => a.provider === "github",
   )?.providerAccountId;
   const ghProfile = await getProfile(githubUserId);
   console.log(ghProfile);
