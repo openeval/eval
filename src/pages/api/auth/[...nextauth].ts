@@ -4,6 +4,7 @@ import { linkInvitedUser } from "~/server/repositories/Candidates";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req);
   if (
     req.query.nextauth?.includes("inviteEmailProvider") &&
     req.method === "GET"

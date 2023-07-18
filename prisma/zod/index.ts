@@ -1,9 +1,47 @@
 import { z } from 'zod';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 /////////////////////////////////////////
 // HELPER FUNCTIONS
 /////////////////////////////////////////
+
+// JSON
+//------------------------------------------------------
+
+export type NullableJsonInput = Prisma.JsonValue | null | 'JsonNull' | 'DbNull' | Prisma.NullTypes.DbNull | Prisma.NullTypes.JsonNull;
+
+export const transformJsonNull = (v?: NullableJsonInput) => {
+  if (!v || v === 'DbNull') return Prisma.DbNull;
+  if (v === 'JsonNull') return Prisma.JsonNull;
+  return v;
+};
+
+export const JsonValue: z.ZodType<Prisma.JsonValue> = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.lazy(() => z.array(JsonValue)),
+  z.lazy(() => z.record(JsonValue)),
+]);
+
+export type JsonValueType = z.infer<typeof JsonValue>;
+
+export const NullableJsonValue = z
+  .union([JsonValue, z.literal('DbNull'), z.literal('JsonNull')])
+  .nullable()
+  .transform((v) => transformJsonNull(v));
+
+export type NullableJsonValueType = z.infer<typeof NullableJsonValue>;
+
+export const InputJsonValue: z.ZodType<Prisma.InputJsonValue> = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.lazy(() => z.array(InputJsonValue.nullable())),
+  z.lazy(() => z.record(InputJsonValue.nullable())),
+]);
+
+export type InputJsonValueType = z.infer<typeof InputJsonValue>;
 
 
 /////////////////////////////////////////
@@ -30,11 +68,19 @@ export const AssessmentScalarFieldEnumSchema = z.enum(['id','title','slug','desc
 
 export const AssessmentSessionScalarFieldEnumSchema = z.enum(['id','sessionToken','expiresAt','status','assessmentId','startedAt','finishedAt','candidateId']);
 
+export const SubmissionScalarFieldEnumSchema = z.enum(['id','status','createdAt','updatedAt','candidateId','assessmentSessionId','assessmentId']);
+
+export const ContributionScalarFieldEnumSchema = z.enum(['id','type','title','description','url','meta','submissionId','contributorId']);
+
 export const SortOrderSchema = z.enum(['asc','desc']);
+
+export const JsonNullValueInputSchema = z.enum(['JsonNull',]);
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const JsonNullValueFilterSchema = z.enum(['DbNull','JsonNull','AnyNull',]);
 
 export const UserTypeSchema = z.enum(['RECRUITER','CANDIDATE']);
 
@@ -59,6 +105,14 @@ export type VisibilityType = `${z.infer<typeof VisibilitySchema>}`
 export const AssessmentSessionStatusSchema = z.enum(['STARTED','FINISHED']);
 
 export type AssessmentSessionStatusType = `${z.infer<typeof AssessmentSessionStatusSchema>}`
+
+export const SubmissionStateSchema = z.enum(['COMPLETED','REVIEWING','APPROVED','REJECTED']);
+
+export type SubmissionStateType = `${z.infer<typeof SubmissionStateSchema>}`
+
+export const ContributionTypeSchema = z.enum(['PULL_REQUEST','COMMENT','ISSUE']);
+
+export type ContributionTypeType = `${z.infer<typeof ContributionTypeSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -215,6 +269,39 @@ export const AssessmentSessionSchema = z.object({
 })
 
 export type AssessmentSession = z.infer<typeof AssessmentSessionSchema>
+
+/////////////////////////////////////////
+// SUBMISSION SCHEMA
+/////////////////////////////////////////
+
+export const SubmissionSchema = z.object({
+  status: SubmissionStateSchema,
+  id: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  candidateId: z.string(),
+  assessmentSessionId: z.string(),
+  assessmentId: z.string(),
+})
+
+export type Submission = z.infer<typeof SubmissionSchema>
+
+/////////////////////////////////////////
+// CONTRIBUTION SCHEMA
+/////////////////////////////////////////
+
+export const ContributionSchema = z.object({
+  type: ContributionTypeSchema,
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: InputJsonValue,
+  submissionId: z.string().nullable(),
+  contributorId: z.string(),
+})
+
+export type Contribution = z.infer<typeof ContributionSchema>
 
 /////////////////////////////////////////
 // SELECT & INCLUDE
@@ -401,6 +488,8 @@ export const CandidateIncludeSchema: z.ZodType<Prisma.CandidateInclude> = z.obje
   organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
   assessments: z.union([z.boolean(),z.lazy(() => AssessmentFindManyArgsSchema)]).optional(),
   createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  contributions: z.union([z.boolean(),z.lazy(() => ContributionFindManyArgsSchema)]).optional(),
+  Submission: z.union([z.boolean(),z.lazy(() => SubmissionFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => CandidateCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -416,6 +505,8 @@ export const CandidateCountOutputTypeArgsSchema: z.ZodType<Prisma.CandidateCount
 export const CandidateCountOutputTypeSelectSchema: z.ZodType<Prisma.CandidateCountOutputTypeSelect> = z.object({
   assessmentSessions: z.boolean().optional(),
   assessments: z.boolean().optional(),
+  contributions: z.boolean().optional(),
+  Submission: z.boolean().optional(),
 }).strict();
 
 export const CandidateSelectSchema: z.ZodType<Prisma.CandidateSelect> = z.object({
@@ -435,6 +526,8 @@ export const CandidateSelectSchema: z.ZodType<Prisma.CandidateSelect> = z.object
   organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
   assessments: z.union([z.boolean(),z.lazy(() => AssessmentFindManyArgsSchema)]).optional(),
   createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  contributions: z.union([z.boolean(),z.lazy(() => ContributionFindManyArgsSchema)]).optional(),
+  Submission: z.union([z.boolean(),z.lazy(() => SubmissionFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => CandidateCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -446,6 +539,7 @@ export const AssessmentIncludeSchema: z.ZodType<Prisma.AssessmentInclude> = z.ob
   organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
   candidates: z.union([z.boolean(),z.lazy(() => CandidateFindManyArgsSchema)]).optional(),
   applicantSessions: z.union([z.boolean(),z.lazy(() => AssessmentSessionFindManyArgsSchema)]).optional(),
+  Submission: z.union([z.boolean(),z.lazy(() => SubmissionFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => AssessmentCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -461,6 +555,7 @@ export const AssessmentCountOutputTypeArgsSchema: z.ZodType<Prisma.AssessmentCou
 export const AssessmentCountOutputTypeSelectSchema: z.ZodType<Prisma.AssessmentCountOutputTypeSelect> = z.object({
   candidates: z.boolean().optional(),
   applicantSessions: z.boolean().optional(),
+  Submission: z.boolean().optional(),
 }).strict();
 
 export const AssessmentSelectSchema: z.ZodType<Prisma.AssessmentSelect> = z.object({
@@ -481,6 +576,7 @@ export const AssessmentSelectSchema: z.ZodType<Prisma.AssessmentSelect> = z.obje
   organization: z.union([z.boolean(),z.lazy(() => OrganizationArgsSchema)]).optional(),
   candidates: z.union([z.boolean(),z.lazy(() => CandidateFindManyArgsSchema)]).optional(),
   applicantSessions: z.union([z.boolean(),z.lazy(() => AssessmentSessionFindManyArgsSchema)]).optional(),
+  Submission: z.union([z.boolean(),z.lazy(() => SubmissionFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => AssessmentCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -490,11 +586,21 @@ export const AssessmentSelectSchema: z.ZodType<Prisma.AssessmentSelect> = z.obje
 export const AssessmentSessionIncludeSchema: z.ZodType<Prisma.AssessmentSessionInclude> = z.object({
   assessment: z.union([z.boolean(),z.lazy(() => AssessmentArgsSchema)]).optional(),
   candidate: z.union([z.boolean(),z.lazy(() => CandidateArgsSchema)]).optional(),
+  Submission: z.union([z.boolean(),z.lazy(() => SubmissionFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => AssessmentSessionCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
 export const AssessmentSessionArgsSchema: z.ZodType<Prisma.AssessmentSessionArgs> = z.object({
   select: z.lazy(() => AssessmentSessionSelectSchema).optional(),
   include: z.lazy(() => AssessmentSessionIncludeSchema).optional(),
+}).strict();
+
+export const AssessmentSessionCountOutputTypeArgsSchema: z.ZodType<Prisma.AssessmentSessionCountOutputTypeArgs> = z.object({
+  select: z.lazy(() => AssessmentSessionCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const AssessmentSessionCountOutputTypeSelectSchema: z.ZodType<Prisma.AssessmentSessionCountOutputTypeSelect> = z.object({
+  Submission: z.boolean().optional(),
 }).strict();
 
 export const AssessmentSessionSelectSchema: z.ZodType<Prisma.AssessmentSessionSelect> = z.object({
@@ -508,6 +614,73 @@ export const AssessmentSessionSelectSchema: z.ZodType<Prisma.AssessmentSessionSe
   candidateId: z.boolean().optional(),
   assessment: z.union([z.boolean(),z.lazy(() => AssessmentArgsSchema)]).optional(),
   candidate: z.union([z.boolean(),z.lazy(() => CandidateArgsSchema)]).optional(),
+  Submission: z.union([z.boolean(),z.lazy(() => SubmissionFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => AssessmentSessionCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// SUBMISSION
+//------------------------------------------------------
+
+export const SubmissionIncludeSchema: z.ZodType<Prisma.SubmissionInclude> = z.object({
+  contributions: z.union([z.boolean(),z.lazy(() => ContributionFindManyArgsSchema)]).optional(),
+  candidate: z.union([z.boolean(),z.lazy(() => CandidateArgsSchema)]).optional(),
+  session: z.union([z.boolean(),z.lazy(() => AssessmentSessionArgsSchema)]).optional(),
+  assessment: z.union([z.boolean(),z.lazy(() => AssessmentArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => SubmissionCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+export const SubmissionArgsSchema: z.ZodType<Prisma.SubmissionArgs> = z.object({
+  select: z.lazy(() => SubmissionSelectSchema).optional(),
+  include: z.lazy(() => SubmissionIncludeSchema).optional(),
+}).strict();
+
+export const SubmissionCountOutputTypeArgsSchema: z.ZodType<Prisma.SubmissionCountOutputTypeArgs> = z.object({
+  select: z.lazy(() => SubmissionCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const SubmissionCountOutputTypeSelectSchema: z.ZodType<Prisma.SubmissionCountOutputTypeSelect> = z.object({
+  contributions: z.boolean().optional(),
+}).strict();
+
+export const SubmissionSelectSchema: z.ZodType<Prisma.SubmissionSelect> = z.object({
+  id: z.boolean().optional(),
+  status: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  candidateId: z.boolean().optional(),
+  assessmentSessionId: z.boolean().optional(),
+  assessmentId: z.boolean().optional(),
+  contributions: z.union([z.boolean(),z.lazy(() => ContributionFindManyArgsSchema)]).optional(),
+  candidate: z.union([z.boolean(),z.lazy(() => CandidateArgsSchema)]).optional(),
+  session: z.union([z.boolean(),z.lazy(() => AssessmentSessionArgsSchema)]).optional(),
+  assessment: z.union([z.boolean(),z.lazy(() => AssessmentArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => SubmissionCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// CONTRIBUTION
+//------------------------------------------------------
+
+export const ContributionIncludeSchema: z.ZodType<Prisma.ContributionInclude> = z.object({
+  submission: z.union([z.boolean(),z.lazy(() => SubmissionArgsSchema)]).optional(),
+  contributor: z.union([z.boolean(),z.lazy(() => CandidateArgsSchema)]).optional(),
+}).strict()
+
+export const ContributionArgsSchema: z.ZodType<Prisma.ContributionArgs> = z.object({
+  select: z.lazy(() => ContributionSelectSchema).optional(),
+  include: z.lazy(() => ContributionIncludeSchema).optional(),
+}).strict();
+
+export const ContributionSelectSchema: z.ZodType<Prisma.ContributionSelect> = z.object({
+  id: z.boolean().optional(),
+  type: z.boolean().optional(),
+  title: z.boolean().optional(),
+  description: z.boolean().optional(),
+  url: z.boolean().optional(),
+  meta: z.boolean().optional(),
+  submissionId: z.boolean().optional(),
+  contributorId: z.boolean().optional(),
+  submission: z.union([z.boolean(),z.lazy(() => SubmissionArgsSchema)]).optional(),
+  contributor: z.union([z.boolean(),z.lazy(() => CandidateArgsSchema)]).optional(),
 }).strict()
 
 
@@ -1005,6 +1178,8 @@ export const CandidateWhereInputSchema: z.ZodType<Prisma.CandidateWhereInput> = 
   organization: z.union([ z.lazy(() => OrganizationRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional().nullable(),
   assessments: z.lazy(() => AssessmentListRelationFilterSchema).optional(),
   createdBy: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional().nullable(),
+  contributions: z.lazy(() => ContributionListRelationFilterSchema).optional(),
+  Submission: z.lazy(() => SubmissionListRelationFilterSchema).optional()
 }).strict();
 
 export const CandidateOrderByWithRelationInputSchema: z.ZodType<Prisma.CandidateOrderByWithRelationInput> = z.object({
@@ -1023,7 +1198,9 @@ export const CandidateOrderByWithRelationInputSchema: z.ZodType<Prisma.Candidate
   assessmentSessions: z.lazy(() => AssessmentSessionOrderByRelationAggregateInputSchema).optional(),
   organization: z.lazy(() => OrganizationOrderByWithRelationInputSchema).optional(),
   assessments: z.lazy(() => AssessmentOrderByRelationAggregateInputSchema).optional(),
-  createdBy: z.lazy(() => UserOrderByWithRelationInputSchema).optional()
+  createdBy: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  contributions: z.lazy(() => ContributionOrderByRelationAggregateInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
 export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUniqueInput> = z.union([
@@ -1111,6 +1288,8 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
   organization: z.union([ z.lazy(() => OrganizationRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional().nullable(),
   assessments: z.lazy(() => AssessmentListRelationFilterSchema).optional(),
   createdBy: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional().nullable(),
+  contributions: z.lazy(() => ContributionListRelationFilterSchema).optional(),
+  Submission: z.lazy(() => SubmissionListRelationFilterSchema).optional()
 }).strict());
 
 export const CandidateOrderByWithAggregationInputSchema: z.ZodType<Prisma.CandidateOrderByWithAggregationInput> = z.object({
@@ -1167,7 +1346,8 @@ export const AssessmentWhereInputSchema: z.ZodType<Prisma.AssessmentWhereInput> 
   createdBy: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
   organization: z.union([ z.lazy(() => OrganizationRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
   candidates: z.lazy(() => CandidateListRelationFilterSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionListRelationFilterSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionListRelationFilterSchema).optional(),
+  Submission: z.lazy(() => SubmissionListRelationFilterSchema).optional()
 }).strict();
 
 export const AssessmentOrderByWithRelationInputSchema: z.ZodType<Prisma.AssessmentOrderByWithRelationInput> = z.object({
@@ -1187,7 +1367,8 @@ export const AssessmentOrderByWithRelationInputSchema: z.ZodType<Prisma.Assessme
   createdBy: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   organization: z.lazy(() => OrganizationOrderByWithRelationInputSchema).optional(),
   candidates: z.lazy(() => CandidateOrderByRelationAggregateInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionOrderByRelationAggregateInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionOrderByRelationAggregateInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
 export const AssessmentWhereUniqueInputSchema: z.ZodType<Prisma.AssessmentWhereUniqueInput> = z.object({
@@ -1213,7 +1394,8 @@ export const AssessmentWhereUniqueInputSchema: z.ZodType<Prisma.AssessmentWhereU
   createdBy: z.union([ z.lazy(() => UserRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
   organization: z.union([ z.lazy(() => OrganizationRelationFilterSchema),z.lazy(() => OrganizationWhereInputSchema) ]).optional(),
   candidates: z.lazy(() => CandidateListRelationFilterSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionListRelationFilterSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionListRelationFilterSchema).optional(),
+  Submission: z.lazy(() => SubmissionListRelationFilterSchema).optional()
 }).strict());
 
 export const AssessmentOrderByWithAggregationInputSchema: z.ZodType<Prisma.AssessmentOrderByWithAggregationInput> = z.object({
@@ -1270,6 +1452,7 @@ export const AssessmentSessionWhereInputSchema: z.ZodType<Prisma.AssessmentSessi
   candidateId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
   assessment: z.union([ z.lazy(() => AssessmentRelationFilterSchema),z.lazy(() => AssessmentWhereInputSchema) ]).optional(),
   candidate: z.union([ z.lazy(() => CandidateRelationFilterSchema),z.lazy(() => CandidateWhereInputSchema) ]).optional(),
+  Submission: z.lazy(() => SubmissionListRelationFilterSchema).optional()
 }).strict();
 
 export const AssessmentSessionOrderByWithRelationInputSchema: z.ZodType<Prisma.AssessmentSessionOrderByWithRelationInput> = z.object({
@@ -1282,7 +1465,8 @@ export const AssessmentSessionOrderByWithRelationInputSchema: z.ZodType<Prisma.A
   finishedAt: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   candidateId: z.lazy(() => SortOrderSchema).optional(),
   assessment: z.lazy(() => AssessmentOrderByWithRelationInputSchema).optional(),
-  candidate: z.lazy(() => CandidateOrderByWithRelationInputSchema).optional()
+  candidate: z.lazy(() => CandidateOrderByWithRelationInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionWhereUniqueInputSchema: z.ZodType<Prisma.AssessmentSessionWhereUniqueInput> = z.union([
@@ -1311,6 +1495,7 @@ export const AssessmentSessionWhereUniqueInputSchema: z.ZodType<Prisma.Assessmen
   candidateId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
   assessment: z.union([ z.lazy(() => AssessmentRelationFilterSchema),z.lazy(() => AssessmentWhereInputSchema) ]).optional(),
   candidate: z.union([ z.lazy(() => CandidateRelationFilterSchema),z.lazy(() => CandidateWhereInputSchema) ]).optional(),
+  Submission: z.lazy(() => SubmissionListRelationFilterSchema).optional()
 }).strict());
 
 export const AssessmentSessionOrderByWithAggregationInputSchema: z.ZodType<Prisma.AssessmentSessionOrderByWithAggregationInput> = z.object({
@@ -1339,6 +1524,159 @@ export const AssessmentSessionScalarWhereWithAggregatesInputSchema: z.ZodType<Pr
   startedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   finishedAt: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
   candidateId: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const SubmissionWhereInputSchema: z.ZodType<Prisma.SubmissionWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => SubmissionWhereInputSchema),z.lazy(() => SubmissionWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => SubmissionWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => SubmissionWhereInputSchema),z.lazy(() => SubmissionWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  status: z.union([ z.lazy(() => EnumSubmissionStateFilterSchema),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  candidateId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  assessmentSessionId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  assessmentId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  contributions: z.lazy(() => ContributionListRelationFilterSchema).optional(),
+  candidate: z.union([ z.lazy(() => CandidateRelationFilterSchema),z.lazy(() => CandidateWhereInputSchema) ]).optional(),
+  session: z.union([ z.lazy(() => AssessmentSessionRelationFilterSchema),z.lazy(() => AssessmentSessionWhereInputSchema) ]).optional(),
+  assessment: z.union([ z.lazy(() => AssessmentRelationFilterSchema),z.lazy(() => AssessmentWhereInputSchema) ]).optional(),
+}).strict();
+
+export const SubmissionOrderByWithRelationInputSchema: z.ZodType<Prisma.SubmissionOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  candidateId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentSessionId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentId: z.lazy(() => SortOrderSchema).optional(),
+  contributions: z.lazy(() => ContributionOrderByRelationAggregateInputSchema).optional(),
+  candidate: z.lazy(() => CandidateOrderByWithRelationInputSchema).optional(),
+  session: z.lazy(() => AssessmentSessionOrderByWithRelationInputSchema).optional(),
+  assessment: z.lazy(() => AssessmentOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const SubmissionWhereUniqueInputSchema: z.ZodType<Prisma.SubmissionWhereUniqueInput> = z.object({
+  id: z.string()
+})
+.and(z.object({
+  id: z.string().optional(),
+  AND: z.union([ z.lazy(() => SubmissionWhereInputSchema),z.lazy(() => SubmissionWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => SubmissionWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => SubmissionWhereInputSchema),z.lazy(() => SubmissionWhereInputSchema).array() ]).optional(),
+  status: z.union([ z.lazy(() => EnumSubmissionStateFilterSchema),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  candidateId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  assessmentSessionId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  assessmentId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  contributions: z.lazy(() => ContributionListRelationFilterSchema).optional(),
+  candidate: z.union([ z.lazy(() => CandidateRelationFilterSchema),z.lazy(() => CandidateWhereInputSchema) ]).optional(),
+  session: z.union([ z.lazy(() => AssessmentSessionRelationFilterSchema),z.lazy(() => AssessmentSessionWhereInputSchema) ]).optional(),
+  assessment: z.union([ z.lazy(() => AssessmentRelationFilterSchema),z.lazy(() => AssessmentWhereInputSchema) ]).optional(),
+}).strict());
+
+export const SubmissionOrderByWithAggregationInputSchema: z.ZodType<Prisma.SubmissionOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  candidateId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentSessionId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentId: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => SubmissionCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => SubmissionMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => SubmissionMinOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const SubmissionScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.SubmissionScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => SubmissionScalarWhereWithAggregatesInputSchema),z.lazy(() => SubmissionScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => SubmissionScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => SubmissionScalarWhereWithAggregatesInputSchema),z.lazy(() => SubmissionScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
+  status: z.union([ z.lazy(() => EnumSubmissionStateWithAggregatesFilterSchema),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  candidateId: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
+  assessmentSessionId: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
+  assessmentId: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const ContributionWhereInputSchema: z.ZodType<Prisma.ContributionWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => ContributionWhereInputSchema),z.lazy(() => ContributionWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ContributionWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ContributionWhereInputSchema),z.lazy(() => ContributionWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumContributionTypeFilterSchema),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  meta: z.lazy(() => JsonFilterSchema).optional(),
+  submissionId: z.union([ z.lazy(() => UuidNullableFilterSchema),z.string() ]).optional().nullable(),
+  contributorId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  submission: z.union([ z.lazy(() => SubmissionRelationFilterSchema),z.lazy(() => SubmissionWhereInputSchema) ]).optional().nullable(),
+  contributor: z.union([ z.lazy(() => CandidateRelationFilterSchema),z.lazy(() => CandidateWhereInputSchema) ]).optional(),
+}).strict();
+
+export const ContributionOrderByWithRelationInputSchema: z.ZodType<Prisma.ContributionOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  url: z.lazy(() => SortOrderSchema).optional(),
+  meta: z.lazy(() => SortOrderSchema).optional(),
+  submissionId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  contributorId: z.lazy(() => SortOrderSchema).optional(),
+  submission: z.lazy(() => SubmissionOrderByWithRelationInputSchema).optional(),
+  contributor: z.lazy(() => CandidateOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const ContributionWhereUniqueInputSchema: z.ZodType<Prisma.ContributionWhereUniqueInput> = z.object({
+  id: z.string()
+})
+.and(z.object({
+  id: z.string().optional(),
+  AND: z.union([ z.lazy(() => ContributionWhereInputSchema),z.lazy(() => ContributionWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ContributionWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ContributionWhereInputSchema),z.lazy(() => ContributionWhereInputSchema).array() ]).optional(),
+  type: z.union([ z.lazy(() => EnumContributionTypeFilterSchema),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  meta: z.lazy(() => JsonFilterSchema).optional(),
+  submissionId: z.union([ z.lazy(() => UuidNullableFilterSchema),z.string() ]).optional().nullable(),
+  contributorId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  submission: z.union([ z.lazy(() => SubmissionRelationFilterSchema),z.lazy(() => SubmissionWhereInputSchema) ]).optional().nullable(),
+  contributor: z.union([ z.lazy(() => CandidateRelationFilterSchema),z.lazy(() => CandidateWhereInputSchema) ]).optional(),
+}).strict());
+
+export const ContributionOrderByWithAggregationInputSchema: z.ZodType<Prisma.ContributionOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  url: z.lazy(() => SortOrderSchema).optional(),
+  meta: z.lazy(() => SortOrderSchema).optional(),
+  submissionId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  contributorId: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => ContributionCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => ContributionMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => ContributionMinOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const ContributionScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.ContributionScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => ContributionScalarWhereWithAggregatesInputSchema),z.lazy(() => ContributionScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ContributionScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ContributionScalarWhereWithAggregatesInputSchema),z.lazy(() => ContributionScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumContributionTypeWithAggregatesFilterSchema),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  url: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  meta: z.lazy(() => JsonWithAggregatesFilterSchema).optional(),
+  submissionId: z.union([ z.lazy(() => UuidNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  contributorId: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
 }).strict();
 
 export const AccountCreateInputSchema: z.ZodType<Prisma.AccountCreateInput> = z.object({
@@ -1788,7 +2126,9 @@ export const CandidateCreateInputSchema: z.ZodType<Prisma.CandidateCreateInput> 
   assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
   assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
-  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional()
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedCreateInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateInput> = z.object({
@@ -1804,7 +2144,9 @@ export const CandidateUncheckedCreateInputSchema: z.ZodType<Prisma.CandidateUnch
   updatedAt: z.coerce.date().optional(),
   createdById: z.string().optional().nullable(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUpdateInputSchema: z.ZodType<Prisma.CandidateUpdateInput> = z.object({
@@ -1820,7 +2162,9 @@ export const CandidateUpdateInputSchema: z.ZodType<Prisma.CandidateUpdateInput> 
   assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
   assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
-  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional()
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateInput> = z.object({
@@ -1836,7 +2180,9 @@ export const CandidateUncheckedUpdateInputSchema: z.ZodType<Prisma.CandidateUnch
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateCreateManyInputSchema: z.ZodType<Prisma.CandidateCreateManyInput> = z.object({
@@ -1893,7 +2239,8 @@ export const AssessmentCreateInputSchema: z.ZodType<Prisma.AssessmentCreateInput
   createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedAssessmentsInputSchema),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutAssessmentsInputSchema),
   candidates: z.lazy(() => CandidateCreateNestedManyWithoutAssessmentsInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedCreateInputSchema: z.ZodType<Prisma.AssessmentUncheckedCreateInput> = z.object({
@@ -1911,7 +2258,8 @@ export const AssessmentUncheckedCreateInputSchema: z.ZodType<Prisma.AssessmentUn
   published: z.boolean().optional(),
   visibility: z.lazy(() => VisibilitySchema).optional(),
   candidates: z.lazy(() => CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentUpdateInputSchema: z.ZodType<Prisma.AssessmentUpdateInput> = z.object({
@@ -1929,7 +2277,8 @@ export const AssessmentUpdateInputSchema: z.ZodType<Prisma.AssessmentUpdateInput
   createdBy: z.lazy(() => UserUpdateOneRequiredWithoutCreatedAssessmentsNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAssessmentsNestedInputSchema).optional(),
   candidates: z.lazy(() => CandidateUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateInput> = z.object({
@@ -1947,7 +2296,8 @@ export const AssessmentUncheckedUpdateInputSchema: z.ZodType<Prisma.AssessmentUn
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   candidates: z.lazy(() => CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentCreateManyInputSchema: z.ZodType<Prisma.AssessmentCreateManyInput> = z.object({
@@ -2004,7 +2354,8 @@ export const AssessmentSessionCreateInputSchema: z.ZodType<Prisma.AssessmentSess
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional().nullable(),
   assessment: z.lazy(() => AssessmentCreateNestedOneWithoutApplicantSessionsInputSchema),
-  candidate: z.lazy(() => CandidateCreateNestedOneWithoutAssessmentSessionsInputSchema)
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutAssessmentSessionsInputSchema),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutSessionInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedCreateInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedCreateInput> = z.object({
@@ -2015,7 +2366,8 @@ export const AssessmentSessionUncheckedCreateInputSchema: z.ZodType<Prisma.Asses
   assessmentId: z.string(),
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional().nullable(),
-  candidateId: z.string()
+  candidateId: z.string(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutSessionInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUpdateInputSchema: z.ZodType<Prisma.AssessmentSessionUpdateInput> = z.object({
@@ -2026,7 +2378,8 @@ export const AssessmentSessionUpdateInputSchema: z.ZodType<Prisma.AssessmentSess
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutApplicantSessionsNestedInputSchema).optional(),
-  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchema).optional()
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutSessionNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedUpdateInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateInput> = z.object({
@@ -2038,6 +2391,7 @@ export const AssessmentSessionUncheckedUpdateInputSchema: z.ZodType<Prisma.Asses
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutSessionNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionCreateManyInputSchema: z.ZodType<Prisma.AssessmentSessionCreateManyInput> = z.object({
@@ -2069,6 +2423,152 @@ export const AssessmentSessionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.A
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const SubmissionCreateInputSchema: z.ZodType<Prisma.SubmissionCreateInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutSubmissionInputSchema).optional(),
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutSubmissionInputSchema),
+  session: z.lazy(() => AssessmentSessionCreateNestedOneWithoutSubmissionInputSchema),
+  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutSubmissionInputSchema)
+}).strict();
+
+export const SubmissionUncheckedCreateInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentSessionId: z.string(),
+  assessmentId: z.string(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutSubmissionInputSchema).optional()
+}).strict();
+
+export const SubmissionUpdateInputSchema: z.ZodType<Prisma.SubmissionUpdateInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutSubmissionNestedInputSchema).optional(),
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  session: z.lazy(() => AssessmentSessionUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUncheckedUpdateInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentSessionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateManyInputSchema: z.ZodType<Prisma.SubmissionCreateManyInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentSessionId: z.string(),
+  assessmentId: z.string()
+}).strict();
+
+export const SubmissionUpdateManyMutationInputSchema: z.ZodType<Prisma.SubmissionUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const SubmissionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentSessionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const ContributionCreateInputSchema: z.ZodType<Prisma.ContributionCreateInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  submission: z.lazy(() => SubmissionCreateNestedOneWithoutContributionsInputSchema).optional(),
+  contributor: z.lazy(() => CandidateCreateNestedOneWithoutContributionsInputSchema)
+}).strict();
+
+export const ContributionUncheckedCreateInputSchema: z.ZodType<Prisma.ContributionUncheckedCreateInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  submissionId: z.string().optional().nullable(),
+  contributorId: z.string()
+}).strict();
+
+export const ContributionUpdateInputSchema: z.ZodType<Prisma.ContributionUpdateInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  submission: z.lazy(() => SubmissionUpdateOneWithoutContributionsNestedInputSchema).optional(),
+  contributor: z.lazy(() => CandidateUpdateOneRequiredWithoutContributionsNestedInputSchema).optional()
+}).strict();
+
+export const ContributionUncheckedUpdateInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contributorId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const ContributionCreateManyInputSchema: z.ZodType<Prisma.ContributionCreateManyInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  submissionId: z.string().optional().nullable(),
+  contributorId: z.string()
+}).strict();
+
+export const ContributionUpdateManyMutationInputSchema: z.ZodType<Prisma.ContributionUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+}).strict();
+
+export const ContributionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contributorId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const UuidFilterSchema: z.ZodType<Prisma.UuidFilter> = z.object({
@@ -2602,7 +3102,27 @@ export const AssessmentSessionListRelationFilterSchema: z.ZodType<Prisma.Assessm
   none: z.lazy(() => AssessmentSessionWhereInputSchema).optional()
 }).strict();
 
+export const ContributionListRelationFilterSchema: z.ZodType<Prisma.ContributionListRelationFilter> = z.object({
+  every: z.lazy(() => ContributionWhereInputSchema).optional(),
+  some: z.lazy(() => ContributionWhereInputSchema).optional(),
+  none: z.lazy(() => ContributionWhereInputSchema).optional()
+}).strict();
+
+export const SubmissionListRelationFilterSchema: z.ZodType<Prisma.SubmissionListRelationFilter> = z.object({
+  every: z.lazy(() => SubmissionWhereInputSchema).optional(),
+  some: z.lazy(() => SubmissionWhereInputSchema).optional(),
+  none: z.lazy(() => SubmissionWhereInputSchema).optional()
+}).strict();
+
 export const AssessmentSessionOrderByRelationAggregateInputSchema: z.ZodType<Prisma.AssessmentSessionOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ContributionOrderByRelationAggregateInputSchema: z.ZodType<Prisma.ContributionOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const SubmissionOrderByRelationAggregateInputSchema: z.ZodType<Prisma.SubmissionOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
@@ -2834,6 +3354,146 @@ export const EnumAssessmentSessionStatusWithAggregatesFilterSchema: z.ZodType<Pr
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema).optional()
+}).strict();
+
+export const EnumSubmissionStateFilterSchema: z.ZodType<Prisma.EnumSubmissionStateFilter> = z.object({
+  equals: z.lazy(() => SubmissionStateSchema).optional(),
+  in: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  not: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => NestedEnumSubmissionStateFilterSchema) ]).optional(),
+}).strict();
+
+export const AssessmentSessionRelationFilterSchema: z.ZodType<Prisma.AssessmentSessionRelationFilter> = z.object({
+  is: z.lazy(() => AssessmentSessionWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => AssessmentSessionWhereInputSchema).optional().nullable()
+}).strict();
+
+export const SubmissionCountOrderByAggregateInputSchema: z.ZodType<Prisma.SubmissionCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  candidateId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentSessionId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const SubmissionMaxOrderByAggregateInputSchema: z.ZodType<Prisma.SubmissionMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  candidateId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentSessionId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const SubmissionMinOrderByAggregateInputSchema: z.ZodType<Prisma.SubmissionMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  candidateId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentSessionId: z.lazy(() => SortOrderSchema).optional(),
+  assessmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const EnumSubmissionStateWithAggregatesFilterSchema: z.ZodType<Prisma.EnumSubmissionStateWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => SubmissionStateSchema).optional(),
+  in: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  not: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => NestedEnumSubmissionStateWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumSubmissionStateFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumSubmissionStateFilterSchema).optional()
+}).strict();
+
+export const EnumContributionTypeFilterSchema: z.ZodType<Prisma.EnumContributionTypeFilter> = z.object({
+  equals: z.lazy(() => ContributionTypeSchema).optional(),
+  in: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  not: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => NestedEnumContributionTypeFilterSchema) ]).optional(),
+}).strict();
+
+export const JsonFilterSchema: z.ZodType<Prisma.JsonFilter> = z.object({
+  equals: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
+  path: z.string().array().optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_contains: InputJsonValue.optional().nullable(),
+  array_starts_with: InputJsonValue.optional().nullable(),
+  array_ends_with: InputJsonValue.optional().nullable(),
+  lt: InputJsonValue.optional(),
+  lte: InputJsonValue.optional(),
+  gt: InputJsonValue.optional(),
+  gte: InputJsonValue.optional(),
+  not: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
+}).strict();
+
+export const SubmissionRelationFilterSchema: z.ZodType<Prisma.SubmissionRelationFilter> = z.object({
+  is: z.lazy(() => SubmissionWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => SubmissionWhereInputSchema).optional().nullable()
+}).strict();
+
+export const ContributionCountOrderByAggregateInputSchema: z.ZodType<Prisma.ContributionCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  url: z.lazy(() => SortOrderSchema).optional(),
+  meta: z.lazy(() => SortOrderSchema).optional(),
+  submissionId: z.lazy(() => SortOrderSchema).optional(),
+  contributorId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ContributionMaxOrderByAggregateInputSchema: z.ZodType<Prisma.ContributionMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  url: z.lazy(() => SortOrderSchema).optional(),
+  submissionId: z.lazy(() => SortOrderSchema).optional(),
+  contributorId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const ContributionMinOrderByAggregateInputSchema: z.ZodType<Prisma.ContributionMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  url: z.lazy(() => SortOrderSchema).optional(),
+  submissionId: z.lazy(() => SortOrderSchema).optional(),
+  contributorId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const EnumContributionTypeWithAggregatesFilterSchema: z.ZodType<Prisma.EnumContributionTypeWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => ContributionTypeSchema).optional(),
+  in: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  not: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => NestedEnumContributionTypeWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumContributionTypeFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumContributionTypeFilterSchema).optional()
+}).strict();
+
+export const JsonWithAggregatesFilterSchema: z.ZodType<Prisma.JsonWithAggregatesFilter> = z.object({
+  equals: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
+  path: z.string().array().optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_contains: InputJsonValue.optional().nullable(),
+  array_starts_with: InputJsonValue.optional().nullable(),
+  array_ends_with: InputJsonValue.optional().nullable(),
+  lt: InputJsonValue.optional(),
+  lte: InputJsonValue.optional(),
+  gt: InputJsonValue.optional(),
+  gte: InputJsonValue.optional(),
+  not: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedJsonFilterSchema).optional(),
+  _max: z.lazy(() => NestedJsonFilterSchema).optional()
 }).strict();
 
 export const UserCreateNestedOneWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutAccountsInput> = z.object({
@@ -3385,6 +4045,20 @@ export const UserCreateNestedOneWithoutCreatedCandidatesInputSchema: z.ZodType<P
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
 }).strict();
 
+export const ContributionCreateNestedManyWithoutContributorInputSchema: z.ZodType<Prisma.ContributionCreateNestedManyWithoutContributorInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutContributorInputSchema),z.lazy(() => ContributionCreateWithoutContributorInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManyContributorInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionCreateNestedManyWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionCreateNestedManyWithoutCandidateInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateWithoutCandidateInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyCandidateInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
 export const AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInput> = z.object({
   create: z.union([ z.lazy(() => AssessmentSessionCreateWithoutCandidateInputSchema),z.lazy(() => AssessmentSessionCreateWithoutCandidateInputSchema).array(),z.lazy(() => AssessmentSessionUncheckedCreateWithoutCandidateInputSchema),z.lazy(() => AssessmentSessionUncheckedCreateWithoutCandidateInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => AssessmentSessionCreateOrConnectWithoutCandidateInputSchema),z.lazy(() => AssessmentSessionCreateOrConnectWithoutCandidateInputSchema).array() ]).optional(),
@@ -3396,6 +4070,20 @@ export const AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema: z.
   create: z.union([ z.lazy(() => AssessmentCreateWithoutCandidatesInputSchema),z.lazy(() => AssessmentCreateWithoutCandidatesInputSchema).array(),z.lazy(() => AssessmentUncheckedCreateWithoutCandidatesInputSchema),z.lazy(() => AssessmentUncheckedCreateWithoutCandidatesInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => AssessmentCreateOrConnectWithoutCandidatesInputSchema),z.lazy(() => AssessmentCreateOrConnectWithoutCandidatesInputSchema).array() ]).optional(),
   connect: z.union([ z.lazy(() => AssessmentWhereUniqueInputSchema),z.lazy(() => AssessmentWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const ContributionUncheckedCreateNestedManyWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUncheckedCreateNestedManyWithoutContributorInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutContributorInputSchema),z.lazy(() => ContributionCreateWithoutContributorInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManyContributorInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateNestedManyWithoutCandidateInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateWithoutCandidateInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyCandidateInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const EnumCandidateStatusFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumCandidateStatusFieldUpdateOperationsInput> = z.object({
@@ -3459,6 +4147,34 @@ export const UserUpdateOneWithoutCreatedCandidatesNestedInputSchema: z.ZodType<P
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutCreatedCandidatesInputSchema),z.lazy(() => UserUpdateWithoutCreatedCandidatesInputSchema),z.lazy(() => UserUncheckedUpdateWithoutCreatedCandidatesInputSchema) ]).optional(),
 }).strict();
 
+export const ContributionUpdateManyWithoutContributorNestedInputSchema: z.ZodType<Prisma.ContributionUpdateManyWithoutContributorNestedInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutContributorInputSchema),z.lazy(() => ContributionCreateWithoutContributorInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ContributionUpsertWithWhereUniqueWithoutContributorInputSchema),z.lazy(() => ContributionUpsertWithWhereUniqueWithoutContributorInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManyContributorInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ContributionUpdateWithWhereUniqueWithoutContributorInputSchema),z.lazy(() => ContributionUpdateWithWhereUniqueWithoutContributorInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ContributionUpdateManyWithWhereWithoutContributorInputSchema),z.lazy(() => ContributionUpdateManyWithWhereWithoutContributorInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ContributionScalarWhereInputSchema),z.lazy(() => ContributionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionUpdateManyWithoutCandidateNestedInputSchema: z.ZodType<Prisma.SubmissionUpdateManyWithoutCandidateNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateWithoutCandidateInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutCandidateInputSchema),z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutCandidateInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyCandidateInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutCandidateInputSchema),z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutCandidateInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => SubmissionUpdateManyWithWhereWithoutCandidateInputSchema),z.lazy(() => SubmissionUpdateManyWithWhereWithoutCandidateInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInput> = z.object({
   create: z.union([ z.lazy(() => AssessmentSessionCreateWithoutCandidateInputSchema),z.lazy(() => AssessmentSessionCreateWithoutCandidateInputSchema).array(),z.lazy(() => AssessmentSessionUncheckedCreateWithoutCandidateInputSchema),z.lazy(() => AssessmentSessionUncheckedCreateWithoutCandidateInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => AssessmentSessionCreateOrConnectWithoutCandidateInputSchema),z.lazy(() => AssessmentSessionCreateOrConnectWithoutCandidateInputSchema).array() ]).optional(),
@@ -3486,6 +4202,34 @@ export const AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema: z.
   deleteMany: z.union([ z.lazy(() => AssessmentScalarWhereInputSchema),z.lazy(() => AssessmentScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
+export const ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateManyWithoutContributorNestedInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutContributorInputSchema),z.lazy(() => ContributionCreateWithoutContributorInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutContributorInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ContributionUpsertWithWhereUniqueWithoutContributorInputSchema),z.lazy(() => ContributionUpsertWithWhereUniqueWithoutContributorInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManyContributorInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ContributionUpdateWithWhereUniqueWithoutContributorInputSchema),z.lazy(() => ContributionUpdateWithWhereUniqueWithoutContributorInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ContributionUpdateManyWithWhereWithoutContributorInputSchema),z.lazy(() => ContributionUpdateManyWithWhereWithoutContributorInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ContributionScalarWhereInputSchema),z.lazy(() => ContributionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateManyWithoutCandidateNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateWithoutCandidateInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutCandidateInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutCandidateInputSchema),z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutCandidateInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyCandidateInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutCandidateInputSchema),z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutCandidateInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => SubmissionUpdateManyWithWhereWithoutCandidateInputSchema),z.lazy(() => SubmissionUpdateManyWithWhereWithoutCandidateInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const UserCreateNestedOneWithoutCreatedAssessmentsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutCreatedAssessmentsInput> = z.object({
   create: z.union([ z.lazy(() => UserCreateWithoutCreatedAssessmentsInputSchema),z.lazy(() => UserUncheckedCreateWithoutCreatedAssessmentsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutCreatedAssessmentsInputSchema).optional(),
@@ -3511,6 +4255,13 @@ export const AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema: z.Zo
   connect: z.union([ z.lazy(() => AssessmentSessionWhereUniqueInputSchema),z.lazy(() => AssessmentSessionWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
+export const SubmissionCreateNestedManyWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionCreateNestedManyWithoutAssessmentInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyAssessmentInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
 export const CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateNestedManyWithoutAssessmentsInput> = z.object({
   create: z.union([ z.lazy(() => CandidateCreateWithoutAssessmentsInputSchema),z.lazy(() => CandidateCreateWithoutAssessmentsInputSchema).array(),z.lazy(() => CandidateUncheckedCreateWithoutAssessmentsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutAssessmentsInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => CandidateCreateOrConnectWithoutAssessmentsInputSchema),z.lazy(() => CandidateCreateOrConnectWithoutAssessmentsInputSchema).array() ]).optional(),
@@ -3522,6 +4273,13 @@ export const AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSch
   connectOrCreate: z.union([ z.lazy(() => AssessmentSessionCreateOrConnectWithoutAssessmentInputSchema),z.lazy(() => AssessmentSessionCreateOrConnectWithoutAssessmentInputSchema).array() ]).optional(),
   createMany: z.lazy(() => AssessmentSessionCreateManyAssessmentInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => AssessmentSessionWhereUniqueInputSchema),z.lazy(() => AssessmentSessionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionUncheckedCreateNestedManyWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateNestedManyWithoutAssessmentInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyAssessmentInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const EnumAssessmentStatusFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumAssessmentStatusFieldUpdateOperationsInput> = z.object({
@@ -3583,6 +4341,20 @@ export const AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema: z.Zo
   deleteMany: z.union([ z.lazy(() => AssessmentSessionScalarWhereInputSchema),z.lazy(() => AssessmentSessionScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
+export const SubmissionUpdateManyWithoutAssessmentNestedInputSchema: z.ZodType<Prisma.SubmissionUpdateManyWithoutAssessmentNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutAssessmentInputSchema),z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutAssessmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyAssessmentInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutAssessmentInputSchema),z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutAssessmentInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => SubmissionUpdateManyWithWhereWithoutAssessmentInputSchema),z.lazy(() => SubmissionUpdateManyWithWhereWithoutAssessmentInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateManyWithoutAssessmentsNestedInput> = z.object({
   create: z.union([ z.lazy(() => CandidateCreateWithoutAssessmentsInputSchema),z.lazy(() => CandidateCreateWithoutAssessmentsInputSchema).array(),z.lazy(() => CandidateUncheckedCreateWithoutAssessmentsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutAssessmentsInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => CandidateCreateOrConnectWithoutAssessmentsInputSchema),z.lazy(() => CandidateCreateOrConnectWithoutAssessmentsInputSchema).array() ]).optional(),
@@ -3610,6 +4382,20 @@ export const AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSch
   deleteMany: z.union([ z.lazy(() => AssessmentSessionScalarWhereInputSchema),z.lazy(() => AssessmentSessionScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
+export const SubmissionUncheckedUpdateManyWithoutAssessmentNestedInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateManyWithoutAssessmentNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutAssessmentInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutAssessmentInputSchema),z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutAssessmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManyAssessmentInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutAssessmentInputSchema),z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutAssessmentInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => SubmissionUpdateManyWithWhereWithoutAssessmentInputSchema),z.lazy(() => SubmissionUpdateManyWithWhereWithoutAssessmentInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const AssessmentCreateNestedOneWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentCreateNestedOneWithoutApplicantSessionsInput> = z.object({
   create: z.union([ z.lazy(() => AssessmentCreateWithoutApplicantSessionsInputSchema),z.lazy(() => AssessmentUncheckedCreateWithoutApplicantSessionsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => AssessmentCreateOrConnectWithoutApplicantSessionsInputSchema).optional(),
@@ -3620,6 +4406,20 @@ export const CandidateCreateNestedOneWithoutAssessmentSessionsInputSchema: z.Zod
   create: z.union([ z.lazy(() => CandidateCreateWithoutAssessmentSessionsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutAssessmentSessionsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => CandidateCreateOrConnectWithoutAssessmentSessionsInputSchema).optional(),
   connect: z.lazy(() => CandidateWhereUniqueInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateNestedManyWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionCreateNestedManyWithoutSessionInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutSessionInputSchema),z.lazy(() => SubmissionCreateWithoutSessionInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManySessionInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionUncheckedCreateNestedManyWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateNestedManyWithoutSessionInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutSessionInputSchema),z.lazy(() => SubmissionCreateWithoutSessionInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManySessionInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const EnumAssessmentSessionStatusFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumAssessmentSessionStatusFieldUpdateOperationsInput> = z.object({
@@ -3640,6 +4440,156 @@ export const CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchem
   upsert: z.lazy(() => CandidateUpsertWithoutAssessmentSessionsInputSchema).optional(),
   connect: z.lazy(() => CandidateWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => CandidateUpdateToOneWithWhereWithoutAssessmentSessionsInputSchema),z.lazy(() => CandidateUpdateWithoutAssessmentSessionsInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutAssessmentSessionsInputSchema) ]).optional(),
+}).strict();
+
+export const SubmissionUpdateManyWithoutSessionNestedInputSchema: z.ZodType<Prisma.SubmissionUpdateManyWithoutSessionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutSessionInputSchema),z.lazy(() => SubmissionCreateWithoutSessionInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutSessionInputSchema),z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutSessionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManySessionInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutSessionInputSchema),z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutSessionInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => SubmissionUpdateManyWithWhereWithoutSessionInputSchema),z.lazy(() => SubmissionUpdateManyWithWhereWithoutSessionInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionUncheckedUpdateManyWithoutSessionNestedInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateManyWithoutSessionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutSessionInputSchema),z.lazy(() => SubmissionCreateWithoutSessionInputSchema).array(),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema),z.lazy(() => SubmissionCreateOrConnectWithoutSessionInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutSessionInputSchema),z.lazy(() => SubmissionUpsertWithWhereUniqueWithoutSessionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => SubmissionCreateManySessionInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => SubmissionWhereUniqueInputSchema),z.lazy(() => SubmissionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutSessionInputSchema),z.lazy(() => SubmissionUpdateWithWhereUniqueWithoutSessionInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => SubmissionUpdateManyWithWhereWithoutSessionInputSchema),z.lazy(() => SubmissionUpdateManyWithWhereWithoutSessionInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const ContributionCreateNestedManyWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionCreateNestedManyWithoutSubmissionInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateWithoutSubmissionInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManySubmissionInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CandidateCreateNestedOneWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateCreateNestedOneWithoutSubmissionInput> = z.object({
+  create: z.union([ z.lazy(() => CandidateCreateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutSubmissionInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CandidateCreateOrConnectWithoutSubmissionInputSchema).optional(),
+  connect: z.lazy(() => CandidateWhereUniqueInputSchema).optional()
+}).strict();
+
+export const AssessmentSessionCreateNestedOneWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionCreateNestedOneWithoutSubmissionInput> = z.object({
+  create: z.union([ z.lazy(() => AssessmentSessionCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedCreateWithoutSubmissionInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => AssessmentSessionCreateOrConnectWithoutSubmissionInputSchema).optional(),
+  connect: z.lazy(() => AssessmentSessionWhereUniqueInputSchema).optional()
+}).strict();
+
+export const AssessmentCreateNestedOneWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentCreateNestedOneWithoutSubmissionInput> = z.object({
+  create: z.union([ z.lazy(() => AssessmentCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedCreateWithoutSubmissionInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => AssessmentCreateOrConnectWithoutSubmissionInputSchema).optional(),
+  connect: z.lazy(() => AssessmentWhereUniqueInputSchema).optional()
+}).strict();
+
+export const ContributionUncheckedCreateNestedManyWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUncheckedCreateNestedManyWithoutSubmissionInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateWithoutSubmissionInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManySubmissionInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const EnumSubmissionStateFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumSubmissionStateFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => SubmissionStateSchema).optional()
+}).strict();
+
+export const ContributionUpdateManyWithoutSubmissionNestedInputSchema: z.ZodType<Prisma.ContributionUpdateManyWithoutSubmissionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateWithoutSubmissionInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ContributionUpsertWithWhereUniqueWithoutSubmissionInputSchema),z.lazy(() => ContributionUpsertWithWhereUniqueWithoutSubmissionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManySubmissionInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ContributionUpdateWithWhereUniqueWithoutSubmissionInputSchema),z.lazy(() => ContributionUpdateWithWhereUniqueWithoutSubmissionInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ContributionUpdateManyWithWhereWithoutSubmissionInputSchema),z.lazy(() => ContributionUpdateManyWithWhereWithoutSubmissionInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ContributionScalarWhereInputSchema),z.lazy(() => ContributionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CandidateUpdateOneRequiredWithoutSubmissionNestedInputSchema: z.ZodType<Prisma.CandidateUpdateOneRequiredWithoutSubmissionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CandidateCreateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutSubmissionInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CandidateCreateOrConnectWithoutSubmissionInputSchema).optional(),
+  upsert: z.lazy(() => CandidateUpsertWithoutSubmissionInputSchema).optional(),
+  connect: z.lazy(() => CandidateWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CandidateUpdateToOneWithWhereWithoutSubmissionInputSchema),z.lazy(() => CandidateUpdateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutSubmissionInputSchema) ]).optional(),
+}).strict();
+
+export const AssessmentSessionUpdateOneRequiredWithoutSubmissionNestedInputSchema: z.ZodType<Prisma.AssessmentSessionUpdateOneRequiredWithoutSubmissionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => AssessmentSessionCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedCreateWithoutSubmissionInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => AssessmentSessionCreateOrConnectWithoutSubmissionInputSchema).optional(),
+  upsert: z.lazy(() => AssessmentSessionUpsertWithoutSubmissionInputSchema).optional(),
+  connect: z.lazy(() => AssessmentSessionWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => AssessmentSessionUpdateToOneWithWhereWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUpdateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedUpdateWithoutSubmissionInputSchema) ]).optional(),
+}).strict();
+
+export const AssessmentUpdateOneRequiredWithoutSubmissionNestedInputSchema: z.ZodType<Prisma.AssessmentUpdateOneRequiredWithoutSubmissionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => AssessmentCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedCreateWithoutSubmissionInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => AssessmentCreateOrConnectWithoutSubmissionInputSchema).optional(),
+  upsert: z.lazy(() => AssessmentUpsertWithoutSubmissionInputSchema).optional(),
+  connect: z.lazy(() => AssessmentWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => AssessmentUpdateToOneWithWhereWithoutSubmissionInputSchema),z.lazy(() => AssessmentUpdateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedUpdateWithoutSubmissionInputSchema) ]).optional(),
+}).strict();
+
+export const ContributionUncheckedUpdateManyWithoutSubmissionNestedInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateManyWithoutSubmissionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => ContributionCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateWithoutSubmissionInputSchema).array(),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema),z.lazy(() => ContributionCreateOrConnectWithoutSubmissionInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => ContributionUpsertWithWhereUniqueWithoutSubmissionInputSchema),z.lazy(() => ContributionUpsertWithWhereUniqueWithoutSubmissionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => ContributionCreateManySubmissionInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => ContributionWhereUniqueInputSchema),z.lazy(() => ContributionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => ContributionUpdateWithWhereUniqueWithoutSubmissionInputSchema),z.lazy(() => ContributionUpdateWithWhereUniqueWithoutSubmissionInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => ContributionUpdateManyWithWhereWithoutSubmissionInputSchema),z.lazy(() => ContributionUpdateManyWithWhereWithoutSubmissionInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => ContributionScalarWhereInputSchema),z.lazy(() => ContributionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const SubmissionCreateNestedOneWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionCreateNestedOneWithoutContributionsInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutContributionsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => SubmissionCreateOrConnectWithoutContributionsInputSchema).optional(),
+  connect: z.lazy(() => SubmissionWhereUniqueInputSchema).optional()
+}).strict();
+
+export const CandidateCreateNestedOneWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateCreateNestedOneWithoutContributionsInput> = z.object({
+  create: z.union([ z.lazy(() => CandidateCreateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutContributionsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CandidateCreateOrConnectWithoutContributionsInputSchema).optional(),
+  connect: z.lazy(() => CandidateWhereUniqueInputSchema).optional()
+}).strict();
+
+export const EnumContributionTypeFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumContributionTypeFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => ContributionTypeSchema).optional()
+}).strict();
+
+export const SubmissionUpdateOneWithoutContributionsNestedInputSchema: z.ZodType<Prisma.SubmissionUpdateOneWithoutContributionsNestedInput> = z.object({
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutContributionsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => SubmissionCreateOrConnectWithoutContributionsInputSchema).optional(),
+  upsert: z.lazy(() => SubmissionUpsertWithoutContributionsInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => SubmissionWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => SubmissionWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => SubmissionWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => SubmissionUpdateToOneWithWhereWithoutContributionsInputSchema),z.lazy(() => SubmissionUpdateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutContributionsInputSchema) ]).optional(),
+}).strict();
+
+export const CandidateUpdateOneRequiredWithoutContributionsNestedInputSchema: z.ZodType<Prisma.CandidateUpdateOneRequiredWithoutContributionsNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CandidateCreateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutContributionsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CandidateCreateOrConnectWithoutContributionsInputSchema).optional(),
+  upsert: z.lazy(() => CandidateUpsertWithoutContributionsInputSchema).optional(),
+  connect: z.lazy(() => CandidateWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CandidateUpdateToOneWithWhereWithoutContributionsInputSchema),z.lazy(() => CandidateUpdateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutContributionsInputSchema) ]).optional(),
 }).strict();
 
 export const NestedUuidFilterSchema: z.ZodType<Prisma.NestedUuidFilter> = z.object({
@@ -3995,6 +4945,56 @@ export const NestedEnumAssessmentSessionStatusWithAggregatesFilterSchema: z.ZodT
   _max: z.lazy(() => NestedEnumAssessmentSessionStatusFilterSchema).optional()
 }).strict();
 
+export const NestedEnumSubmissionStateFilterSchema: z.ZodType<Prisma.NestedEnumSubmissionStateFilter> = z.object({
+  equals: z.lazy(() => SubmissionStateSchema).optional(),
+  in: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  not: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => NestedEnumSubmissionStateFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedEnumSubmissionStateWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumSubmissionStateWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => SubmissionStateSchema).optional(),
+  in: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => SubmissionStateSchema).array(),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  not: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => NestedEnumSubmissionStateWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumSubmissionStateFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumSubmissionStateFilterSchema).optional()
+}).strict();
+
+export const NestedEnumContributionTypeFilterSchema: z.ZodType<Prisma.NestedEnumContributionTypeFilter> = z.object({
+  equals: z.lazy(() => ContributionTypeSchema).optional(),
+  in: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  not: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => NestedEnumContributionTypeFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedEnumContributionTypeWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumContributionTypeWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => ContributionTypeSchema).optional(),
+  in: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  notIn: z.union([ z.lazy(() => ContributionTypeSchema).array(),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  not: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => NestedEnumContributionTypeWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumContributionTypeFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumContributionTypeFilterSchema).optional()
+}).strict();
+
+export const NestedJsonFilterSchema: z.ZodType<Prisma.NestedJsonFilter> = z.object({
+  equals: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
+  path: z.string().array().optional(),
+  string_contains: z.string().optional(),
+  string_starts_with: z.string().optional(),
+  string_ends_with: z.string().optional(),
+  array_contains: InputJsonValue.optional().nullable(),
+  array_starts_with: InputJsonValue.optional().nullable(),
+  array_ends_with: InputJsonValue.optional().nullable(),
+  lt: InputJsonValue.optional(),
+  lte: InputJsonValue.optional(),
+  gt: InputJsonValue.optional(),
+  gte: InputJsonValue.optional(),
+  not: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
+}).strict();
+
 export const UserCreateWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateWithoutAccountsInput> = z.object({
   id: z.string().optional(),
   name: z.string().optional().nullable(),
@@ -4229,7 +5229,8 @@ export const AssessmentCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.Asses
   visibility: z.lazy(() => VisibilitySchema).optional(),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutAssessmentsInputSchema),
   candidates: z.lazy(() => CandidateCreateNestedManyWithoutAssessmentsInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.AssessmentUncheckedCreateWithoutCreatedByInput> = z.object({
@@ -4246,7 +5247,8 @@ export const AssessmentUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Pri
   published: z.boolean().optional(),
   visibility: z.lazy(() => VisibilitySchema).optional(),
   candidates: z.lazy(() => CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentCreateOrConnectWithoutCreatedByInputSchema: z.ZodType<Prisma.AssessmentCreateOrConnectWithoutCreatedByInput> = z.object({
@@ -4293,7 +5295,9 @@ export const CandidateCreateWithoutUserInputSchema: z.ZodType<Prisma.CandidateCr
   assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
   assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
-  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional()
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutUserInput> = z.object({
@@ -4308,7 +5312,9 @@ export const CandidateUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.Ca
   updatedAt: z.coerce.date().optional(),
   createdById: z.string().optional().nullable(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateCreateOrConnectWithoutUserInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutUserInput> = z.object({
@@ -4361,7 +5367,9 @@ export const CandidateCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.Candid
   user: z.lazy(() => UserCreateNestedOneWithoutCandidateInputSchema).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional()
+  assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutCreatedByInput> = z.object({
@@ -4376,7 +5384,9 @@ export const CandidateUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Pris
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateCreateOrConnectWithoutCreatedByInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutCreatedByInput> = z.object({
@@ -4533,7 +5543,9 @@ export const CandidateUpdateWithoutUserInputSchema: z.ZodType<Prisma.CandidateUp
   assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
   assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
-  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional()
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutUserInput> = z.object({
@@ -4548,7 +5560,9 @@ export const CandidateUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.Ca
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const OrganizationUpsertWithoutUserInputSchema: z.ZodType<Prisma.OrganizationUpsertWithoutUserInput> = z.object({
@@ -4659,7 +5673,8 @@ export const AssessmentCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.As
   visibility: z.lazy(() => VisibilitySchema).optional(),
   createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedAssessmentsInputSchema),
   candidates: z.lazy(() => CandidateCreateNestedManyWithoutAssessmentsInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.AssessmentUncheckedCreateWithoutOrganizationInput> = z.object({
@@ -4676,7 +5691,8 @@ export const AssessmentUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<
   published: z.boolean().optional(),
   visibility: z.lazy(() => VisibilitySchema).optional(),
   candidates: z.lazy(() => CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentCreateOrConnectWithoutOrganizationInputSchema: z.ZodType<Prisma.AssessmentCreateOrConnectWithoutOrganizationInput> = z.object({
@@ -4701,7 +5717,9 @@ export const CandidateCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.Can
   user: z.lazy(() => UserCreateNestedOneWithoutCandidateInputSchema).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
   assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
-  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional()
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutOrganizationInput> = z.object({
@@ -4716,7 +5734,9 @@ export const CandidateUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<P
   updatedAt: z.coerce.date().optional(),
   createdById: z.string().optional().nullable(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateCreateOrConnectWithoutOrganizationInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutOrganizationInput> = z.object({
@@ -5045,7 +6065,8 @@ export const AssessmentSessionCreateWithoutCandidateInputSchema: z.ZodType<Prism
   status: z.lazy(() => AssessmentSessionStatusSchema).optional(),
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional().nullable(),
-  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutApplicantSessionsInputSchema)
+  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutApplicantSessionsInputSchema),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutSessionInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedCreateWithoutCandidateInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedCreateWithoutCandidateInput> = z.object({
@@ -5055,7 +6076,8 @@ export const AssessmentSessionUncheckedCreateWithoutCandidateInputSchema: z.ZodT
   status: z.lazy(() => AssessmentSessionStatusSchema).optional(),
   assessmentId: z.string(),
   startedAt: z.coerce.date().optional(),
-  finishedAt: z.coerce.date().optional().nullable()
+  finishedAt: z.coerce.date().optional().nullable(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutSessionInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionCreateOrConnectWithoutCandidateInputSchema: z.ZodType<Prisma.AssessmentSessionCreateOrConnectWithoutCandidateInput> = z.object({
@@ -5115,7 +6137,8 @@ export const AssessmentCreateWithoutCandidatesInputSchema: z.ZodType<Prisma.Asse
   visibility: z.lazy(() => VisibilitySchema).optional(),
   createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedAssessmentsInputSchema),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutAssessmentsInputSchema),
-  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedCreateWithoutCandidatesInputSchema: z.ZodType<Prisma.AssessmentUncheckedCreateWithoutCandidatesInput> = z.object({
@@ -5132,7 +6155,8 @@ export const AssessmentUncheckedCreateWithoutCandidatesInputSchema: z.ZodType<Pr
   updatedAt: z.coerce.date().optional(),
   published: z.boolean().optional(),
   visibility: z.lazy(() => VisibilitySchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentCreateOrConnectWithoutCandidatesInputSchema: z.ZodType<Prisma.AssessmentCreateOrConnectWithoutCandidatesInput> = z.object({
@@ -5175,6 +6199,66 @@ export const UserUncheckedCreateWithoutCreatedCandidatesInputSchema: z.ZodType<P
 export const UserCreateOrConnectWithoutCreatedCandidatesInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutCreatedCandidatesInput> = z.object({
   where: z.lazy(() => UserWhereUniqueInputSchema),
   create: z.union([ z.lazy(() => UserCreateWithoutCreatedCandidatesInputSchema),z.lazy(() => UserUncheckedCreateWithoutCreatedCandidatesInputSchema) ]),
+}).strict();
+
+export const ContributionCreateWithoutContributorInputSchema: z.ZodType<Prisma.ContributionCreateWithoutContributorInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  submission: z.lazy(() => SubmissionCreateNestedOneWithoutContributionsInputSchema).optional()
+}).strict();
+
+export const ContributionUncheckedCreateWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUncheckedCreateWithoutContributorInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  submissionId: z.string().optional().nullable()
+}).strict();
+
+export const ContributionCreateOrConnectWithoutContributorInputSchema: z.ZodType<Prisma.ContributionCreateOrConnectWithoutContributorInput> = z.object({
+  where: z.lazy(() => ContributionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ContributionCreateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema) ]),
+}).strict();
+
+export const ContributionCreateManyContributorInputEnvelopeSchema: z.ZodType<Prisma.ContributionCreateManyContributorInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => ContributionCreateManyContributorInputSchema),z.lazy(() => ContributionCreateManyContributorInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const SubmissionCreateWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionCreateWithoutCandidateInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutSubmissionInputSchema).optional(),
+  session: z.lazy(() => AssessmentSessionCreateNestedOneWithoutSubmissionInputSchema),
+  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutSubmissionInputSchema)
+}).strict();
+
+export const SubmissionUncheckedCreateWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateWithoutCandidateInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  assessmentSessionId: z.string(),
+  assessmentId: z.string(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutSubmissionInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateOrConnectWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionCreateOrConnectWithoutCandidateInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema) ]),
+}).strict();
+
+export const SubmissionCreateManyCandidateInputEnvelopeSchema: z.ZodType<Prisma.SubmissionCreateManyCandidateInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => SubmissionCreateManyCandidateInputSchema),z.lazy(() => SubmissionCreateManyCandidateInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
 }).strict();
 
 export const UserUpsertWithoutCandidateInputSchema: z.ZodType<Prisma.UserUpsertWithoutCandidateInput> = z.object({
@@ -5348,6 +6432,65 @@ export const UserUncheckedUpdateWithoutCreatedCandidatesInputSchema: z.ZodType<P
   candidate: z.lazy(() => CandidateUncheckedUpdateOneWithoutUserNestedInputSchema).optional()
 }).strict();
 
+export const ContributionUpsertWithWhereUniqueWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUpsertWithWhereUniqueWithoutContributorInput> = z.object({
+  where: z.lazy(() => ContributionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ContributionUpdateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedUpdateWithoutContributorInputSchema) ]),
+  create: z.union([ z.lazy(() => ContributionCreateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutContributorInputSchema) ]),
+}).strict();
+
+export const ContributionUpdateWithWhereUniqueWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUpdateWithWhereUniqueWithoutContributorInput> = z.object({
+  where: z.lazy(() => ContributionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ContributionUpdateWithoutContributorInputSchema),z.lazy(() => ContributionUncheckedUpdateWithoutContributorInputSchema) ]),
+}).strict();
+
+export const ContributionUpdateManyWithWhereWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUpdateManyWithWhereWithoutContributorInput> = z.object({
+  where: z.lazy(() => ContributionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ContributionUpdateManyMutationInputSchema),z.lazy(() => ContributionUncheckedUpdateManyWithoutContributionsInputSchema) ]),
+}).strict();
+
+export const ContributionScalarWhereInputSchema: z.ZodType<Prisma.ContributionScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => ContributionScalarWhereInputSchema),z.lazy(() => ContributionScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => ContributionScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => ContributionScalarWhereInputSchema),z.lazy(() => ContributionScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumContributionTypeFilterSchema),z.lazy(() => ContributionTypeSchema) ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  meta: z.lazy(() => JsonFilterSchema).optional(),
+  submissionId: z.union([ z.lazy(() => UuidNullableFilterSchema),z.string() ]).optional().nullable(),
+  contributorId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const SubmissionUpsertWithWhereUniqueWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUpsertWithWhereUniqueWithoutCandidateInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutCandidateInputSchema) ]),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutCandidateInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateWithWhereUniqueWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUpdateWithWhereUniqueWithoutCandidateInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => SubmissionUpdateWithoutCandidateInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutCandidateInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateManyWithWhereWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUpdateManyWithWhereWithoutCandidateInput> = z.object({
+  where: z.lazy(() => SubmissionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => SubmissionUpdateManyMutationInputSchema),z.lazy(() => SubmissionUncheckedUpdateManyWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const SubmissionScalarWhereInputSchema: z.ZodType<Prisma.SubmissionScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => SubmissionScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => SubmissionScalarWhereInputSchema),z.lazy(() => SubmissionScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  status: z.union([ z.lazy(() => EnumSubmissionStateFilterSchema),z.lazy(() => SubmissionStateSchema) ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  candidateId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  assessmentSessionId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+  assessmentId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
+}).strict();
+
 export const UserCreateWithoutCreatedAssessmentsInputSchema: z.ZodType<Prisma.UserCreateWithoutCreatedAssessmentsInput> = z.object({
   id: z.string().optional(),
   name: z.string().optional().nullable(),
@@ -5430,7 +6573,9 @@ export const CandidateCreateWithoutAssessmentsInputSchema: z.ZodType<Prisma.Cand
   user: z.lazy(() => UserCreateNestedOneWithoutCandidateInputSchema).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
-  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional()
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedCreateWithoutAssessmentsInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutAssessmentsInput> = z.object({
@@ -5445,7 +6590,9 @@ export const CandidateUncheckedCreateWithoutAssessmentsInputSchema: z.ZodType<Pr
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   createdById: z.string().optional().nullable(),
-  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
+  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateCreateOrConnectWithoutAssessmentsInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutAssessmentsInput> = z.object({
@@ -5460,7 +6607,8 @@ export const AssessmentSessionCreateWithoutAssessmentInputSchema: z.ZodType<Pris
   status: z.lazy(() => AssessmentSessionStatusSchema).optional(),
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional().nullable(),
-  candidate: z.lazy(() => CandidateCreateNestedOneWithoutAssessmentSessionsInputSchema)
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutAssessmentSessionsInputSchema),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutSessionInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedCreateWithoutAssessmentInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedCreateWithoutAssessmentInput> = z.object({
@@ -5470,7 +6618,8 @@ export const AssessmentSessionUncheckedCreateWithoutAssessmentInputSchema: z.Zod
   status: z.lazy(() => AssessmentSessionStatusSchema).optional(),
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional().nullable(),
-  candidateId: z.string()
+  candidateId: z.string(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutSessionInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionCreateOrConnectWithoutAssessmentInputSchema: z.ZodType<Prisma.AssessmentSessionCreateOrConnectWithoutAssessmentInput> = z.object({
@@ -5480,6 +6629,36 @@ export const AssessmentSessionCreateOrConnectWithoutAssessmentInputSchema: z.Zod
 
 export const AssessmentSessionCreateManyAssessmentInputEnvelopeSchema: z.ZodType<Prisma.AssessmentSessionCreateManyAssessmentInputEnvelope> = z.object({
   data: z.union([ z.lazy(() => AssessmentSessionCreateManyAssessmentInputSchema),z.lazy(() => AssessmentSessionCreateManyAssessmentInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const SubmissionCreateWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionCreateWithoutAssessmentInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutSubmissionInputSchema).optional(),
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutSubmissionInputSchema),
+  session: z.lazy(() => AssessmentSessionCreateNestedOneWithoutSubmissionInputSchema)
+}).strict();
+
+export const SubmissionUncheckedCreateWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateWithoutAssessmentInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentSessionId: z.string(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutSubmissionInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateOrConnectWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionCreateOrConnectWithoutAssessmentInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema) ]),
+}).strict();
+
+export const SubmissionCreateManyAssessmentInputEnvelopeSchema: z.ZodType<Prisma.SubmissionCreateManyAssessmentInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => SubmissionCreateManyAssessmentInputSchema),z.lazy(() => SubmissionCreateManyAssessmentInputSchema).array() ]),
   skipDuplicates: z.boolean().optional()
 }).strict();
 
@@ -5597,6 +6776,22 @@ export const AssessmentSessionUpdateManyWithWhereWithoutAssessmentInputSchema: z
   data: z.union([ z.lazy(() => AssessmentSessionUpdateManyMutationInputSchema),z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutApplicantSessionsInputSchema) ]),
 }).strict();
 
+export const SubmissionUpsertWithWhereUniqueWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUpsertWithWhereUniqueWithoutAssessmentInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutAssessmentInputSchema) ]),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutAssessmentInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateWithWhereUniqueWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUpdateWithWhereUniqueWithoutAssessmentInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => SubmissionUpdateWithoutAssessmentInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutAssessmentInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateManyWithWhereWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUpdateManyWithWhereWithoutAssessmentInput> = z.object({
+  where: z.lazy(() => SubmissionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => SubmissionUpdateManyMutationInputSchema),z.lazy(() => SubmissionUncheckedUpdateManyWithoutSubmissionInputSchema) ]),
+}).strict();
+
 export const AssessmentCreateWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentCreateWithoutApplicantSessionsInput> = z.object({
   id: z.string().optional(),
   title: z.string(),
@@ -5611,7 +6806,8 @@ export const AssessmentCreateWithoutApplicantSessionsInputSchema: z.ZodType<Pris
   visibility: z.lazy(() => VisibilitySchema).optional(),
   createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedAssessmentsInputSchema),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutAssessmentsInputSchema),
-  candidates: z.lazy(() => CandidateCreateNestedManyWithoutAssessmentsInputSchema).optional()
+  candidates: z.lazy(() => CandidateCreateNestedManyWithoutAssessmentsInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedCreateWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentUncheckedCreateWithoutApplicantSessionsInput> = z.object({
@@ -5628,7 +6824,8 @@ export const AssessmentUncheckedCreateWithoutApplicantSessionsInputSchema: z.Zod
   updatedAt: z.coerce.date().optional(),
   published: z.boolean().optional(),
   visibility: z.lazy(() => VisibilitySchema).optional(),
-  candidates: z.lazy(() => CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema).optional()
+  candidates: z.lazy(() => CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
 }).strict();
 
 export const AssessmentCreateOrConnectWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentCreateOrConnectWithoutApplicantSessionsInput> = z.object({
@@ -5648,7 +6845,9 @@ export const CandidateCreateWithoutAssessmentSessionsInputSchema: z.ZodType<Pris
   user: z.lazy(() => UserCreateNestedOneWithoutCandidateInputSchema).optional(),
   organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
   assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
-  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional()
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedCreateWithoutAssessmentSessionsInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutAssessmentSessionsInput> = z.object({
@@ -5663,12 +6862,44 @@ export const CandidateUncheckedCreateWithoutAssessmentSessionsInputSchema: z.Zod
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   createdById: z.string().optional().nullable(),
-  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
 }).strict();
 
 export const CandidateCreateOrConnectWithoutAssessmentSessionsInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutAssessmentSessionsInput> = z.object({
   where: z.lazy(() => CandidateWhereUniqueInputSchema),
   create: z.union([ z.lazy(() => CandidateCreateWithoutAssessmentSessionsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutAssessmentSessionsInputSchema) ]),
+}).strict();
+
+export const SubmissionCreateWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionCreateWithoutSessionInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutSubmissionInputSchema).optional(),
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutSubmissionInputSchema),
+  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutSubmissionInputSchema)
+}).strict();
+
+export const SubmissionUncheckedCreateWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateWithoutSessionInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentId: z.string(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutSubmissionInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateOrConnectWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionCreateOrConnectWithoutSessionInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema) ]),
+}).strict();
+
+export const SubmissionCreateManySessionInputEnvelopeSchema: z.ZodType<Prisma.SubmissionCreateManySessionInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => SubmissionCreateManySessionInputSchema),z.lazy(() => SubmissionCreateManySessionInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
 }).strict();
 
 export const AssessmentUpsertWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentUpsertWithoutApplicantSessionsInput> = z.object({
@@ -5696,7 +6927,8 @@ export const AssessmentUpdateWithoutApplicantSessionsInputSchema: z.ZodType<Pris
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   createdBy: z.lazy(() => UserUpdateOneRequiredWithoutCreatedAssessmentsNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAssessmentsNestedInputSchema).optional(),
-  candidates: z.lazy(() => CandidateUpdateManyWithoutAssessmentsNestedInputSchema).optional()
+  candidates: z.lazy(() => CandidateUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateWithoutApplicantSessionsInput> = z.object({
@@ -5713,7 +6945,8 @@ export const AssessmentUncheckedUpdateWithoutApplicantSessionsInputSchema: z.Zod
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
-  candidates: z.lazy(() => CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema).optional()
+  candidates: z.lazy(() => CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUpsertWithoutAssessmentSessionsInputSchema: z.ZodType<Prisma.CandidateUpsertWithoutAssessmentSessionsInput> = z.object({
@@ -5739,7 +6972,9 @@ export const CandidateUpdateWithoutAssessmentSessionsInputSchema: z.ZodType<Pris
   user: z.lazy(() => UserUpdateOneWithoutCandidateNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
   assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
-  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional()
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateWithoutAssessmentSessionsInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutAssessmentSessionsInput> = z.object({
@@ -5754,7 +6989,443 @@ export const CandidateUncheckedUpdateWithoutAssessmentSessionsInputSchema: z.Zod
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUpsertWithWhereUniqueWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUpsertWithWhereUniqueWithoutSessionInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => SubmissionUpdateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutSessionInputSchema) ]),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutSessionInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateWithWhereUniqueWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUpdateWithWhereUniqueWithoutSessionInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => SubmissionUpdateWithoutSessionInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutSessionInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateManyWithWhereWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUpdateManyWithWhereWithoutSessionInput> = z.object({
+  where: z.lazy(() => SubmissionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => SubmissionUpdateManyMutationInputSchema),z.lazy(() => SubmissionUncheckedUpdateManyWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const ContributionCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  contributor: z.lazy(() => CandidateCreateNestedOneWithoutContributionsInputSchema)
+}).strict();
+
+export const ContributionUncheckedCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUncheckedCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  contributorId: z.string()
+}).strict();
+
+export const ContributionCreateOrConnectWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionCreateOrConnectWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => ContributionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => ContributionCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const ContributionCreateManySubmissionInputEnvelopeSchema: z.ZodType<Prisma.ContributionCreateManySubmissionInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => ContributionCreateManySubmissionInputSchema),z.lazy(() => ContributionCreateManySubmissionInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const CandidateCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  ghUsername: z.string().optional().nullable(),
+  status: z.lazy(() => CandidateStatusSchema).optional(),
+  lastName: z.string(),
+  email: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutCandidateInputSchema).optional(),
+  assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
+  organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionCreateNestedManyWithoutContributorInputSchema).optional()
+}).strict();
+
+export const CandidateUncheckedCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  userId: z.string().optional().nullable(),
+  organizationId: z.string().optional().nullable(),
+  name: z.string(),
+  ghUsername: z.string().optional().nullable(),
+  status: z.lazy(() => CandidateStatusSchema).optional(),
+  lastName: z.string(),
+  email: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string().optional().nullable(),
+  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedCreateNestedManyWithoutContributorInputSchema).optional()
+}).strict();
+
+export const CandidateCreateOrConnectWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => CandidateWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CandidateCreateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const AssessmentSessionCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  sessionToken: z.string(),
+  expiresAt: z.coerce.date(),
+  status: z.lazy(() => AssessmentSessionStatusSchema).optional(),
+  startedAt: z.coerce.date().optional(),
+  finishedAt: z.coerce.date().optional().nullable(),
+  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutApplicantSessionsInputSchema),
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutAssessmentSessionsInputSchema)
+}).strict();
+
+export const AssessmentSessionUncheckedCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  sessionToken: z.string(),
+  expiresAt: z.coerce.date(),
+  status: z.lazy(() => AssessmentSessionStatusSchema).optional(),
+  assessmentId: z.string(),
+  startedAt: z.coerce.date().optional(),
+  finishedAt: z.coerce.date().optional().nullable(),
+  candidateId: z.string()
+}).strict();
+
+export const AssessmentSessionCreateOrConnectWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionCreateOrConnectWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => AssessmentSessionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => AssessmentSessionCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedCreateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const AssessmentCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  slug: z.string().optional().nullable(),
+  description: z.string(),
+  status: z.lazy(() => AssessmentStatusSchema).optional(),
+  ghIssuesQuerySeach: z.string().optional().nullable(),
+  evaluationPeriod: z.number().int().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  published: z.boolean().optional(),
+  visibility: z.lazy(() => VisibilitySchema).optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedAssessmentsInputSchema),
+  organization: z.lazy(() => OrganizationCreateNestedOneWithoutAssessmentsInputSchema),
+  candidates: z.lazy(() => CandidateCreateNestedManyWithoutAssessmentsInputSchema).optional(),
+  applicantSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutAssessmentInputSchema).optional()
+}).strict();
+
+export const AssessmentUncheckedCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentUncheckedCreateWithoutSubmissionInput> = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  slug: z.string().optional().nullable(),
+  description: z.string(),
+  status: z.lazy(() => AssessmentStatusSchema).optional(),
+  createdById: z.string(),
+  organizationId: z.string(),
+  ghIssuesQuerySeach: z.string().optional().nullable(),
+  evaluationPeriod: z.number().int().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  published: z.boolean().optional(),
+  visibility: z.lazy(() => VisibilitySchema).optional(),
+  candidates: z.lazy(() => CandidateUncheckedCreateNestedManyWithoutAssessmentsInputSchema).optional(),
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutAssessmentInputSchema).optional()
+}).strict();
+
+export const AssessmentCreateOrConnectWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentCreateOrConnectWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => AssessmentWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => AssessmentCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedCreateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const ContributionUpsertWithWhereUniqueWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUpsertWithWhereUniqueWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => ContributionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => ContributionUpdateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedUpdateWithoutSubmissionInputSchema) ]),
+  create: z.union([ z.lazy(() => ContributionCreateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedCreateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const ContributionUpdateWithWhereUniqueWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUpdateWithWhereUniqueWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => ContributionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => ContributionUpdateWithoutSubmissionInputSchema),z.lazy(() => ContributionUncheckedUpdateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const ContributionUpdateManyWithWhereWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUpdateManyWithWhereWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => ContributionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => ContributionUpdateManyMutationInputSchema),z.lazy(() => ContributionUncheckedUpdateManyWithoutContributionsInputSchema) ]),
+}).strict();
+
+export const CandidateUpsertWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateUpsertWithoutSubmissionInput> = z.object({
+  update: z.union([ z.lazy(() => CandidateUpdateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutSubmissionInputSchema) ]),
+  create: z.union([ z.lazy(() => CandidateCreateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutSubmissionInputSchema) ]),
+  where: z.lazy(() => CandidateWhereInputSchema).optional()
+}).strict();
+
+export const CandidateUpdateToOneWithWhereWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateUpdateToOneWithWhereWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => CandidateWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CandidateUpdateWithoutSubmissionInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const CandidateUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  ghUsername: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => CandidateStatusSchema),z.lazy(() => EnumCandidateStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  lastName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneWithoutCandidateNestedInputSchema).optional(),
+  assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
+  organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional()
+}).strict();
+
+export const CandidateUncheckedUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  organizationId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  ghUsername: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => CandidateStatusSchema),z.lazy(() => EnumCandidateStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  lastName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional()
+}).strict();
+
+export const AssessmentSessionUpsertWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionUpsertWithoutSubmissionInput> = z.object({
+  update: z.union([ z.lazy(() => AssessmentSessionUpdateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedUpdateWithoutSubmissionInputSchema) ]),
+  create: z.union([ z.lazy(() => AssessmentSessionCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedCreateWithoutSubmissionInputSchema) ]),
+  where: z.lazy(() => AssessmentSessionWhereInputSchema).optional()
+}).strict();
+
+export const AssessmentSessionUpdateToOneWithWhereWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionUpdateToOneWithWhereWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => AssessmentSessionWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => AssessmentSessionUpdateWithoutSubmissionInputSchema),z.lazy(() => AssessmentSessionUncheckedUpdateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const AssessmentSessionUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  sessionToken: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => EnumAssessmentSessionStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutApplicantSessionsNestedInputSchema).optional(),
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchema).optional()
+}).strict();
+
+export const AssessmentSessionUncheckedUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  sessionToken: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  expiresAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => EnumAssessmentSessionStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const AssessmentUpsertWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentUpsertWithoutSubmissionInput> = z.object({
+  update: z.union([ z.lazy(() => AssessmentUpdateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedUpdateWithoutSubmissionInputSchema) ]),
+  create: z.union([ z.lazy(() => AssessmentCreateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedCreateWithoutSubmissionInputSchema) ]),
+  where: z.lazy(() => AssessmentWhereInputSchema).optional()
+}).strict();
+
+export const AssessmentUpdateToOneWithWhereWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentUpdateToOneWithWhereWithoutSubmissionInput> = z.object({
+  where: z.lazy(() => AssessmentWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => AssessmentUpdateWithoutSubmissionInputSchema),z.lazy(() => AssessmentUncheckedUpdateWithoutSubmissionInputSchema) ]),
+}).strict();
+
+export const AssessmentUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => AssessmentStatusSchema),z.lazy(() => EnumAssessmentStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  ghIssuesQuerySeach: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  evaluationPeriod: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutCreatedAssessmentsNestedInputSchema).optional(),
+  organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAssessmentsNestedInputSchema).optional(),
+  candidates: z.lazy(() => CandidateUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
+  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional()
+}).strict();
+
+export const AssessmentUncheckedUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  slug: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => AssessmentStatusSchema),z.lazy(() => EnumAssessmentStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  organizationId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  ghIssuesQuerySeach: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  evaluationPeriod: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
+  candidates: z.lazy(() => CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionCreateWithoutContributionsInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidate: z.lazy(() => CandidateCreateNestedOneWithoutSubmissionInputSchema),
+  session: z.lazy(() => AssessmentSessionCreateNestedOneWithoutSubmissionInputSchema),
+  assessment: z.lazy(() => AssessmentCreateNestedOneWithoutSubmissionInputSchema)
+}).strict();
+
+export const SubmissionUncheckedCreateWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionUncheckedCreateWithoutContributionsInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentSessionId: z.string(),
+  assessmentId: z.string()
+}).strict();
+
+export const SubmissionCreateOrConnectWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionCreateOrConnectWithoutContributionsInput> = z.object({
+  where: z.lazy(() => SubmissionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutContributionsInputSchema) ]),
+}).strict();
+
+export const CandidateCreateWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateCreateWithoutContributionsInput> = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  ghUsername: z.string().optional().nullable(),
+  status: z.lazy(() => CandidateStatusSchema).optional(),
+  lastName: z.string(),
+  email: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutCandidateInputSchema).optional(),
+  assessmentSessions: z.lazy(() => AssessmentSessionCreateNestedManyWithoutCandidateInputSchema).optional(),
+  organization: z.lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutCreatedCandidatesInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionCreateNestedManyWithoutCandidateInputSchema).optional()
+}).strict();
+
+export const CandidateUncheckedCreateWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateUncheckedCreateWithoutContributionsInput> = z.object({
+  id: z.string().optional(),
+  userId: z.string().optional().nullable(),
+  organizationId: z.string().optional().nullable(),
+  name: z.string(),
+  ghUsername: z.string().optional().nullable(),
+  status: z.lazy(() => CandidateStatusSchema).optional(),
+  lastName: z.string(),
+  email: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string().optional().nullable(),
+  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentUncheckedCreateNestedManyWithoutCandidatesInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedCreateNestedManyWithoutCandidateInputSchema).optional()
+}).strict();
+
+export const CandidateCreateOrConnectWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateCreateOrConnectWithoutContributionsInput> = z.object({
+  where: z.lazy(() => CandidateWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CandidateCreateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutContributionsInputSchema) ]),
+}).strict();
+
+export const SubmissionUpsertWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionUpsertWithoutContributionsInput> = z.object({
+  update: z.union([ z.lazy(() => SubmissionUpdateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutContributionsInputSchema) ]),
+  create: z.union([ z.lazy(() => SubmissionCreateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedCreateWithoutContributionsInputSchema) ]),
+  where: z.lazy(() => SubmissionWhereInputSchema).optional()
+}).strict();
+
+export const SubmissionUpdateToOneWithWhereWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionUpdateToOneWithWhereWithoutContributionsInput> = z.object({
+  where: z.lazy(() => SubmissionWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => SubmissionUpdateWithoutContributionsInputSchema),z.lazy(() => SubmissionUncheckedUpdateWithoutContributionsInputSchema) ]),
+}).strict();
+
+export const SubmissionUpdateWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionUpdateWithoutContributionsInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  session: z.lazy(() => AssessmentSessionUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUncheckedUpdateWithoutContributionsInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateWithoutContributionsInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentSessionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CandidateUpsertWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateUpsertWithoutContributionsInput> = z.object({
+  update: z.union([ z.lazy(() => CandidateUpdateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutContributionsInputSchema) ]),
+  create: z.union([ z.lazy(() => CandidateCreateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedCreateWithoutContributionsInputSchema) ]),
+  where: z.lazy(() => CandidateWhereInputSchema).optional()
+}).strict();
+
+export const CandidateUpdateToOneWithWhereWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateUpdateToOneWithWhereWithoutContributionsInput> = z.object({
+  where: z.lazy(() => CandidateWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CandidateUpdateWithoutContributionsInputSchema),z.lazy(() => CandidateUncheckedUpdateWithoutContributionsInputSchema) ]),
+}).strict();
+
+export const CandidateUpdateWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateUpdateWithoutContributionsInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  ghUsername: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => CandidateStatusSchema),z.lazy(() => EnumCandidateStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  lastName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneWithoutCandidateNestedInputSchema).optional(),
+  assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
+  organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
+}).strict();
+
+export const CandidateUncheckedUpdateWithoutContributionsInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutContributionsInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  organizationId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  ghUsername: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.lazy(() => CandidateStatusSchema),z.lazy(() => EnumCandidateStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  lastName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  email: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const AccountCreateManyUserInputSchema: z.ZodType<Prisma.AccountCreateManyUserInput> = z.object({
@@ -5885,7 +7556,8 @@ export const AssessmentUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.Asses
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAssessmentsNestedInputSchema).optional(),
   candidates: z.lazy(() => CandidateUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateWithoutCreatedByInput> = z.object({
@@ -5902,7 +7574,8 @@ export const AssessmentUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Pri
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   candidates: z.lazy(() => CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateManyWithoutCreatedAssessmentsInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateManyWithoutCreatedAssessmentsInput> = z.object({
@@ -5950,7 +7623,9 @@ export const CandidateUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.Candid
   user: z.lazy(() => UserUpdateOneWithoutCandidateNestedInputSchema).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutCreatedByInput> = z.object({
@@ -5965,7 +7640,9 @@ export const CandidateUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Pris
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateManyWithoutCreatedCandidatesInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateManyWithoutCreatedCandidatesInput> = z.object({
@@ -6057,7 +7734,8 @@ export const AssessmentUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.As
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   createdBy: z.lazy(() => UserUpdateOneRequiredWithoutCreatedAssessmentsNestedInputSchema).optional(),
   candidates: z.lazy(() => CandidateUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateWithoutOrganizationInput> = z.object({
@@ -6074,7 +7752,8 @@ export const AssessmentUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   candidates: z.lazy(() => CandidateUncheckedUpdateManyWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateManyWithoutAssessmentsInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateManyWithoutAssessmentsInput> = z.object({
@@ -6104,7 +7783,9 @@ export const CandidateUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.Can
   user: z.lazy(() => UserUpdateOneWithoutCandidateNestedInputSchema).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
   assessments: z.lazy(() => AssessmentUpdateManyWithoutCandidatesNestedInputSchema).optional(),
-  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional()
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutOrganizationInput> = z.object({
@@ -6119,7 +7800,9 @@ export const CandidateUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<P
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
-  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional()
+  assessments: z.lazy(() => AssessmentUncheckedUpdateManyWithoutCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateManyWithoutCandidatesInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateManyWithoutCandidatesInput> = z.object({
@@ -6187,6 +7870,25 @@ export const AssessmentSessionCreateManyCandidateInputSchema: z.ZodType<Prisma.A
   finishedAt: z.coerce.date().optional().nullable()
 }).strict();
 
+export const ContributionCreateManyContributorInputSchema: z.ZodType<Prisma.ContributionCreateManyContributorInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  submissionId: z.string().optional().nullable()
+}).strict();
+
+export const SubmissionCreateManyCandidateInputSchema: z.ZodType<Prisma.SubmissionCreateManyCandidateInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  assessmentSessionId: z.string(),
+  assessmentId: z.string()
+}).strict();
+
 export const AssessmentSessionUpdateWithoutCandidateInputSchema: z.ZodType<Prisma.AssessmentSessionUpdateWithoutCandidateInput> = z.object({
   id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   sessionToken: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -6194,7 +7896,8 @@ export const AssessmentSessionUpdateWithoutCandidateInputSchema: z.ZodType<Prism
   status: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => EnumAssessmentSessionStatusFieldUpdateOperationsInputSchema) ]).optional(),
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutApplicantSessionsNestedInputSchema).optional()
+  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutApplicantSessionsNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutSessionNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedUpdateWithoutCandidateInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateWithoutCandidateInput> = z.object({
@@ -6205,6 +7908,7 @@ export const AssessmentSessionUncheckedUpdateWithoutCandidateInputSchema: z.ZodT
   assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutSessionNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedUpdateManyWithoutAssessmentSessionsInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateManyWithoutAssessmentSessionsInput> = z.object({
@@ -6231,7 +7935,8 @@ export const AssessmentUpdateWithoutCandidatesInputSchema: z.ZodType<Prisma.Asse
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
   createdBy: z.lazy(() => UserUpdateOneRequiredWithoutCreatedAssessmentsNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutAssessmentsNestedInputSchema).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutAssessmentNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentUncheckedUpdateWithoutCandidatesInputSchema: z.ZodType<Prisma.AssessmentUncheckedUpdateWithoutCandidatesInput> = z.object({
@@ -6248,7 +7953,67 @@ export const AssessmentUncheckedUpdateWithoutCandidatesInputSchema: z.ZodType<Pr
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   published: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   visibility: z.union([ z.lazy(() => VisibilitySchema),z.lazy(() => EnumVisibilityFieldUpdateOperationsInputSchema) ]).optional(),
-  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
+  applicantSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutAssessmentNestedInputSchema).optional()
+}).strict();
+
+export const ContributionUpdateWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUpdateWithoutContributorInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  submission: z.lazy(() => SubmissionUpdateOneWithoutContributionsNestedInputSchema).optional()
+}).strict();
+
+export const ContributionUncheckedUpdateWithoutContributorInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateWithoutContributorInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+}).strict();
+
+export const ContributionUncheckedUpdateManyWithoutContributionsInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateManyWithoutContributionsInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+}).strict();
+
+export const SubmissionUpdateWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUpdateWithoutCandidateInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutSubmissionNestedInputSchema).optional(),
+  session: z.lazy(() => AssessmentSessionUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUncheckedUpdateWithoutCandidateInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateWithoutCandidateInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentSessionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUncheckedUpdateManyWithoutSubmissionInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateManyWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentSessionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const AssessmentSessionCreateManyAssessmentInputSchema: z.ZodType<Prisma.AssessmentSessionCreateManyAssessmentInput> = z.object({
@@ -6259,6 +8024,15 @@ export const AssessmentSessionCreateManyAssessmentInputSchema: z.ZodType<Prisma.
   startedAt: z.coerce.date().optional(),
   finishedAt: z.coerce.date().optional().nullable(),
   candidateId: z.string()
+}).strict();
+
+export const SubmissionCreateManyAssessmentInputSchema: z.ZodType<Prisma.SubmissionCreateManyAssessmentInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentSessionId: z.string()
 }).strict();
 
 export const CandidateUpdateWithoutAssessmentsInputSchema: z.ZodType<Prisma.CandidateUpdateWithoutAssessmentsInput> = z.object({
@@ -6273,7 +8047,9 @@ export const CandidateUpdateWithoutAssessmentsInputSchema: z.ZodType<Prisma.Cand
   user: z.lazy(() => UserUpdateOneWithoutCandidateNestedInputSchema).optional(),
   assessmentSessions: z.lazy(() => AssessmentSessionUpdateManyWithoutCandidateNestedInputSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema).optional(),
-  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional()
+  createdBy: z.lazy(() => UserUpdateOneWithoutCreatedCandidatesNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const CandidateUncheckedUpdateWithoutAssessmentsInputSchema: z.ZodType<Prisma.CandidateUncheckedUpdateWithoutAssessmentsInput> = z.object({
@@ -6288,7 +8064,9 @@ export const CandidateUncheckedUpdateWithoutAssessmentsInputSchema: z.ZodType<Pr
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdById: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
+  assessmentSessions: z.lazy(() => AssessmentSessionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutContributorNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutCandidateNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUpdateWithoutAssessmentInputSchema: z.ZodType<Prisma.AssessmentSessionUpdateWithoutAssessmentInput> = z.object({
@@ -6298,7 +8076,8 @@ export const AssessmentSessionUpdateWithoutAssessmentInputSchema: z.ZodType<Pris
   status: z.union([ z.lazy(() => AssessmentSessionStatusSchema),z.lazy(() => EnumAssessmentSessionStatusFieldUpdateOperationsInputSchema) ]).optional(),
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchema).optional()
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutAssessmentSessionsNestedInputSchema).optional(),
+  Submission: z.lazy(() => SubmissionUpdateManyWithoutSessionNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedUpdateWithoutAssessmentInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateWithoutAssessmentInput> = z.object({
@@ -6309,6 +8088,7 @@ export const AssessmentSessionUncheckedUpdateWithoutAssessmentInputSchema: z.Zod
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  Submission: z.lazy(() => SubmissionUncheckedUpdateManyWithoutSessionNestedInputSchema).optional()
 }).strict();
 
 export const AssessmentSessionUncheckedUpdateManyWithoutApplicantSessionsInputSchema: z.ZodType<Prisma.AssessmentSessionUncheckedUpdateManyWithoutApplicantSessionsInput> = z.object({
@@ -6319,6 +8099,85 @@ export const AssessmentSessionUncheckedUpdateManyWithoutApplicantSessionsInputSc
   startedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   finishedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const SubmissionUpdateWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUpdateWithoutAssessmentInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutSubmissionNestedInputSchema).optional(),
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  session: z.lazy(() => AssessmentSessionUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUncheckedUpdateWithoutAssessmentInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateWithoutAssessmentInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentSessionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionCreateManySessionInputSchema: z.ZodType<Prisma.SubmissionCreateManySessionInput> = z.object({
+  id: z.string().optional(),
+  status: z.lazy(() => SubmissionStateSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  candidateId: z.string(),
+  assessmentId: z.string()
+}).strict();
+
+export const SubmissionUpdateWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUpdateWithoutSessionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUpdateManyWithoutSubmissionNestedInputSchema).optional(),
+  candidate: z.lazy(() => CandidateUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional(),
+  assessment: z.lazy(() => AssessmentUpdateOneRequiredWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const SubmissionUncheckedUpdateWithoutSessionInputSchema: z.ZodType<Prisma.SubmissionUncheckedUpdateWithoutSessionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  status: z.union([ z.lazy(() => SubmissionStateSchema),z.lazy(() => EnumSubmissionStateFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  candidateId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  assessmentId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  contributions: z.lazy(() => ContributionUncheckedUpdateManyWithoutSubmissionNestedInputSchema).optional()
+}).strict();
+
+export const ContributionCreateManySubmissionInputSchema: z.ZodType<Prisma.ContributionCreateManySubmissionInput> = z.object({
+  id: z.string().optional(),
+  type: z.lazy(() => ContributionTypeSchema).optional(),
+  title: z.string(),
+  description: z.string(),
+  url: z.string(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  contributorId: z.string()
+}).strict();
+
+export const ContributionUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  contributor: z.lazy(() => CandidateUpdateOneRequiredWithoutContributionsNestedInputSchema).optional()
+}).strict();
+
+export const ContributionUncheckedUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateWithoutSubmissionInput> = z.object({
+  id: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => EnumContributionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  contributorId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 /////////////////////////////////////////
@@ -6878,6 +8737,130 @@ export const AssessmentSessionFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.Asse
   where: AssessmentSessionWhereUniqueInputSchema,
 }).strict()
 
+export const SubmissionFindFirstArgsSchema: z.ZodType<Prisma.SubmissionFindFirstArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereInputSchema.optional(),
+  orderBy: z.union([ SubmissionOrderByWithRelationInputSchema.array(),SubmissionOrderByWithRelationInputSchema ]).optional(),
+  cursor: SubmissionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ SubmissionScalarFieldEnumSchema,SubmissionScalarFieldEnumSchema.array() ]).optional(),
+}).strict()
+
+export const SubmissionFindFirstOrThrowArgsSchema: z.ZodType<Prisma.SubmissionFindFirstOrThrowArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereInputSchema.optional(),
+  orderBy: z.union([ SubmissionOrderByWithRelationInputSchema.array(),SubmissionOrderByWithRelationInputSchema ]).optional(),
+  cursor: SubmissionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ SubmissionScalarFieldEnumSchema,SubmissionScalarFieldEnumSchema.array() ]).optional(),
+}).strict()
+
+export const SubmissionFindManyArgsSchema: z.ZodType<Prisma.SubmissionFindManyArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereInputSchema.optional(),
+  orderBy: z.union([ SubmissionOrderByWithRelationInputSchema.array(),SubmissionOrderByWithRelationInputSchema ]).optional(),
+  cursor: SubmissionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ SubmissionScalarFieldEnumSchema,SubmissionScalarFieldEnumSchema.array() ]).optional(),
+}).strict()
+
+export const SubmissionAggregateArgsSchema: z.ZodType<Prisma.SubmissionAggregateArgs> = z.object({
+  where: SubmissionWhereInputSchema.optional(),
+  orderBy: z.union([ SubmissionOrderByWithRelationInputSchema.array(),SubmissionOrderByWithRelationInputSchema ]).optional(),
+  cursor: SubmissionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict()
+
+export const SubmissionGroupByArgsSchema: z.ZodType<Prisma.SubmissionGroupByArgs> = z.object({
+  where: SubmissionWhereInputSchema.optional(),
+  orderBy: z.union([ SubmissionOrderByWithAggregationInputSchema.array(),SubmissionOrderByWithAggregationInputSchema ]).optional(),
+  by: SubmissionScalarFieldEnumSchema.array(),
+  having: SubmissionScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict()
+
+export const SubmissionFindUniqueArgsSchema: z.ZodType<Prisma.SubmissionFindUniqueArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereUniqueInputSchema,
+}).strict()
+
+export const SubmissionFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.SubmissionFindUniqueOrThrowArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereUniqueInputSchema,
+}).strict()
+
+export const ContributionFindFirstArgsSchema: z.ZodType<Prisma.ContributionFindFirstArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereInputSchema.optional(),
+  orderBy: z.union([ ContributionOrderByWithRelationInputSchema.array(),ContributionOrderByWithRelationInputSchema ]).optional(),
+  cursor: ContributionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ContributionScalarFieldEnumSchema,ContributionScalarFieldEnumSchema.array() ]).optional(),
+}).strict()
+
+export const ContributionFindFirstOrThrowArgsSchema: z.ZodType<Prisma.ContributionFindFirstOrThrowArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereInputSchema.optional(),
+  orderBy: z.union([ ContributionOrderByWithRelationInputSchema.array(),ContributionOrderByWithRelationInputSchema ]).optional(),
+  cursor: ContributionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ContributionScalarFieldEnumSchema,ContributionScalarFieldEnumSchema.array() ]).optional(),
+}).strict()
+
+export const ContributionFindManyArgsSchema: z.ZodType<Prisma.ContributionFindManyArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereInputSchema.optional(),
+  orderBy: z.union([ ContributionOrderByWithRelationInputSchema.array(),ContributionOrderByWithRelationInputSchema ]).optional(),
+  cursor: ContributionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ ContributionScalarFieldEnumSchema,ContributionScalarFieldEnumSchema.array() ]).optional(),
+}).strict()
+
+export const ContributionAggregateArgsSchema: z.ZodType<Prisma.ContributionAggregateArgs> = z.object({
+  where: ContributionWhereInputSchema.optional(),
+  orderBy: z.union([ ContributionOrderByWithRelationInputSchema.array(),ContributionOrderByWithRelationInputSchema ]).optional(),
+  cursor: ContributionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict()
+
+export const ContributionGroupByArgsSchema: z.ZodType<Prisma.ContributionGroupByArgs> = z.object({
+  where: ContributionWhereInputSchema.optional(),
+  orderBy: z.union([ ContributionOrderByWithAggregationInputSchema.array(),ContributionOrderByWithAggregationInputSchema ]).optional(),
+  by: ContributionScalarFieldEnumSchema.array(),
+  having: ContributionScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict()
+
+export const ContributionFindUniqueArgsSchema: z.ZodType<Prisma.ContributionFindUniqueArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereUniqueInputSchema,
+}).strict()
+
+export const ContributionFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.ContributionFindUniqueOrThrowArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereUniqueInputSchema,
+}).strict()
+
 export const AccountCreateArgsSchema: z.ZodType<Prisma.AccountCreateArgs> = z.object({
   select: AccountSelectSchema.optional(),
   include: AccountIncludeSchema.optional(),
@@ -7241,4 +9224,86 @@ export const AssessmentSessionUpdateManyArgsSchema: z.ZodType<Prisma.AssessmentS
 
 export const AssessmentSessionDeleteManyArgsSchema: z.ZodType<Prisma.AssessmentSessionDeleteManyArgs> = z.object({
   where: AssessmentSessionWhereInputSchema.optional(),
+}).strict()
+
+export const SubmissionCreateArgsSchema: z.ZodType<Prisma.SubmissionCreateArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  data: z.union([ SubmissionCreateInputSchema,SubmissionUncheckedCreateInputSchema ]),
+}).strict()
+
+export const SubmissionUpsertArgsSchema: z.ZodType<Prisma.SubmissionUpsertArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereUniqueInputSchema,
+  create: z.union([ SubmissionCreateInputSchema,SubmissionUncheckedCreateInputSchema ]),
+  update: z.union([ SubmissionUpdateInputSchema,SubmissionUncheckedUpdateInputSchema ]),
+}).strict()
+
+export const SubmissionCreateManyArgsSchema: z.ZodType<Prisma.SubmissionCreateManyArgs> = z.object({
+  data: z.union([ SubmissionCreateManyInputSchema,SubmissionCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict()
+
+export const SubmissionDeleteArgsSchema: z.ZodType<Prisma.SubmissionDeleteArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  where: SubmissionWhereUniqueInputSchema,
+}).strict()
+
+export const SubmissionUpdateArgsSchema: z.ZodType<Prisma.SubmissionUpdateArgs> = z.object({
+  select: SubmissionSelectSchema.optional(),
+  include: SubmissionIncludeSchema.optional(),
+  data: z.union([ SubmissionUpdateInputSchema,SubmissionUncheckedUpdateInputSchema ]),
+  where: SubmissionWhereUniqueInputSchema,
+}).strict()
+
+export const SubmissionUpdateManyArgsSchema: z.ZodType<Prisma.SubmissionUpdateManyArgs> = z.object({
+  data: z.union([ SubmissionUpdateManyMutationInputSchema,SubmissionUncheckedUpdateManyInputSchema ]),
+  where: SubmissionWhereInputSchema.optional(),
+}).strict()
+
+export const SubmissionDeleteManyArgsSchema: z.ZodType<Prisma.SubmissionDeleteManyArgs> = z.object({
+  where: SubmissionWhereInputSchema.optional(),
+}).strict()
+
+export const ContributionCreateArgsSchema: z.ZodType<Prisma.ContributionCreateArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  data: z.union([ ContributionCreateInputSchema,ContributionUncheckedCreateInputSchema ]),
+}).strict()
+
+export const ContributionUpsertArgsSchema: z.ZodType<Prisma.ContributionUpsertArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereUniqueInputSchema,
+  create: z.union([ ContributionCreateInputSchema,ContributionUncheckedCreateInputSchema ]),
+  update: z.union([ ContributionUpdateInputSchema,ContributionUncheckedUpdateInputSchema ]),
+}).strict()
+
+export const ContributionCreateManyArgsSchema: z.ZodType<Prisma.ContributionCreateManyArgs> = z.object({
+  data: z.union([ ContributionCreateManyInputSchema,ContributionCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict()
+
+export const ContributionDeleteArgsSchema: z.ZodType<Prisma.ContributionDeleteArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  where: ContributionWhereUniqueInputSchema,
+}).strict()
+
+export const ContributionUpdateArgsSchema: z.ZodType<Prisma.ContributionUpdateArgs> = z.object({
+  select: ContributionSelectSchema.optional(),
+  include: ContributionIncludeSchema.optional(),
+  data: z.union([ ContributionUpdateInputSchema,ContributionUncheckedUpdateInputSchema ]),
+  where: ContributionWhereUniqueInputSchema,
+}).strict()
+
+export const ContributionUpdateManyArgsSchema: z.ZodType<Prisma.ContributionUpdateManyArgs> = z.object({
+  data: z.union([ ContributionUpdateManyMutationInputSchema,ContributionUncheckedUpdateManyInputSchema ]),
+  where: ContributionWhereInputSchema.optional(),
+}).strict()
+
+export const ContributionDeleteManyArgsSchema: z.ZodType<Prisma.ContributionDeleteManyArgs> = z.object({
+  where: ContributionWhereInputSchema.optional(),
 }).strict()
