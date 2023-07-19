@@ -1,44 +1,40 @@
 import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
-import SearchIssuesBar from "~/components/SearchIssuesBar";
-import { cache } from "react";
 
-import { OpenTaskItem } from "~/components/OpenTaskItem";
-import { searchIssues } from "~/server/github";
-import { Separator } from "~/components/ui/Separator";
-
-const getIssues = cache(
-  async (querySearch?: { [key: string]: string | string[] | undefined }) => {
-    return await searchIssues({ querySearch: querySearch?.q });
-  },
-);
-
+import { SubmissionItem } from "./SubmissionItem";
+import * as submissionRepo from "~/server/repositories/Submissions";
+import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
+import { GitMerge } from "lucide-react";
 export default async function SubmissionsPage({
   params: { assessmentId },
-  searchParams,
 }: {
   params: { assessmentId: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
   }
 
-  const issues = await getIssues(searchParams);
+  const submissions = await submissionRepo.findByAssessmentId(assessmentId);
   return (
     <div>
-      <div className="mb-8 flex justify-between px-2">
-        <p className="text-neutral-500">tests for your candidates</p>
-      </div>
-      <SearchIssuesBar />
-      <Separator className="my-4" />
+      {submissions && submissions.length > 0 && (
+        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+          {submissions.map((item) => (
+            <SubmissionItem key={item.id} item={item} />
+          ))}
+        </div>
+      )}
 
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-        {issues.map((item) => (
-          <OpenTaskItem key={item.id} item={item} />
-        ))}
-      </div>
+      {submissions && submissions?.length <= 0 && (
+        <EmptyPlaceholder>
+          <EmptyPlaceholder.Icon icon={GitMerge} />
+          <EmptyPlaceholder.Title> No submissions yet</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Description>
+            Get started by inviting candidates to the assessment.
+          </EmptyPlaceholder.Description>
+        </EmptyPlaceholder>
+      )}
     </div>
   );
 }
