@@ -74,7 +74,7 @@ export const ContributionScalarFieldEnumSchema = z.enum(['id','type','title','de
 
 export const SortOrderSchema = z.enum(['asc','desc']);
 
-export const JsonNullValueInputSchema = z.enum(['JsonNull',]);
+export const NullableJsonNullValueInputSchema = z.enum(['DbNull','JsonNull',]).transform((v) => transformJsonNull(v));
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
 
@@ -298,7 +298,7 @@ export const ContributionSchema = z.object({
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: InputJsonValue,
+  meta: NullableJsonValue.optional(),
   submissionId: z.string().nullable(),
   contributorId: z.string(),
 })
@@ -1622,7 +1622,7 @@ export const ContributionWhereInputSchema: z.ZodType<Prisma.ContributionWhereInp
   description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   repo: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  meta: z.lazy(() => JsonFilterSchema).optional(),
+  meta: z.lazy(() => JsonNullableFilterSchema).optional(),
   submissionId: z.union([ z.lazy(() => UuidNullableFilterSchema),z.string() ]).optional().nullable(),
   contributorId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
   submission: z.union([ z.lazy(() => SubmissionRelationFilterSchema),z.lazy(() => SubmissionWhereInputSchema) ]).optional().nullable(),
@@ -1636,7 +1636,7 @@ export const ContributionOrderByWithRelationInputSchema: z.ZodType<Prisma.Contri
   description: z.lazy(() => SortOrderSchema).optional(),
   url: z.lazy(() => SortOrderSchema).optional(),
   repo: z.lazy(() => SortOrderSchema).optional(),
-  meta: z.lazy(() => SortOrderSchema).optional(),
+  meta: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   submissionId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   contributorId: z.lazy(() => SortOrderSchema).optional(),
   submission: z.lazy(() => SubmissionOrderByWithRelationInputSchema).optional(),
@@ -1656,7 +1656,7 @@ export const ContributionWhereUniqueInputSchema: z.ZodType<Prisma.ContributionWh
   description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   repo: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  meta: z.lazy(() => JsonFilterSchema).optional(),
+  meta: z.lazy(() => JsonNullableFilterSchema).optional(),
   submissionId: z.union([ z.lazy(() => UuidNullableFilterSchema),z.string() ]).optional().nullable(),
   contributorId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
   submission: z.union([ z.lazy(() => SubmissionRelationFilterSchema),z.lazy(() => SubmissionWhereInputSchema) ]).optional().nullable(),
@@ -1670,7 +1670,7 @@ export const ContributionOrderByWithAggregationInputSchema: z.ZodType<Prisma.Con
   description: z.lazy(() => SortOrderSchema).optional(),
   url: z.lazy(() => SortOrderSchema).optional(),
   repo: z.lazy(() => SortOrderSchema).optional(),
-  meta: z.lazy(() => SortOrderSchema).optional(),
+  meta: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   submissionId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   contributorId: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => ContributionCountOrderByAggregateInputSchema).optional(),
@@ -1688,7 +1688,7 @@ export const ContributionScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.
   description: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   url: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
   repo: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
-  meta: z.lazy(() => JsonWithAggregatesFilterSchema).optional(),
+  meta: z.lazy(() => JsonNullableWithAggregatesFilterSchema).optional(),
   submissionId: z.union([ z.lazy(() => UuidNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
   contributorId: z.union([ z.lazy(() => UuidWithAggregatesFilterSchema),z.string() ]).optional(),
 }).strict();
@@ -2524,7 +2524,7 @@ export const ContributionCreateInputSchema: z.ZodType<Prisma.ContributionCreateI
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submission: z.lazy(() => SubmissionCreateNestedOneWithoutContributionsInputSchema).optional(),
   contributor: z.lazy(() => CandidateCreateNestedOneWithoutContributionsInputSchema)
 }).strict();
@@ -2536,7 +2536,7 @@ export const ContributionUncheckedCreateInputSchema: z.ZodType<Prisma.Contributi
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.string().optional().nullable(),
   contributorId: z.string()
 }).strict();
@@ -2548,7 +2548,7 @@ export const ContributionUpdateInputSchema: z.ZodType<Prisma.ContributionUpdateI
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submission: z.lazy(() => SubmissionUpdateOneWithoutContributionsNestedInputSchema).optional(),
   contributor: z.lazy(() => CandidateUpdateOneRequiredWithoutContributionsNestedInputSchema).optional()
 }).strict();
@@ -2560,7 +2560,7 @@ export const ContributionUncheckedUpdateInputSchema: z.ZodType<Prisma.Contributi
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   contributorId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -2572,7 +2572,7 @@ export const ContributionCreateManyInputSchema: z.ZodType<Prisma.ContributionCre
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.string().optional().nullable(),
   contributorId: z.string()
 }).strict();
@@ -2584,7 +2584,7 @@ export const ContributionUpdateManyMutationInputSchema: z.ZodType<Prisma.Contrib
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
 }).strict();
 
 export const ContributionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.ContributionUncheckedUpdateManyInput> = z.object({
@@ -2594,7 +2594,7 @@ export const ContributionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Contri
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   contributorId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -3446,7 +3446,7 @@ export const EnumContributionTypeFilterSchema: z.ZodType<Prisma.EnumContribution
   not: z.union([ z.lazy(() => ContributionTypeSchema),z.lazy(() => NestedEnumContributionTypeFilterSchema) ]).optional(),
 }).strict();
 
-export const JsonFilterSchema: z.ZodType<Prisma.JsonFilter> = z.object({
+export const JsonNullableFilterSchema: z.ZodType<Prisma.JsonNullableFilter> = z.object({
   equals: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
   path: z.string().array().optional(),
   string_contains: z.string().optional(),
@@ -3511,7 +3511,7 @@ export const EnumContributionTypeWithAggregatesFilterSchema: z.ZodType<Prisma.En
   _max: z.lazy(() => NestedEnumContributionTypeFilterSchema).optional()
 }).strict();
 
-export const JsonWithAggregatesFilterSchema: z.ZodType<Prisma.JsonWithAggregatesFilter> = z.object({
+export const JsonNullableWithAggregatesFilterSchema: z.ZodType<Prisma.JsonNullableWithAggregatesFilter> = z.object({
   equals: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
   path: z.string().array().optional(),
   string_contains: z.string().optional(),
@@ -3525,9 +3525,9 @@ export const JsonWithAggregatesFilterSchema: z.ZodType<Prisma.JsonWithAggregates
   gt: InputJsonValue.optional(),
   gte: InputJsonValue.optional(),
   not: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
-  _count: z.lazy(() => NestedIntFilterSchema).optional(),
-  _min: z.lazy(() => NestedJsonFilterSchema).optional(),
-  _max: z.lazy(() => NestedJsonFilterSchema).optional()
+  _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
+  _min: z.lazy(() => NestedJsonNullableFilterSchema).optional(),
+  _max: z.lazy(() => NestedJsonNullableFilterSchema).optional()
 }).strict();
 
 export const UserCreateNestedOneWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutAccountsInput> = z.object({
@@ -5013,7 +5013,7 @@ export const NestedEnumContributionTypeWithAggregatesFilterSchema: z.ZodType<Pri
   _max: z.lazy(() => NestedEnumContributionTypeFilterSchema).optional()
 }).strict();
 
-export const NestedJsonFilterSchema: z.ZodType<Prisma.NestedJsonFilter> = z.object({
+export const NestedJsonNullableFilterSchema: z.ZodType<Prisma.NestedJsonNullableFilter> = z.object({
   equals: z.union([ InputJsonValue,z.lazy(() => JsonNullValueFilterSchema) ]).optional(),
   path: z.string().array().optional(),
   string_contains: z.string().optional(),
@@ -6242,7 +6242,7 @@ export const ContributionCreateWithoutContributorInputSchema: z.ZodType<Prisma.C
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submission: z.lazy(() => SubmissionCreateNestedOneWithoutContributionsInputSchema).optional()
 }).strict();
 
@@ -6253,7 +6253,7 @@ export const ContributionUncheckedCreateWithoutContributorInputSchema: z.ZodType
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.string().optional().nullable()
 }).strict();
 
@@ -6496,7 +6496,7 @@ export const ContributionScalarWhereInputSchema: z.ZodType<Prisma.ContributionSc
   description: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   url: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
   repo: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
-  meta: z.lazy(() => JsonFilterSchema).optional(),
+  meta: z.lazy(() => JsonNullableFilterSchema).optional(),
   submissionId: z.union([ z.lazy(() => UuidNullableFilterSchema),z.string() ]).optional().nullable(),
   contributorId: z.union([ z.lazy(() => UuidFilterSchema),z.string() ]).optional(),
 }).strict();
@@ -7061,7 +7061,7 @@ export const ContributionCreateWithoutSubmissionInputSchema: z.ZodType<Prisma.Co
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   contributor: z.lazy(() => CandidateCreateNestedOneWithoutContributionsInputSchema)
 }).strict();
 
@@ -7072,7 +7072,7 @@ export const ContributionUncheckedCreateWithoutSubmissionInputSchema: z.ZodType<
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   contributorId: z.string()
 }).strict();
 
@@ -7927,7 +7927,7 @@ export const ContributionCreateManyContributorInputSchema: z.ZodType<Prisma.Cont
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.string().optional().nullable()
 }).strict();
 
@@ -8016,7 +8016,7 @@ export const ContributionUpdateWithoutContributorInputSchema: z.ZodType<Prisma.C
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submission: z.lazy(() => SubmissionUpdateOneWithoutContributionsNestedInputSchema).optional()
 }).strict();
 
@@ -8027,7 +8027,7 @@ export const ContributionUncheckedUpdateWithoutContributorInputSchema: z.ZodType
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
@@ -8038,7 +8038,7 @@ export const ContributionUncheckedUpdateManyWithoutContributionsInputSchema: z.Z
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   submissionId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
 }).strict();
 
@@ -8221,7 +8221,7 @@ export const ContributionCreateManySubmissionInputSchema: z.ZodType<Prisma.Contr
   description: z.string(),
   url: z.string(),
   repo: z.string(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   contributorId: z.string()
 }).strict();
 
@@ -8232,7 +8232,7 @@ export const ContributionUpdateWithoutSubmissionInputSchema: z.ZodType<Prisma.Co
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   contributor: z.lazy(() => CandidateUpdateOneRequiredWithoutContributionsNestedInputSchema).optional()
 }).strict();
 
@@ -8243,7 +8243,7 @@ export const ContributionUncheckedUpdateWithoutSubmissionInputSchema: z.ZodType<
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   repo: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  meta: z.union([ z.lazy(() => JsonNullValueInputSchema),InputJsonValue ]).optional(),
+  meta: z.union([ z.lazy(() => NullableJsonNullValueInputSchema),InputJsonValue ]).optional(),
   contributorId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 

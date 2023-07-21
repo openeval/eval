@@ -14,34 +14,27 @@ interface SubmissionItemProps {
 
 export function SubmissionItem({ item }: SubmissionItemProps) {
   return (
-    <div className="grid grid-cols-8 p-2 text-sm  hover:bg-slate-100">
-      <div className="col-span-8 sm:col-span-6">
+    <div className="grid grid-cols-3 p-2 text-sm  hover:bg-slate-100">
+      <div className="">
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">
-            <CircleDot className="mr-2 mt-1 h-5 w-5 text-green-600" />
             <span className="text-zinc-400 hover:text-sky-500">
               {formatDate(new Date(item.createdAt).toDateString())}
             </span>
           </span>
         </div>
-        <div className="ml-7 text-zinc-400"></div>
+        <div className="">{item.status}</div>
       </div>
 
-      <div className="no-wrap col-span-2 hidden justify-between pr-3 pt-2 text-right text-zinc-400 sm:flex">
-        <span className="ml-2 flex cursor-pointer font-medium hover:text-sky-500">
-          {item.contributions.map((contribution) => {
-            return (
-              <div>
-                {contribution.type === "PULL_REQUEST" && (
-                  <div>
-                    <GitMerge />{" "}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      <div className="">
+        <span className="flex cursor-pointer font-medium hover:text-sky-500">
+          {item.contributions.length > 0 && (
+            <>
+              <GitMerge className="mr-2 h-5 w-5" />
+              {item.contributions.length}
+            </>
+          )}
         </span>
-        <span className="ml-2 "></span>
       </div>
     </div>
   );

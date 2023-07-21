@@ -10,6 +10,7 @@ interface PageProps {
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
+import { finishAssessmentSessionAction } from "./actions";
 const getAssessmentSessionById = cache(async (id: string) => {
   return await prisma.assessmentSession.findFirst({
     where: {
@@ -23,7 +24,7 @@ const getIssues = cache(
   async (querySearch?: { [key: string]: string | string[] | undefined }) => {
     const issuees = await searchIssues({ querySearch });
     return issuees;
-  }
+  },
 );
 
 const getPullRequests = cache(async (user, assessment) => {
@@ -33,7 +34,7 @@ const getPullRequests = cache(async (user, assessment) => {
   const ghProfile = await getProfile(account.providerAccountId);
   const pr = await searchContributions(
     ghProfile.login,
-    assessment.ghIssuesQuerySeach
+    assessment.ghIssuesQuerySeach,
   );
   return pr;
 });
@@ -57,7 +58,10 @@ export default async function Page({ params }: PageProps) {
           <Typography variant="h1">{session.assessment.title}</Typography>
           <Typography variant="small">closes at 21/02/2022</Typography>
         </div>
-        <FinishAssessmentSessionButton sessionId={params.sessionId} />
+        <FinishAssessmentSessionButton
+          action={finishAssessmentSessionAction}
+          sessionId={params.sessionId}
+        />
       </div>
 
       <Typography variant="p">
