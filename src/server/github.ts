@@ -55,4 +55,14 @@ export async function getPullRequests(username, assessment) {
   return pr;
 }
 
+export async function fetchPullRequest() {
+  const { data: pullRequest } = await octokit.rest.pulls.get({
+    owner: "octokit",
+    repo: "rest.js",
+    pull_number: 123,
+  });
+
+  return pullRequest;
+}
+
 export { octokit, searchIssues };
