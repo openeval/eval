@@ -44,11 +44,10 @@ export async function createAssessment(data: CreateAssessmentDtoType) {
     });
 
     return assessment;
-  } catch (error) {
-    // TODO : how to capture errors in server actions (no documented)
-
-    if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify(error.issues), { status: 422 });
+  } catch (e) {
+    console.log(e);
+    if (e instanceof z.ZodError) {
+      return JSON.stringify(e.issues);
     }
 
     throw new Error("something went wrong");
@@ -57,7 +56,7 @@ export async function createAssessment(data: CreateAssessmentDtoType) {
 
 export async function updateAssessment(
   where: Prisma.AssessmentWhereUniqueInput,
-  data: Prisma.AssessmentUpdateInput
+  data: Prisma.AssessmentUpdateInput,
 ) {
   const session = await getServerSession(authOptions);
 
@@ -71,7 +70,7 @@ export async function updateAssessment(
     });
 
     await prisma.assessment.update({
-      where: { ...where, createdById: session.user.id },
+      where: { ...where },
       data,
     });
 
@@ -79,6 +78,10 @@ export async function updateAssessment(
     // this refresh the data from the form
     revalidatePath("/assessments/[assessmentId]");
   } catch (e) {
+    console.log(e);
+    if (e instanceof z.ZodError) {
+      return JSON.stringify(e.issues);
+    }
     // TODO : how to capture errors in server actions (no documented)
     throw new Error("something went wrong");
   }

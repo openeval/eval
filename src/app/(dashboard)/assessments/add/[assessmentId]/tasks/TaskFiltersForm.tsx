@@ -8,14 +8,11 @@ import { z } from "zod";
 
 import { cn } from "~/lib/utils";
 
-
 import { Button } from "~/components/ui/Button";
 
 import { type Assessment } from "@prisma/client";
 
-import {
-  Form,
-} from "~/components/ui/Form";
+import { Form } from "~/components/ui/Form";
 import type { Prisma } from "@prisma/client";
 
 interface AssessmentSettingsFormProps
@@ -24,12 +21,12 @@ interface AssessmentSettingsFormProps
   assessment: Partial<Assessment>;
   action: (
     where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput
+    data: Prisma.AssessmentUpdateInput,
   ) => Promise<unknown>;
 }
 
 const assessmentSchema = z.object({
-  evaluationPeriod: z.string(),
+  evaluationPeriodDays: z.string(),
   published: z.boolean(),
 });
 
@@ -48,7 +45,6 @@ export function AssessmentSettingsForm({
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         await props.action({ id: props.assessment.id }, data);
@@ -72,7 +68,7 @@ export function AssessmentSettingsForm({
       {/* https://github.com/react-hook-form/react-hook-form/issues/10391 */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Button isLoading={isLoading}>Next</Button>
+          <Button disabled={isLoading}>Next</Button>
         </form>
       </Form>
     </div>

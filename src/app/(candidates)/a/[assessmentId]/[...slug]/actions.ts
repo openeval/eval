@@ -40,7 +40,9 @@ export async function startAssessmentSessionAction(assessmentId) {
     const response = await assessmentSessionsRepo.create({
       assessment: { connect: { id: assessmentId } },
       sessionToken: "TODO_SESSION_TOKEN",
-      expiresAt: add(new Date(), { days: assessment.evaluationPeriod || 1 }),
+      expiresAt: add(new Date(), {
+        days: Number(assessment.evaluationPeriod) || 1,
+      }),
       //TODO: add more conditions , like matching org candidate etc
       candidate: {
         connect: { id: candidate?.id },

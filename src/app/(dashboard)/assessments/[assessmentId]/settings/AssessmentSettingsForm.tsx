@@ -47,7 +47,7 @@ interface AssessmentSettingsFormProps
 }
 
 const assessmentSchema = z.object({
-  evaluationPeriod: z.string(),
+  evaluationPeriodDays: z.string(),
   published: z.boolean(),
 });
 
@@ -117,7 +117,7 @@ export function AssessmentSettingsForm({
 
               <FormField
                 control={form.control}
-                name="evaluationPeriod"
+                name="evaluationPeriodDays"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Evaluation period</FormLabel>
@@ -130,10 +130,9 @@ export function AssessmentSettingsForm({
                         <SelectValue placeholder="Select a period" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 day</SelectItem>
-                        <SelectItem value="7">1 week</SelectItem>
-                        <SelectItem value="14">2 weeks</SelectItem>
-                        <SelectItem value="30">1 month</SelectItem>
+                        <SelectItem value={"1"}>1 day</SelectItem>
+                        <SelectItem value={"7"}>1 week</SelectItem>
+                        <SelectItem value={"14"}>2 weeks</SelectItem>
                       </SelectContent>
                     </Select>
 

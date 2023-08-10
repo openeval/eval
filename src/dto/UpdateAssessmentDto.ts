@@ -1,3 +1,8 @@
-import { AssessmentUpdateInputSchema } from "prisma/zod";
+import { z } from "zod";
 
-export const UpdateAssessmentDto = AssessmentUpdateInputSchema;
+const UpdateAssessmentDto = z.object({
+  evaluationPeriodDays: z.string().optional(),
+  published: z.boolean().optional(),
+});
+
+export { UpdateAssessmentDto };

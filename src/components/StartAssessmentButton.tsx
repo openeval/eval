@@ -80,7 +80,7 @@ export default function StartAssessmentButton({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             Once you start your session you will have 24 hours to submit your
-            open source contributtion. Good luck!
+            open source contribution. Good luck!
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

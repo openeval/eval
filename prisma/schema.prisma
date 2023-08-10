@@ -67,7 +67,7 @@ model User {
   name                 String?
   email                String?        @unique
   emailVerified        DateTime?      @map("email_verified")
-  completedOnboarding  Boolean        @default(false) @map("completed_onboarding")
+  completedOnboarding  Boolean        @default(false) @map("onboarding_completed")
   image                String?
   accounts             Account[]
   sessions             Session[]
@@ -183,25 +183,25 @@ enum Visibility {
 }
 
 model Assessment {
-  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title              String
-  slug               String?
-  description        String
-  status             AssessmentStatus    @default(DRAFT) @map("status")
-  createdBy          User                @relation(fields: [createdById], references: [id])
-  createdById        String              @map("created_by_id") @db.Uuid
-  organization       Organization        @relation(fields: [organizationId], references: [id])
-  organizationId     String              @map("organization_id") @db.Uuid
-  candidates         Candidate[]
-  applicantSessions  AssessmentSession[]
-  ghIssuesQuerySeach String?             @map("gh_issues_query_seach")
-  evaluationPeriod   Int                 @default(1) @map("evaluation_period")
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
-  published          Boolean             @default(false)
-  visibility         Visibility          @default(PUBLIC)
-  submission         Submission[]
-  reviewers          User[]              @relation(name: "userAssessmentReviewing")
+  id                   String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                String
+  slug                 String?
+  description          String
+  status               AssessmentStatus    @default(DRAFT) @map("status")
+  createdBy            User                @relation(fields: [createdById], references: [id])
+  createdById          String              @map("created_by_id") @db.Uuid
+  organization         Organization        @relation(fields: [organizationId], references: [id])
+  organizationId       String              @map("organization_id") @db.Uuid
+  candidates           Candidate[]
+  applicantSessions    AssessmentSession[]
+  ghIssuesQuerySeach   String?             @map("gh_issues_query_seach")
+  evaluationPeriodDays String?             @default("1") @map("evaluation_period_days")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @default(now()) @updatedAt @map("updated_at")
+  published            Boolean             @default(false)
+  visibility           Visibility          @default(PUBLIC)
+  submission           Submission[]
+  reviewers            User[]              @relation(name: "userAssessmentReviewing")
 
   @@map("assessment")
 }
