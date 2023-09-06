@@ -83,7 +83,7 @@ export function CandidateOnboardingForm({
             )}
           </div>
 
-          <Button isLoading={isLoading}>Next</Button>
+          <Button disabled={isLoading}>Next</Button>
         </div>
       </form>
     </div>

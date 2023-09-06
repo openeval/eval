@@ -16,7 +16,7 @@ export function AssessmentNav({ assessmentId }: AssessmentNavProps) {
     },
     {
       title: "Tasks",
-      href: `/assessments/${assessmentId}/issues`,
+      href: `/assessments/${assessmentId}/tasks`,
     },
     {
       title: "Candidates",

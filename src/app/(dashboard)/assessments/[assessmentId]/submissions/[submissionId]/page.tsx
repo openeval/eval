@@ -16,6 +16,5 @@ export default async function Page({ params }: CandidateDetailPageProps) {
   ).then((r) => r.text());
 
   const pr = await fetchPullRequest();
-  console.log(response);
   return <SubmissionDetailPage submissionId={"1"} diffText={response} />;
 }

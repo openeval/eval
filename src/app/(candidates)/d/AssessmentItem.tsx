@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { type Assessment, type Candidate } from "@prisma/client";
+import { type Assessment } from "@prisma/client";
 
 import { formatDate } from "~/lib/utils";
 import { AssessmentOperations } from "./AssessmentOperations";
@@ -14,7 +14,7 @@ export function AssessmentItem({ assessment }: AssessmentItemProps) {
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
         <Link
-          href={`/assessments/${assessment.id}`}
+          href={`/a/${assessment.id}`}
           className="font-semibold hover:underline"
         >
           {assessment.title}

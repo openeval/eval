@@ -2,7 +2,6 @@ import { CreateOrganizationForm } from "./CreateOrganizationForm";
 
 import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { createOrgAction } from "../actions";
 
 //we get callback,  can we pass params ?

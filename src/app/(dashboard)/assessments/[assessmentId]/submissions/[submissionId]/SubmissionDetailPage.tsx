@@ -23,12 +23,12 @@ export function SubmissionDetailPage({
 }: SubmissionDetailPageProps) {
   return (
     <div>
-      <div className="flex flex-row items-top justify-between mb-4">
+      <div className="items-top mb-4 flex flex-row justify-between">
         <div className="flex flex-col">
           <h2 className="text-2xl font-semibold">Assessment session fix</h2>
-          <div className="flex items-center mt-2">
-            <Badge variant="outline" className="py-2 mr-2">
-              <GitPullRequest className="h-4 x-4 mr-1" /> Open
+          <div className="mt-2 flex items-center">
+            <Badge variant="outline" className="mr-2 py-2">
+              <GitPullRequest className="x-4 mr-1 h-4" /> Open
             </Badge>{" "}
             <Typography variant={"subtle"}>created 2 days ago</Typography>
           </div>
@@ -69,7 +69,7 @@ sessions will helps to to collect the contributions in the given time
           <Separator></Separator>
           <form className="mt-4">
             <Textarea placeholder="leave a comment on the review" />
-            <div className="flex flex-row gap-x-2 mt-4">
+            <div className="mt-4 flex flex-row gap-x-2">
               <Button variant={"destructive"}>Reject</Button>
               <Button variant={"default"}>Approve</Button>
             </div>

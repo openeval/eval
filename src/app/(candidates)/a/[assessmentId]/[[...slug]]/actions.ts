@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as candidatesRepo from "~/server/repositories/Candidates";
+import { AssessmentStatus } from "@prisma/client";
+import { CandidateStatus } from "@prisma/client";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
@@ -25,8 +27,15 @@ export async function startAssessmentSessionAction(assessmentId) {
   try {
     const assessment = await assessmentsRepo.findOneById(assessmentId);
 
+    if (assessment.status !== AssessmentStatus.ACTIVE) {
+      throw new Error("Invalid assessment");
+    }
+
     const candidate = await candidatesRepo.findCandidateByUserId(user.id);
-    // what to do if candidate doesn't exist ?
+
+    if (candidate.status !== CandidateStatus.VERIFIED) {
+      return { error: "invalid candidate" };
+    }
 
     const session = await assessmentSessionsRepo.findActiveSession(
       candidate?.id,
@@ -41,7 +50,7 @@ export async function startAssessmentSessionAction(assessmentId) {
       assessment: { connect: { id: assessmentId } },
       sessionToken: "TODO_SESSION_TOKEN",
       expiresAt: add(new Date(), {
-        days: Number(assessment.evaluationPeriod) || 1,
+        days: Number(assessment.evaluationPeriodDays) || 1,
       }),
       //TODO: add more conditions , like matching org candidate etc
       candidate: {

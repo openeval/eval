@@ -112,7 +112,7 @@ export function AssessmentRoleForm({
             />
 
             <div className="flex ">
-              <Button type="submit" isLoading={isLoading}>
+              <Button type="submit" disabled={isLoading}>
                 Save
               </Button>
             </div>

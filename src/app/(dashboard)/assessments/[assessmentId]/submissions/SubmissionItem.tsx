@@ -3,7 +3,7 @@
 import * as React from "react";
 import { formatDate } from "~/lib/utils";
 
-import { CircleDot, GitMerge, MessageSquare } from "lucide-react";
+import { GitMerge } from "lucide-react";
 
 import { Skeleton } from "~/components/ui/Skeleton";
 import { Contribution, Submission } from "@prisma/client";
@@ -19,7 +19,10 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">
             <span className="text-zinc-400 hover:text-sky-500">
-              {formatDate(new Date(item.createdAt).toDateString())}
+              {
+                /* @ts-expect-error  never undefined */
+                formatDate(new Date(item.createdAt).toDateString())
+              }
             </span>
           </span>
         </div>

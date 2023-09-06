@@ -8,7 +8,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol", "extendedWhereUnique"]
+  previewFeatures = []
 }
 
 //  generate zod schemas by model
@@ -168,6 +168,7 @@ model Candidate {
   @@map("candidate")
 }
 
+// TODO: V2
 enum AssessmentStatus {
   DRAFT
   ACTIVE // ready to accept candidates
@@ -187,7 +188,7 @@ model Assessment {
   title                String
   slug                 String?
   description          String
-  status               AssessmentStatus    @default(DRAFT) @map("status")
+  status               AssessmentStatus    @default(ACTIVE) @map("status")
   createdBy            User                @relation(fields: [createdById], references: [id])
   createdById          String              @map("created_by_id") @db.Uuid
   organization         Organization        @relation(fields: [organizationId], references: [id])

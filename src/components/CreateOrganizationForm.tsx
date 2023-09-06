@@ -71,7 +71,7 @@ export function CreateOrganizationForm({
               <p className="px-1 text-xs text-red-600">{errors.name.message}</p>
             )}
           </div>
-          <Button isLoading={isLoading}>Next</Button>
+          <Button disabled={isLoading}>Next</Button>
         </div>
       </form>
     </div>
