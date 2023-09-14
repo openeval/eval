@@ -29,19 +29,21 @@ datasource db {
 
 // Necessary for Next auth, DO NOT CHANGE THIS!
 model Account {
-  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String  @map("user_id") @db.Uuid
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @map("refresh_token") @db.Text
-  access_token      String? @map("access_token") @db.Text
-  expires_at        Int?    @map("expires_at")
-  token_type        String? @map("token_type")
-  scope             String?
-  id_token          String? @map("id_token") @db.Text
-  session_state     String? @map("session_state")
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                   String  @map("user_id") @db.Uuid
+  type                     String
+  provider                 String
+  providerAccountId        String  @map("provider_account_id")
+  refresh_token            String? @map("refresh_token") @db.Text
+  access_token             String? @map("access_token") @db.Text
+  // Github field
+  refresh_token_expires_in Int?    @map("refresh_token_expires_in")
+  expires_at               Int?    @map("expires_at")
+  token_type               String? @map("token_type")
+  scope                    String?
+  id_token                 String? @map("id_token") @db.Text
+  session_state            String? @map("session_state")
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("account")
@@ -195,6 +197,7 @@ model Assessment {
   organizationId       String              @map("organization_id") @db.Uuid
   candidates           Candidate[]
   applicantSessions    AssessmentSession[]
+  repositories         Repo[]
   ghIssuesQuerySeach   String?             @map("gh_issues_query_seach")
   evaluationPeriodDays String?             @default("1") @map("evaluation_period_days")
   createdAt            DateTime            @default(now()) @map("created_at")
@@ -289,4 +292,15 @@ model Contribution {
   updatedAt     DateTime         @default(now()) @updatedAt @map("updated_at")
 
   @@map("contribution")
+}
+
+model Repo {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  fullName     String
+  description  String
+  url          String
+  isPrivate    Boolean
+  assessment   Assessment? @relation(fields: [assessmentId], references: [id])
+  assessmentId String?     @map("assessment_id") @db.Uuid
 }

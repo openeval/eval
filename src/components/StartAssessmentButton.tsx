@@ -5,6 +5,8 @@ import { Button } from "~/components/ui/Button";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "~/hooks/use-toast";
+import { absoluteUrl } from "~/lib/utils";
+import { usePathname } from "next/navigation";
 
 import {
   AlertDialog,
@@ -34,11 +36,11 @@ export default function StartAssessmentButton({
 }: StartAssessmentButtonProps) {
   const router = useRouter();
   const [isLoading, startActionTransition] = React.useTransition();
+  const pathname = usePathname();
 
   const handleStart = async () => {
     await signIn("github", {
-      callbackUrl:
-        "http://localhost:3000/a/098d1643-d8b8-4116-bdc8-e9e1de817672/other1",
+      callbackUrl: absoluteUrl(pathname).toString(),
     });
   };
 
@@ -47,11 +49,14 @@ export default function StartAssessmentButton({
     // create an assessment session
     startActionTransition(async () => {
       try {
-        const session = await action(assessmentId);
-
+        const res = await action(assessmentId);
+        if (res.error) {
+          throw new Error();
+        }
         // router.refresh();
-        router.push(`/s/${session.id}`);
+        router.push(`/s/${res.id}`);
       } catch (e) {
+        console.log(e);
         // TODO: how to handle errors in with server actions
         toast({
           title: "Something went wrong.",

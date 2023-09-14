@@ -21,6 +21,12 @@ async function searchIssues({ querySearch }: SearchIssuesParams) {
   return data.items;
 }
 
+async function searchRepos(searchQueryString) {
+  return await octokit.request(
+    `GET /search/repositories?q=${searchQueryString}`,
+  );
+}
+
 export async function searchContributions(
   username: string,
   querySearch: string,
@@ -65,4 +71,4 @@ export async function fetchPullRequest() {
   return pullRequest;
 }
 
-export { octokit, searchIssues };
+export { octokit, searchIssues, searchRepos };

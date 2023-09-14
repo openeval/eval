@@ -9,7 +9,7 @@ import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as candidatesRepo from "~/server/repositories/Candidates";
 import { AssessmentStatus } from "@prisma/client";
 import { CandidateStatus } from "@prisma/client";
-
+import { absoluteUrl } from "~/lib/utils";
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
@@ -24,17 +24,16 @@ export async function startAssessmentSessionAction(assessmentId) {
 
   const { user } = session;
 
+  const candidate = await candidatesRepo.findCandidateByUserId(user.id);
+  if (!candidate || candidate.status !== CandidateStatus.VERIFIED) {
+    redirect(`/onboarding?callbackUrl=${absoluteUrl() + "a/" + assessmentId}`);
+  }
+
   try {
     const assessment = await assessmentsRepo.findOneById(assessmentId);
 
     if (assessment.status !== AssessmentStatus.ACTIVE) {
       throw new Error("Invalid assessment");
-    }
-
-    const candidate = await candidatesRepo.findCandidateByUserId(user.id);
-
-    if (candidate.status !== CandidateStatus.VERIFIED) {
-      return { error: "invalid candidate" };
     }
 
     const session = await assessmentSessionsRepo.findActiveSession(
@@ -60,6 +59,7 @@ export async function startAssessmentSessionAction(assessmentId) {
 
     return response;
   } catch (error) {
+    console.log(error);
     if (error instanceof z.ZodError) {
       return { error: error.issues };
     }

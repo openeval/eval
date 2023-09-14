@@ -49,7 +49,7 @@ export async function create(data) {
 }
 
 export async function findCandidateByUserId(userId) {
-  return await prisma.candidate.findFirstOrThrow({
+  return await prisma.candidate.findFirst({
     where: {
       userId,
     },
@@ -57,7 +57,7 @@ export async function findCandidateByUserId(userId) {
 }
 
 export async function findById(id) {
-  return await prisma.candidate.findFirstOrThrow({
+  return await prisma.candidate.findFirst({
     where: {
       id,
     },

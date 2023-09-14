@@ -2,9 +2,25 @@ import "~/styles/globals.css";
 import Header from "~/components/Header";
 import { SideNav } from "~/components/SideNav";
 import { siteConfig } from "~/config/site";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "~/server/auth";
+import { UserType } from "@prisma/client";
 
 // TODO: duplicated in assessments
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (user.type !== UserType.RECRUITER) {
+    redirect("/d");
+  }
+
   return (
     <div>
       <Header />

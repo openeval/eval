@@ -10,7 +10,7 @@ import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
 const getIssues = cache(
   async (querySearch?: { [key: string]: string | string[] | undefined }) => {
     return await searchIssues({ querySearch: querySearch?.q });
-  }
+  },
 );
 
 export default async function TaskPage({
@@ -31,9 +31,12 @@ export default async function TaskPage({
       <div className="mb-8 flex justify-between px-2">
         <p className="text-neutral-500">tests for your candidates</p>
       </div>
+      {/* TODO: refactor using repositories */}
       <SearchIssuesBar />
+
       <Separator className="my-4" />
 
+      {/* Preview issues  */}
       <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
         {issues.map((item) => (
           <OpenTaskItem key={item.id} item={item} />

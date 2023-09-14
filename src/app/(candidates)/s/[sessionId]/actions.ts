@@ -24,13 +24,15 @@ export async function finishAssessmentSessionAction(sessionId: string) {
   const { user } = session;
 
   try {
-    const assessmentSession = await assessmentSessionsRepo.findOneById(
-      sessionId,
-    );
+    const assessmentSession =
+      await assessmentSessionsRepo.findOneById(sessionId);
 
     const candidate = await candidatesRepo.findCandidateByUserId(user.id);
 
-    // what to do if candidate doesn't exist ?
+    if (!candidate) {
+      throw new Error("candidate do not exist");
+    }
+
     const getPullRequests = async (username, assessment) => {
       const pr = await searchContributions(
         username,

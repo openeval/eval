@@ -28,8 +28,7 @@ export default async function Onboarding({
     if (!candidate) {
       redirect(
         `/onboarding/candidate${
-          searchParams.callbackUrl &&
-          "?callbackUrl= " + searchParams.callbackUrl
+          searchParams.callbackUrl && "?callbackUrl=" + searchParams.callbackUrl
         }`,
       );
     }
@@ -37,9 +36,9 @@ export default async function Onboarding({
     if (candidate?.status !== CandidateStatus.VERIFIED) {
       redirect(
         `/onboarding/candidate?step=github-connect${
-          searchParams.callbackUrl &&
-          "&callbackUrl= " + searchParams.callbackUrl
-          || ''
+          (searchParams.callbackUrl &&
+            "&callbackUrl=" + searchParams.callbackUrl) ||
+          ""
         }`,
       );
     }
