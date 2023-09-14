@@ -1,4 +1,5 @@
 import { ComboboxDemo } from "./ComboBox";
+import { Multiselect } from "~/components/ui/Multiselect";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
 
       <div>
         <ComboboxDemo />
+        {/* <Multiselect /> */}
       </div>
     </main>
   );

@@ -2,7 +2,12 @@ import { Octokit } from "octokit";
 import { env } from "~/env.mjs";
 import { siteConfig } from "~/config/site";
 const octokit = new Octokit({
-  auth: env.GITHUB_API_AUTH_TOKEN,
+  // auth: env.GITHUB_API_AUTH_TOKEN,
+  request: { fetch: fetch },
+});
+
+const octokitPublic = new Octokit({
+  // auth: env.GITHUB_API_AUTH_TOKEN,
   request: { fetch: fetch },
 });
 
@@ -22,8 +27,8 @@ async function searchIssues({ querySearch }: SearchIssuesParams) {
 }
 
 async function searchRepos(searchQueryString) {
-  return await octokit.request(
-    `GET /search/repositories?q=${searchQueryString}`,
+  return await octokitPublic.request(
+    `GET /search/repositories?q=${searchQueryString}&has_issues=true&archived=false`,
   );
 }
 

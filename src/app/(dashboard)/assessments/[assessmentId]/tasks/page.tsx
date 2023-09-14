@@ -2,6 +2,7 @@ import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
 import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { cache } from "react";
+import TasksPage from "./TasksPage";
 
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { searchIssues } from "~/server/github";
@@ -13,7 +14,7 @@ const getIssues = cache(
   },
 );
 
-export default async function TaskPage({
+export default async function Page({
   params: { assessmentId },
   searchParams,
 }: {
@@ -42,7 +43,7 @@ export default async function TaskPage({
           <OpenTaskItem key={item.id} item={item} />
         ))}
       </div>
-
+      <TasksPage />
       <div className="mt-8 flex w-full">
         <SaveAssessmentIssuesButton assessmentId={assessmentId} />
       </div>
