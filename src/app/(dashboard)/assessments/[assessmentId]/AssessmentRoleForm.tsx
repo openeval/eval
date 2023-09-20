@@ -25,7 +25,7 @@ interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
   assessment: Partial<Assessment>;
   action: (
     where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput
+    data: Prisma.AssessmentUpdateInput,
   ) => Promise<unknown>;
 }
 
@@ -112,7 +112,7 @@ export function AssessmentRoleForm({
             />
 
             <div className="flex ">
-              <Button type="submit" isLoading={isLoading}>
+              <Button type="submit" disabled={isLoading}>
                 Save
               </Button>
             </div>

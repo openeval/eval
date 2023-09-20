@@ -110,7 +110,7 @@ export const authOptions: NextAuthOptions = {
         await updateCandidate(
           { userId: user.id },
           //@ts-expect-error defined profile
-          { status: CandidateStatus.VERIFIED, ghUsername: profile.gh_username }
+          { status: CandidateStatus.VERIFIED, ghUsername: profile.gh_username },
         );
       }
     },
@@ -126,13 +126,13 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
     GitHubProvider({
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
+      clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
+      clientSecret: env.GITHUB_APP_CLIENT_SECRET,
       profile(profile) {
         return {
           id: profile.id.toString(),
           name: profile.name || profile.login,
-          gh_username: profile.login,
+          // ghUsername: profile.login,
           email: profile.email,
           image: profile.avatar_url,
         };

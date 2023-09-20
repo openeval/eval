@@ -1,7 +1,6 @@
 "use server";
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
-import { revalidatePath } from "next/cache";
 import { add } from "date-fns";
 import { z } from "zod";
 import { redirect } from "next/navigation";
@@ -9,14 +8,14 @@ import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSession
 import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as candidatesRepo from "~/server/repositories/Candidates";
 import { AssessmentStatus } from "@prisma/client";
-
+import { CandidateStatus } from "@prisma/client";
+import { absoluteUrl } from "~/lib/utils";
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
 export async function startAssessmentSessionAction(assessmentId) {
   const session = await getServerSession(authOptions);
-  let response;
   // users shound't be able to execute an action without a session
   // this is a security prevention
   if (!session) {
@@ -25,12 +24,17 @@ export async function startAssessmentSessionAction(assessmentId) {
 
   const { user } = session;
 
+  const candidate = await candidatesRepo.findCandidateByUserId(user.id);
+  if (!candidate || candidate.status !== CandidateStatus.VERIFIED) {
+    redirect(`/onboarding?callbackUrl=${absoluteUrl() + "a/" + assessmentId}`);
+  }
+
   try {
     const assessment = await assessmentsRepo.findOneById(assessmentId);
 
-    const candidate = await candidatesRepo.findCandidateByUserId(user.id);
-    console.log(candidate);
-    // what to do if candidate doesn't exist ?
+    if (assessment.status !== AssessmentStatus.ACTIVE) {
+      throw new Error("Invalid assessment");
+    }
 
     const session = await assessmentSessionsRepo.findActiveSession(
       candidate?.id,
@@ -41,10 +45,12 @@ export async function startAssessmentSessionAction(assessmentId) {
       return { error: "candidate already started a session" };
     }
 
-    response = await assessmentSessionsRepo.create({
+    const response = await assessmentSessionsRepo.create({
       assessment: { connect: { id: assessmentId } },
       sessionToken: "TODO_SESSION_TOKEN",
-      expiresAt: add(new Date(), { days: assessment.evaluationPeriod || 1 }),
+      expiresAt: add(new Date(), {
+        days: Number(assessment.evaluationPeriodDays) || 1,
+      }),
       //TODO: add more conditions , like matching org candidate etc
       candidate: {
         connect: { id: candidate?.id },
@@ -53,8 +59,7 @@ export async function startAssessmentSessionAction(assessmentId) {
 
     return response;
   } catch (error) {
-    console.error(error);
-
+    console.log(error);
     if (error instanceof z.ZodError) {
       return { error: error.issues };
     }

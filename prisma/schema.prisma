@@ -8,7 +8,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol", "extendedWhereUnique"]
+  previewFeatures = []
 }
 
 //  generate zod schemas by model
@@ -29,19 +29,21 @@ datasource db {
 
 // Necessary for Next auth, DO NOT CHANGE THIS!
 model Account {
-  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String  @map("user_id") @db.Uuid
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @map("refresh_token") @db.Text
-  access_token      String? @map("access_token") @db.Text
-  expires_at        Int?    @map("expires_at")
-  token_type        String? @map("token_type")
-  scope             String?
-  id_token          String? @map("id_token") @db.Text
-  session_state     String? @map("session_state")
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                   String  @map("user_id") @db.Uuid
+  type                     String
+  provider                 String
+  providerAccountId        String  @map("provider_account_id")
+  refresh_token            String? @map("refresh_token") @db.Text
+  access_token             String? @map("access_token") @db.Text
+  // Github field
+  refresh_token_expires_in Int?    @map("refresh_token_expires_in")
+  expires_at               Int?    @map("expires_at")
+  token_type               String? @map("token_type")
+  scope                    String?
+  id_token                 String? @map("id_token") @db.Text
+  session_state            String? @map("session_state")
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("account")
@@ -63,21 +65,24 @@ enum UserType {
 }
 
 model User {
-  id                  String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                String?
-  email               String?       @unique
-  emailVerified       DateTime?     @map("email_verified")
-  completedOnboarding Boolean       @default(false) @map("completed_onboarding")
-  image               String?
-  accounts            Account[]
-  sessions            Session[]
-  createdAssessments  Assessment[]
-  memberships         Membership[]
-  type                UserType?     @map("type") //TODO: we are not discriminating by type yet
-  candidate           Candidate?
-  activeOrgId         String?       @db.Uuid
-  activeOrg           Organization? @relation(fields: [activeOrgId], references: [id])
-  createdCandidates   Candidate[]   @relation("userCandidateCreated")
+  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String?
+  email                String?        @unique
+  emailVerified        DateTime?      @map("email_verified")
+  completedOnboarding  Boolean        @default(false) @map("onboarding_completed")
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
+  createdAssessments   Assessment[]
+  memberships          Membership[]
+  type                 UserType?      @map("type") //TODO: we are not discriminating by type yet
+  candidate            Candidate?
+  activeOrgId          String?        @db.Uuid
+  activeOrg            Organization?  @relation(fields: [activeOrgId], references: [id])
+  createdCandidates    Candidate[]    @relation("userCandidateCreated")
+  reviewingAssessments Assessment[]   @relation("userAssessmentReviewing")
+  organizations        Organization[] @relation("userOrganizationOwner")
+  reviews              Review[]
 
   @@map("user")
 }
@@ -103,7 +108,10 @@ model Organization {
   candidates  Candidate[]
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
-  User        User[]
+  createdBy   User         @relation(name: "userOrganizationOwner", fields: [createdById], references: [id])
+  createdById String       @map("created_by_id") @db.Uuid
+
+  user User[]
 
   @@map("organization")
 }
@@ -111,6 +119,7 @@ model Organization {
 enum MembershipRole {
   MEMBER
   HIRING_MANAGER
+  REVIEWER
   RECRUITER
   ADMIN
   OWNER
@@ -154,16 +163,19 @@ model Candidate {
   updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
   createdBy          User?               @relation("userCandidateCreated", fields: [createdById], references: [id])
   createdById        String?             @map("created_by_id") @db.Uuid
+  contributions      Contribution[]
+  submission         Submission[]
 
   @@unique([id, email, organizationId])
   @@map("candidate")
 }
 
+// TODO: V2
 enum AssessmentStatus {
   DRAFT
   ACTIVE // ready to accept candidates
   IN_PROGRESS // with active candidates 
-  CLOSED // no longer acception candidates
+  CLOSED // no longer accepting candidates
   ARCHIVED // deleted
 }
 
@@ -174,23 +186,26 @@ enum Visibility {
 }
 
 model Assessment {
-  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title              String
-  slug               String?
-  description        String
-  status             AssessmentStatus    @default(DRAFT) @map("status")
-  createdBy          User                @relation(fields: [createdById], references: [id])
-  createdById        String              @map("created_by_id") @db.Uuid
-  organization       Organization        @relation(fields: [organizationId], references: [id])
-  organizationId     String              @map("organization_id") @db.Uuid
-  candidates         Candidate[]
-  applicantSessions  AssessmentSession[]
-  ghIssuesQuerySeach String?             @map("gh_issues_query_seach")
-  evaluationPeriod   Int                 @default(1) @map("evaluation_period")
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
-  published          Boolean             @default(false)
-  visibility         Visibility          @default(PUBLIC)
+  id                   String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                String
+  slug                 String?
+  description          String
+  status               AssessmentStatus    @default(ACTIVE) @map("status")
+  createdBy            User                @relation(fields: [createdById], references: [id])
+  createdById          String              @map("created_by_id") @db.Uuid
+  organization         Organization        @relation(fields: [organizationId], references: [id])
+  organizationId       String              @map("organization_id") @db.Uuid
+  candidates           Candidate[]
+  applicantSessions    AssessmentSession[]
+  repositories         Repo[]
+  ghIssuesQuerySeach   String?             @map("gh_issues_query_seach")
+  evaluationPeriodDays String?             @default("1") @map("evaluation_period_days")
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @default(now()) @updatedAt @map("updated_at")
+  published            Boolean             @default(false)
+  visibility           Visibility          @default(PUBLIC)
+  submission           Submission[]
+  reviewers            User[]              @relation(name: "userAssessmentReviewing")
 
   @@map("assessment")
 }
@@ -212,6 +227,80 @@ model AssessmentSession {
   finishedAt   DateTime?               @map("finished_at")
   candidate    Candidate               @relation(fields: [candidateId], references: [id])
   candidateId  String                  @map("candidate_id") @db.Uuid
+  Submission   Submission[]
 
   @@map("assessment_session")
+}
+
+enum SubmissionState {
+  COMPLETED // candidated submitted they answers
+  REVIEWING // hr reviewing submissions
+  APPROVED // hr approved 
+  REJECTED // hr rejected 
+}
+
+model Submission {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributions       Contribution[]
+  status              SubmissionState   @default(REVIEWING)
+  notes               String?
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @default(now()) @updatedAt @map("updated_at")
+  candidate           Candidate         @relation(fields: [candidateId], references: [id])
+  candidateId         String            @map("candidate_id") @db.Uuid
+  session             AssessmentSession @relation(fields: [assessmentSessionId], references: [id])
+  assessmentSessionId String            @map("assessment_session_id") @db.Uuid
+  assessment          Assessment        @relation(fields: [assessmentId], references: [id])
+  assessmentId        String            @map("assessment_id") @db.Uuid
+  reviews             Review[]
+
+  @@map("submission")
+}
+
+model Review {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  note        String
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  createdById String       @map("created_by_id") @db.Uuid
+  submission  Submission[]
+
+  @@map("review")
+}
+
+enum ContributionType {
+  PULL_REQUEST
+  COMMENT
+  ISSUE
+}
+
+// WE focus only in pull requests
+model Contribution {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type          ContributionType @default(PULL_REQUEST) @map("status")
+  title         String
+  description   String?
+  url           String
+  repo          String
+  meta          Json?
+  submission    Submission?      @relation(fields: [submissionId], references: [id])
+  submissionId  String?          @map("submission_id") @db.Uuid
+  contributor   Candidate        @relation(fields: [contributorId], references: [id])
+  contributorId String           @map("candidate_id") @db.Uuid
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @default(now()) @updatedAt @map("updated_at")
+
+  @@map("contribution")
+}
+
+model Repo {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  fullName     String
+  description  String
+  url          String
+  isPrivate    Boolean
+  assessment   Assessment? @relation(fields: [assessmentId], references: [id])
+  assessmentId String?     @map("assessment_id") @db.Uuid
 }

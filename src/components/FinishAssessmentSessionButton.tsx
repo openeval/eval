@@ -3,7 +3,7 @@ import { Button } from "~/components/ui/Button";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "~/hooks/use-toast";
-
+import { type AssessmentSession } from "@prisma/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,47 +18,34 @@ import {
 
 interface FinishAssessmentSessionButtonProps {
   sessionId: string;
+  action: (sessionId: string) => Promise<AssessmentSession>;
 }
 // add alert to start
 export default function FinishAssessmentSessionButton({
   sessionId,
+  action,
 }: FinishAssessmentSessionButtonProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, startActionTransition] = React.useTransition();
   const router = useRouter();
 
-  const onStartSession = async () => {
+  const onFinishSession = async () => {
     //given the current user
     // create an assessment session
-    // linke the user to the candidate linked to its email if exist
-    // otherwise create a new candidate
-    setIsLoading(true);
+    startActionTransition(async () => {
+      try {
+        await action(sessionId);
 
-    const data = { sessionId };
-    // Mutate external data source
-    const response = await fetch(`/api/finishAssessmentSession`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+        // router.refresh();
+        router.push(`/s/${sessionId}/confirmation`);
+      } catch (e) {
+        // TODO: how to handle errors in with server actions
+        toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
     });
-
-    if (response.ok) {
-      // This forces a cache invalidation.
-      router.refresh();
-
-      const session = await response.json();
-
-      router.push(`/s/${session.id}/confirmation`);
-    } else {
-      toast({
-        title: "Something went wrong.",
-        description: "Your request failed. Please try again.",
-        variant: "destructive",
-      });
-    }
-
-    setIsLoading(false);
   };
 
   return (
@@ -77,7 +64,7 @@ export default function FinishAssessmentSessionButton({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={isLoading}
-            onClick={() => onStartSession()}
+            onClick={() => onFinishSession()}
           >
             Continue
           </AlertDialogAction>

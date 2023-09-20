@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { UserTypeForm } from "./UserTypeForm";
 import { updateUserType } from "./actions";
 import { CandidateStatus, UserType } from "@prisma/client";
-import { findCandidateByUser } from "~/server/repositories/Candidates";
+import { findCandidateByUserId } from "~/server/repositories/Candidates";
 
 //we get callback,  can we pass params ?
 export default async function Onboarding({
@@ -23,13 +23,12 @@ export default async function Onboarding({
   }
 
   if (user.type === UserType.CANDIDATE) {
-    const candidate = await findCandidateByUser(user);
+    const candidate = await findCandidateByUserId(user.id);
 
     if (!candidate) {
       redirect(
         `/onboarding/candidate${
-          searchParams.callbackUrl &&
-          "?callbackUrl= " + searchParams.callbackUrl
+          searchParams.callbackUrl && "?callbackUrl=" + searchParams.callbackUrl
         }`,
       );
     }
@@ -37,8 +36,9 @@ export default async function Onboarding({
     if (candidate?.status !== CandidateStatus.VERIFIED) {
       redirect(
         `/onboarding/candidate?step=github-connect${
-          searchParams.callbackUrl &&
-          "&callbackUrl= " + searchParams.callbackUrl
+          (searchParams.callbackUrl &&
+            "&callbackUrl=" + searchParams.callbackUrl) ||
+          ""
         }`,
       );
     }

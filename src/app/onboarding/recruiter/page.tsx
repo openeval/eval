@@ -1,9 +1,8 @@
-import { CreateOrganizationForm } from "~/components/CreateOrganizationForm";
+import { CreateOrganizationForm } from "./CreateOrganizationForm";
 
 import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { env } from "~/env.mjs";
+import { createOrgAction } from "../actions";
 
 //we get callback,  can we pass params ?
 export default async function Onboarding() {
@@ -16,16 +15,10 @@ export default async function Onboarding() {
     redirect("/");
   }
 
-  const cookieStore = cookies();
-  //is a candidate comming from an assessment
-  const onboadingFlow = cookieStore.get("onboardingFlow");
-
-  if (onboadingFlow) {
-  }
-
   return (
-    <div>
-      <CreateOrganizationForm />
+    <div className="mx-auto max-w-md">
+      {/* TODO: handle onSuccess */}
+      <CreateOrganizationForm action={createOrgAction} />
     </div>
   );
 }

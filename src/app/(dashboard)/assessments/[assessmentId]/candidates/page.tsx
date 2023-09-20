@@ -2,7 +2,7 @@ import { Users } from "lucide-react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import prisma from "~/server/db";
 import { type Candidate } from "@prisma/client";
-import { CandidateItem } from "~/components/CandidateItem";
+import { CandidateItem } from "./CandidateItem";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 
 const getCandidates = async (

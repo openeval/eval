@@ -69,6 +69,7 @@ export function parseProvider(params: {
 }
 
 export const inviteEmailProvider = EmailProvider({
+  // @ts-expect-error authjs types issue
   id: "inviteEmailProvider",
   server: {
     host: env.SMTP_HOST,
@@ -79,6 +80,7 @@ export const inviteEmailProvider = EmailProvider({
     },
   },
   from: env.SMTP_FROM,
+  maxAge: 604800 ,// 1 week
   sendVerificationRequest,
 });
 
@@ -159,7 +161,7 @@ function text({ url, host }: { url: string; host: string }) {
  */
 export default async function sendInvitationEmail(
   identifier: string,
-  assessment: Assessment
+  assessment: Assessment,
   //   options
 ): Promise<string> {
   const { theme } = authOptions;
@@ -181,7 +183,7 @@ export default async function sendInvitationEmail(
 
   const ONE_DAY_IN_SECONDS = 86400;
   const expires = new Date(
-    Date.now() + (provider.maxAge ?? ONE_DAY_IN_SECONDS) * 1000
+    Date.now() + (provider.maxAge ?? ONE_DAY_IN_SECONDS) * 1000,
   );
 
   // Generate a link with email, unhashed token and callback url

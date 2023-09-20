@@ -36,7 +36,7 @@ export default async function Layout({
     <div>
       <div className="mx-auto w-full min-w-0">
         <div className="mb-4 flex items-center space-x-1 text-sm text-muted-foreground">
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+          <div className="truncate">
             <Link href={"/assessments"}>Assessments</Link>
           </div>
           <ChevronRight className="h-4 w-4" />

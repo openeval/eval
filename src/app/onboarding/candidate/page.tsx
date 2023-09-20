@@ -14,10 +14,6 @@ export default async function Onboarding() {
     redirect("/");
   }
 
-  if (user.completedOnboarding) {
-    redirect("/");
-  }
-
   return (
     <div className="mx-auto max-w-md">
       <OnboardingCandidatePage createCandidateAction={createCandidateAction} />

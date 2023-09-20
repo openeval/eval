@@ -16,7 +16,7 @@ export function formatDate(input: string | number): string {
   });
 }
 
-export function absoluteUrl(path?: string) {
+export function absoluteUrl(path?: string | null) {
   return new URL(`${env.NEXT_PUBLIC_APP_URL}${path || ""}`);
 }
 

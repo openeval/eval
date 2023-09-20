@@ -64,14 +64,14 @@ export function CreateOrganizationForm({
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="" htmlFor="name">
-              Name
+              Organization name
             </Label>
             <Input id="name" {...register("name")} />
             {errors?.name && (
               <p className="px-1 text-xs text-red-600">{errors.name.message}</p>
             )}
           </div>
-          <Button isLoading={isLoading}>Next</Button>
+          <Button disabled={isLoading}>Next</Button>
         </div>
       </form>
     </div>

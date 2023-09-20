@@ -55,3 +55,11 @@ export async function findCandidateByUserId(userId) {
     },
   });
 }
+
+export async function findById(id) {
+  return await prisma.candidate.findFirst({
+    where: {
+      id,
+    },
+  });
+}

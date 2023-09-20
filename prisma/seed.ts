@@ -3,8 +3,9 @@ import type { Prisma } from "@prisma/client";
 
 const userData: Prisma.UserCreateInput[] = [
   {
-    name: "Alice",
-    email: "alice@useeval.com",
+    name: "Ivan Horomanski",
+    email: "idhard@gmail.com",
+    emailVerified: new Date(),
     completedOnboarding: false,
   },
 ];
@@ -12,8 +13,10 @@ const userData: Prisma.UserCreateInput[] = [
 async function main() {
   console.log(`Start seeding ...`);
   for (const u of userData) {
-    const user = await prisma.user.create({
-      data: u,
+    const user = await prisma.user.upsert({
+      create: u,
+      update: {},
+      where: { email: u.email },
     });
     console.log(`Created user with id: ${user.id}`);
   }
