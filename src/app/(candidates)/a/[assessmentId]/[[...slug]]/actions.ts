@@ -24,7 +24,7 @@ export async function startAssessmentSessionAction(assessmentId) {
 
   const { user } = session;
 
-  const candidate = await candidatesRepo.findCandidateByUserId(user.id);
+  const { candidate } = user;
   if (!candidate || candidate.status !== CandidateStatus.VERIFIED) {
     redirect(`/onboarding?callbackUrl=${absoluteUrl() + "a/" + assessmentId}`);
   }

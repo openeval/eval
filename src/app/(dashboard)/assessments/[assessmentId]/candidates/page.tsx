@@ -1,30 +1,22 @@
 import { Users } from "lucide-react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import prisma from "~/server/db";
-import { type Candidate } from "@prisma/client";
 import { CandidateItem } from "./CandidateItem";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 
-const getCandidates = async (
-  assessmentId: string,
-): Promise<Candidate[] | null> => {
-  const data = await prisma.assessment.findFirst({
-    where: {
-      id: assessmentId,
-    },
-    include: {
-      candidates: {
+const getCandidates = async (assessmentId: string) => {
+  return await prisma.candidatesOnAssessments.findMany({
+    select: {
+      candidate: {
         include: {
           assessmentSessions: { where: { assessmentId } },
         },
       },
     },
-    orderBy: {
-      updatedAt: "desc",
+    where: {
+      assessmentId: assessmentId,
     },
   });
-
-  return data ? data.candidates : null;
 };
 
 type AssessmentCandidatePageProps = {
@@ -48,10 +40,10 @@ export default async function AssessmentCandidatePage({
 
       {candidates && candidates.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-          {candidates.map((candidate) => (
+          {candidates.map((item) => (
             <CandidateItem
-              key={candidate.id}
-              candidate={candidate}
+              key={item.candidate.id}
+              candidate={item.candidate}
               assessmentId={params.assessmentId}
             />
           ))}

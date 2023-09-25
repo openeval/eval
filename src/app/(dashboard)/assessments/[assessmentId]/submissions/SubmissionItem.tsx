@@ -7,7 +7,7 @@ import { GitMerge } from "lucide-react";
 
 import { Skeleton } from "~/components/ui/Skeleton";
 import { Contribution, Submission } from "@prisma/client";
-
+import Link from "next/link";
 interface SubmissionItemProps {
   item: Partial<Submission> & { contributions: Contribution[] };
 }
@@ -18,12 +18,14 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
       <div className="">
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">
-            <span className="text-zinc-400 hover:text-sky-500">
-              {
-                /* @ts-expect-error  never undefined */
-                formatDate(new Date(item.createdAt).toDateString())
-              }
-            </span>
+            <Link href={`submissions/${item.id}`}>
+              <span className="text-zinc-400 hover:text-sky-500">
+                {
+                  /* @ts-expect-error  never undefined */
+                  formatDate(new Date(item.createdAt).toDateString())
+                }
+              </span>
+            </Link>
           </span>
         </div>
         <div className="">{item.status}</div>

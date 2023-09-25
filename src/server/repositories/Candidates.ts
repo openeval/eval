@@ -1,5 +1,9 @@
 import { prisma } from "~/server/db";
-import { CandidateStatus, type User } from "@prisma/client";
+import {
+  CandidateOnAssessmentStatus,
+  CandidateStatus,
+  type User,
+} from "@prisma/client";
 
 export async function findInvitedCandidate(
   user: User,
@@ -10,32 +14,38 @@ export async function findInvitedCandidate(
     where: {
       email,
       organizationId: user.activeOrgId,
-      assessments: {
+      candidatesOnAssessments: {
         some: {
-          id: assessmentId,
+          assessmentId: assessmentId,
+          status: CandidateOnAssessmentStatus.ACCEPTED,
         },
       },
-      status: { in: CandidateStatus.ACCEPTED },
     },
   });
 }
 
+// TODO: set on relationship not on the user
 export async function linkInvitedUser(
   user: Partial<User>,
   assessmentId: string,
 ) {
-  return await prisma.candidate.updateMany({
+  return await prisma.candidate.update({
     where: {
       email: user.email as string,
-      assessments: {
+      candidatesOnAssessments: {
         some: {
-          id: assessmentId,
+          assessmentId: assessmentId,
         },
       },
     },
     data: {
       userId: user.id,
       status: CandidateStatus.ACCEPTED,
+      // candidatesOnAssessments: {
+      //   update: {
+      //     data: { assessmentId: assessmentId },
+      //   },
+      // },
     },
   });
 }

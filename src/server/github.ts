@@ -28,7 +28,7 @@ async function searchIssues({ querySearch }: SearchIssuesParams) {
 
 async function searchRepos(searchQueryString) {
   return await octokitPublic.request(
-    `GET /search/repositories?q=${searchQueryString}&has_issues=true&archived=false`,
+    `GET /search/repositories?q=${searchQueryString}&has_issues=true&archived=false&per_page=10`,
   );
 }
 

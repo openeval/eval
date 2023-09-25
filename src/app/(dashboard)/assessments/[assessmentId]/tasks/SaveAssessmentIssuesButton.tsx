@@ -11,7 +11,7 @@ interface SaveAssessmentIssuesButton {
   assessmentId?: string;
   action: (
     where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput
+    data: Prisma.AssessmentUpdateInput,
   ) => Promise<unknown>;
 }
 
@@ -27,7 +27,6 @@ export default function SaveAssessmentIssuesButton({
 
   const router = useRouter();
   async function onSubmit() {
-    // @ts-expect-error canary issue
     startActionTransition(async () => {
       try {
         await action({ id: assessmentId }, { ghIssuesQuerySeach: q });

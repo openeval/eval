@@ -56,7 +56,9 @@ export default async function Page({ params }: PageProps) {
       <div className="flex justify-between">
         <div className="grid gap-1">
           <Typography variant="h1">{session.assessment.title}</Typography>
-          <Typography variant="small">closes at 21/02/2022</Typography>
+          <Typography variant="small">
+            closes at {session.expiresAt.toString()}
+          </Typography>
         </div>
         <FinishAssessmentSessionButton
           action={finishAssessmentSessionAction}

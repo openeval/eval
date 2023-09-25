@@ -44,10 +44,6 @@ export default async function Onboarding({
     }
   }
 
-  const cookieStore = cookies();
-  //is a candidate comming from an assessment
-  const onboadingFlow = cookieStore.get("onboardingFlow");
-
   return (
     <div>
       <UserTypeForm action={updateUserType} />

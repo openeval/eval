@@ -9,5 +9,12 @@ export async function findOneById(id) {
 }
 
 export async function update(where, data) {
-  return await prisma.user.update({ where, data });
+  return await prisma.assessment.update({ where, data });
+}
+
+export async function findByCandidate(candidateId) {
+  return await prisma.candidatesOnAssessments.findMany({
+    select: { assessment: true },
+    where: { candidateId: candidateId },
+  });
 }

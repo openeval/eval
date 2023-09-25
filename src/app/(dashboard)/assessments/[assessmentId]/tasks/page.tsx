@@ -2,7 +2,6 @@ import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
 import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { cache } from "react";
-import TasksPage from "./TasksPage";
 
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { searchIssues } from "~/server/github";
@@ -27,12 +26,15 @@ export default async function Page({
   }
 
   const issues = await getIssues(searchParams);
+  console.log(issues);
   return (
     <div>
       <div className="mb-8 flex justify-between px-2">
-        <p className="text-neutral-500">tests for your candidates</p>
+        <p className="text-neutral-500">
+          Open source issues candidates could solve in the assessment
+        </p>
       </div>
-      {/* TODO: refactor using repositories */}
+
       <SearchIssuesBar />
 
       <Separator className="my-4" />
@@ -43,7 +45,6 @@ export default async function Page({
           <OpenTaskItem key={item.id} item={item} />
         ))}
       </div>
-      <TasksPage />
       <div className="mt-8 flex w-full">
         <SaveAssessmentIssuesButton assessmentId={assessmentId} />
       </div>

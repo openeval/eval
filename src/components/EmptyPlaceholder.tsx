@@ -13,7 +13,7 @@ export function EmptyPlaceholder({
     <div
       className={cn(
         "flex min-h-[400px] flex-col items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50",
-        className
+        className,
       )}
       {...props}
     >
@@ -25,7 +25,7 @@ export function EmptyPlaceholder({
 }
 
 interface EmptyPlaceholderIconProps {
-  icon: React.FC<{ className: string }>;
+  icon: React.FC<{ className?: string }>;
   className?: string;
 }
 
@@ -38,7 +38,7 @@ EmptyPlaceholder.Icon = function EmptyPlaceHolderIcon({
     <div
       className={cn(
         "flex h-20 w-20 items-center justify-center rounded-full bg-slate-100",
-        className
+        className,
       )}
       {...props}
     >
@@ -69,7 +69,7 @@ EmptyPlaceholder.Description = function EmptyPlaceholderDescription({
     <p
       className={cn(
         "mb-8 mt-3 text-center text-sm font-normal leading-6 text-slate-700",
-        className
+        className,
       )}
       {...props}
     />

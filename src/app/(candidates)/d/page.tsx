@@ -4,28 +4,16 @@ import { Separator } from "~/components/ui/Separator";
 import { GitBranch } from "lucide-react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { cache } from "react";
-import prisma from "~/server/db";
-import { type User } from "@prisma/client";
 import { AssessmentItem } from "./AssessmentItem";
-
+import { findByCandidate } from "~/server/repositories/Assessments";
 export const metadata = {
   title: "Assessments",
 };
 
-const getAssessments = cache(async (userId: User["id"]) => {
-  // TODO: set correct assessments
-  return await prisma.candidate.findFirstOrThrow({
-    where: {
-      userId: userId,
-    },
-    select: {
-      assessments: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+const getAssessments = cache(async (candidateId: string) => {
+  return await findByCandidate(candidateId);
 });
+
 // Candidates assessesment dashboard
 export default async function AssessmentsPage() {
   const user = await getCurrentUser();
@@ -34,7 +22,7 @@ export default async function AssessmentsPage() {
     redirect("/login");
   }
 
-  const { assessments } = await getAssessments(user.id);
+  const rows = await getAssessments(user.candidate.id);
 
   return (
     <>
@@ -49,15 +37,18 @@ export default async function AssessmentsPage() {
 
       <Separator className="my-4" />
 
-      {assessments.length > 0 && (
+      {rows.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-          {assessments.map((assessment) => (
-            <AssessmentItem key={assessment.id} assessment={assessment} />
+          {rows.map((row) => (
+            <AssessmentItem
+              key={row.assessment.id}
+              assessment={row.assessment}
+            />
           ))}
         </div>
       )}
 
-      {!assessments.length && (
+      {!rows.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
           <EmptyPlaceholder.Title>
