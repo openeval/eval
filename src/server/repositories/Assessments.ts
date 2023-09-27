@@ -20,3 +20,7 @@ export async function findByCandidate(candidateId) {
     where: { candidateId: candidateId },
   });
 }
+
+export async function update(where, data) {
+  return await prisma.user.update({ where, data });
+}

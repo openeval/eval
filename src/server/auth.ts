@@ -139,6 +139,8 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
       clientSecret: env.GITHUB_APP_CLIENT_SECRET,
+      clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
+      clientSecret: env.GITHUB_APP_CLIENT_SECRET,
       profile(profile) {
         return {
           id: profile.id.toString(),

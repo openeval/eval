@@ -6,6 +6,7 @@ import { update as updateUser } from "~/server/repositories/User";
 import { UserType } from "@prisma/client";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req);
   if (
     req.query.nextauth?.includes("inviteEmailProvider") &&
     req.method === "GET"
