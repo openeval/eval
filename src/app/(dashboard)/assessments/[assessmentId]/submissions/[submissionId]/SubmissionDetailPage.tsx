@@ -28,9 +28,13 @@ export function SubmissionDetailPage({
         <>
           <div className="items-top mb-4 flex flex-row justify-between">
             <div className="flex flex-col">
+<<<<<<< HEAD
               <h2 className="text-2xl font-semibold">
                 {submission.contributions[0].title}
               </h2>
+=======
+              <h2 className="text-2xl font-semibold">Assessment session fix</h2>
+>>>>>>> origin/main
               <div className="mt-2 flex items-center">
                 <Badge variant="outline" className="mr-2 py-2">
                   <GitPullRequest className="x-4 mr-1 h-4" /> Open
