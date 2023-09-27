@@ -247,7 +247,7 @@ model AssessmentSession {
   @@map("assessment_session")
 }
 
-enum SubmissionState {
+enum SubmissionStatus {
   COMPLETED // candidated submitted they answers
   REVIEWING // hr reviewing submissions
   APPROVED // hr approved 
@@ -257,7 +257,7 @@ enum SubmissionState {
 model Submission {
   id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   contributions       Contribution[]
-  status              SubmissionState   @default(REVIEWING)
+  status              SubmissionStatus  @default(REVIEWING)
   notes               String?
   createdAt           DateTime          @default(now()) @map("created_at")
   updatedAt           DateTime          @default(now()) @updatedAt @map("updated_at")

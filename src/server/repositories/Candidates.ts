@@ -1,9 +1,6 @@
 import { prisma } from "~/server/db";
-import {
-  CandidateOnAssessmentStatus,
-  CandidateStatus,
-  type User,
-} from "@prisma/client";
+import { CandidateOnAssessmentStatus, CandidateStatus } from "@prisma/client";
+import { User } from "next-auth";
 
 export async function findInvitedCandidate(
   user: User,
@@ -29,25 +26,32 @@ export async function linkInvitedUser(
   user: Partial<User>,
   assessmentId: string,
 ) {
-  return await prisma.candidate.update({
-    where: {
-      email: user.email as string,
-      candidatesOnAssessments: {
-        some: {
-          assessmentId: assessmentId,
+  return await await prisma.$transaction([
+    prisma.candidate.update({
+      where: {
+        email: user.email as string,
+        candidatesOnAssessments: {
+          some: {
+            assessmentId: assessmentId,
+          },
         },
       },
-    },
-    data: {
-      userId: user.id,
-      status: CandidateStatus.ACCEPTED,
-      // candidatesOnAssessments: {
-      //   update: {
-      //     data: { assessmentId: assessmentId },
-      //   },
-      // },
-    },
-  });
+      data: {
+        userId: user.id,
+      },
+    }),
+    prisma.candidatesOnAssessments.update({
+      // @ts-expect-error users will by always candidates
+      where: {
+        assessmentId: assessmentId,
+        // @ts-expect-error users will by always candidates
+        candidateId: user.candidate.id,
+      },
+      data: {
+        status: CandidateOnAssessmentStatus.ACCEPTED,
+      },
+    }),
+  ]);
 }
 
 export async function update(where, data) {

@@ -4,8 +4,10 @@ export async function findAll() {
   return await prisma.assessment.findMany();
 }
 
-export async function findOneById(id) {
-  return await prisma.assessment.findFirstOrThrow({ where: { id } });
+export async function findOneById(id, organizationId?) {
+  return await prisma.assessment.findFirst({
+    where: { id, organizationId },
+  });
 }
 
 export async function update(where, data) {

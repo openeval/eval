@@ -1,20 +1,27 @@
-import { getCurrentUser } from "~/server/auth";
-import "react-diff-view/style/index.css";
 import { fetchPullRequest } from "~/server/github";
 import { SubmissionDetailPage } from "./SubmissionDetailPage";
-type CandidateDetailPageProps = {
+import * as submissionRepo from "~/server/repositories/Submissions";
+import { notFound } from "next/navigation";
+
+type SubmissionDetailPageProps = {
   params: {
     assessmentId: string;
-    candidateId: string;
+    submissionId: string;
   };
 };
-export default async function Page({ params }: CandidateDetailPageProps) {
-  const _user = await getCurrentUser();
 
+export default async function Page({ params }: SubmissionDetailPageProps) {
   const response = await fetch(
     "https://github.com/openeval/eval/pull/21.diff",
   ).then((r) => r.text());
 
+  const submission = await submissionRepo.findByIdFull(params.submissionId);
+
+  if (!submission) {
+    notFound();
+  }
+
   const pr = await fetchPullRequest();
-  return <SubmissionDetailPage submissionId={"1"} diffText={response} />;
+
+  return <SubmissionDetailPage submission={submission} diffText={response} />;
 }

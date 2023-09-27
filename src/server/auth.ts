@@ -14,7 +14,7 @@ import { inviteEmailProvider } from "./invite";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
 import { update as updateUser } from "~/server/repositories/User";
 
-import { CandidateStatus } from "@prisma/client";
+import { CandidateStatus, User as BaseUser } from "@prisma/client";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -22,14 +22,13 @@ import { CandidateStatus } from "@prisma/client";
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 declare module "next-auth" {
+  interface User extends BaseUser {
+    candidate?: Candidate;
+  }
+
   interface Session extends DefaultSession {
     user: User & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 declare module "next-auth/jwt" {
@@ -120,7 +119,6 @@ export const authOptions: NextAuthOptions = {
         // when the candidate is created in the onboarding process
         await updateCandidate(
           { userId: user.id },
-          //@ts-expect-error defined profile
           { status: CandidateStatus.VERIFIED, ghUsername: profile.ghUsername },
         );
 

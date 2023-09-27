@@ -1,4 +1,3 @@
-import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
 import { Typography } from "~/components/ui/Typography";
 import { ChevronRight } from "lucide-react";
@@ -6,15 +5,14 @@ import { AssessmentNav } from "~/components/AssessmentNav";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "~/server/auth";
-
+import { findOneById } from "~/server/repositories/Assessments";
 type AssessmentDetailPageProps = {
   children: React.ReactNode;
   params: { assessmentId: string };
 };
 
-async function fetchAssessment(id: string) {
-  const assessment = await prisma.assessment.findFirst({ where: { id } });
-  return assessment;
+async function fetchAssessment(id: string, organizationId) {
+  return await findOneById(id, organizationId);
 }
 
 export default async function Layout({
@@ -27,7 +25,11 @@ export default async function Layout({
     redirect("/login");
   }
 
-  const assessment = await fetchAssessment(params.assessmentId);
+  const assessment = await fetchAssessment(
+    params.assessmentId,
+    user.activeOrgId,
+  );
+
   if (!assessment) {
     notFound();
   }
