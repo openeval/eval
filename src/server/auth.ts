@@ -9,10 +9,12 @@ import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-import { type User, type UserType } from "@prisma/client";
+import { Candidate, type User, type UserType } from "@prisma/client";
 import { inviteEmailProvider } from "./invite";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
-import { CandidateStatus } from "@prisma/client";
+import { update as updateUser } from "~/server/repositories/User";
+
+import { CandidateStatus, User as BaseUser } from "@prisma/client";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -20,14 +22,13 @@ import { CandidateStatus } from "@prisma/client";
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 declare module "next-auth" {
+  interface User extends BaseUser {
+    candidate?: Candidate;
+  }
+
   interface Session extends DefaultSession {
     user: User & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 declare module "next-auth/jwt" {
@@ -39,6 +40,7 @@ declare module "next-auth/jwt" {
     activeOrgId: string | null;
     type: UserType;
     completedOnboarding: boolean;
+    candidate?: Candidate;
   }
 }
 
@@ -54,6 +56,9 @@ export const authOptions: NextAuthOptions = {
       const dbUser = await prisma.user.findFirst({
         where: {
           email: token.email,
+        },
+        include: {
+          candidate: true,
         },
       });
 
@@ -73,6 +78,7 @@ export const authOptions: NextAuthOptions = {
           activeOrgId: dbUser.activeOrgId,
           type: dbUser.type,
           completedOnboarding: dbUser.completedOnboarding,
+          candidate: dbUser.candidate,
         },
       };
     },
@@ -103,15 +109,20 @@ export const authOptions: NextAuthOptions = {
       /* user updated - e.g. their email was verified */
     },
     async linkAccount({ account, user, profile }) {
+      // TODO:add extra validations
       if (account.provider === "github") {
+        console.log("--------------------------");
+        console.log(profile);
+        console.log(account);
         // candidates need to link their github account to verify their profiles
         // this happens when a candidate is invited (created by organization) and
         // when the candidate is created in the onboarding process
         await updateCandidate(
           { userId: user.id },
-          //@ts-expect-error defined profile
-          { status: CandidateStatus.VERIFIED, ghUsername: profile.gh_username },
+          { status: CandidateStatus.VERIFIED, ghUsername: profile.ghUsername },
         );
+
+        await updateUser({ id: user.id }, { completedOnboarding: true });
       }
     },
   },
@@ -128,11 +139,13 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
       clientSecret: env.GITHUB_APP_CLIENT_SECRET,
+      clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
+      clientSecret: env.GITHUB_APP_CLIENT_SECRET,
       profile(profile) {
         return {
           id: profile.id.toString(),
           name: profile.name || profile.login,
-          // ghUsername: profile.login,
+          ghUsername: profile.login,
           email: profile.email,
           image: profile.avatar_url,
         };

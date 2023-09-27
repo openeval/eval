@@ -14,19 +14,15 @@ import { Command as CommandPrimitive } from "cmdk";
 import { useDebounce } from "use-debounce";
 import { useQuery } from "@tanstack/react-query";
 import { Typography } from "./Typography";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./Card";
+
+import { kIntFormat } from "~/lib/utils";
 
 type Framework = Record<"value" | "name", string>;
 
 interface Repo {
   id: string;
   name: string;
+  full_name: string;
 }
 
 interface SearchResponse {
@@ -83,7 +79,7 @@ export function Multiselect() {
     data,
     isLoading: isLoadingOrig,
     isError,
-  } = useQuery<SearchResponse>({
+  } = useQuery({
     queryKey: ["search", debouncedSearchQuery],
     queryFn: () => searchRepos(debouncedSearchQuery),
     enabled,
@@ -168,12 +164,12 @@ export function Multiselect() {
                       className={"cursor-pointer"}
                     >
                       <div>
-                        <div className="grid grid-cols-[1fr_110px] items-start gap-4 space-y-0">
+                        <div className="grid grid-cols-[1fr_110px] items-start gap-2 space-y-0">
                           <div className="space-y-1">
                             <Typography variant={"h4"}>
                               {framework.full_name}
                             </Typography>
-                            <Typography variant={"p"}>
+                            <Typography variant={"subtle"}>
                               {framework.description}
                             </Typography>
                           </div>
@@ -186,9 +182,7 @@ export function Multiselect() {
                             </div>
                             <div className="flex items-center">
                               <StarIcon className="mr-1 h-3 w-3" />
-                              {Intl.NumberFormat("en", {
-                                notation: "compact",
-                              }).format(framework.stargazers_count)}
+                              {kIntFormat(framework.stargazers_count)}
                             </div>
                             <div className="flex items-center">
                               <CircleDotIcon className="mr-1 h-3 w-3" />

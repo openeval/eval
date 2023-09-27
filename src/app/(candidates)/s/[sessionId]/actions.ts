@@ -2,7 +2,7 @@
 import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { z } from "zod";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import * as candidatesRepo from "~/server/repositories/Candidates";
 import { prisma } from "~/server/db";
@@ -23,10 +23,13 @@ export async function finishAssessmentSessionAction(sessionId: string) {
 
   const { user } = session;
 
-  try {
-    const assessmentSession =
-      await assessmentSessionsRepo.findOneById(sessionId);
+  const assessmentSession = await assessmentSessionsRepo.findOneById(sessionId);
 
+  if (!assessmentSession) {
+    notFound();
+  }
+
+  try {
     const candidate = await candidatesRepo.findCandidateByUserId(user.id);
 
     if (!candidate) {

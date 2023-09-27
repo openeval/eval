@@ -7,11 +7,12 @@ import { InviteCandidateSchema } from "~/dto/InviteCandidateDto";
 import { findInvitedCandidate } from "~/server/repositories/Candidates";
 import { ApiError, ERROR_CODES } from "~/server/error";
 import sendInvitationEmail from "~/server/invite";
+import { CandidateOnAssessmentStatus } from "@prisma/client";
 
 // TODO: move to nextjs actions
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   let response, body;
 
@@ -39,29 +40,38 @@ export default async function handle(
       const invitedCandidate = await findInvitedCandidate(
         user,
         assessmentId,
-        data.email
+        data.email,
       );
 
-      console.log(invitedCandidate);
       if (invitedCandidate) {
         throw new ApiError(
           ERROR_CODES.BAD_REQUEST,
-          "Candidate already invited"
+          "Candidate already invited",
         );
       }
 
-      response = await prisma.candidate.upsert({
+      const candidate = await prisma.candidate.upsert({
         where: { email: data.email, organizationId: user.activeOrgId },
-        update: {
-          // we make sure if the candidate exist to invite it to the assessment
-          assessments: { connect: { id: assessmentId } },
-        },
+        update: {},
         create: {
           ...data,
-          assessments: { connect: { id: assessmentId } },
+          candidatesOnAssessments: {
+            create: { assessmentId: assessmentId },
+          },
           organization: { connect: { id: user.activeOrgId || undefined } },
           createdBy: { connect: { id: user.id } },
         },
+      });
+
+      response = await prisma.candidatesOnAssessments.upsert({
+        where: {
+          candidateId_assessmentId: {
+            candidateId: candidate.id,
+            assessmentId: assessmentId,
+          },
+        },
+        update: {},
+        create: { candidateId: candidate.id, assessmentId: assessmentId },
       });
 
       // TODO: create a better template

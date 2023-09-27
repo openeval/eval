@@ -1,5 +1,6 @@
 "use client";
 import { parseDiff, Diff, Hunk, Decoration } from "react-diff-view";
+import "react-diff-view/style/index.css";
 
 export const DiffViewer = ({ diffText }) => {
   const files = parseDiff(diffText);
@@ -12,8 +13,8 @@ export const DiffViewer = ({ diffText }) => {
     type,
     hunks,
   }) => (
-    <div className="border mb-8">
-      <header className="diff-header p-2 font-normal border-b">
+    <div className="mb-8 border">
+      <header className="diff-header border-b p-2 font-normal">
         {oldPath === newPath ? oldPath : `${oldPath} -> ${newPath}`}
       </header>
       <Diff
@@ -26,7 +27,7 @@ export const DiffViewer = ({ diffText }) => {
           hunks.map((hunk) => (
             <>
               <Decoration key={"deco-" + hunk.content}>
-                <div className="hunk-header px-6 bg-cyan-100">
+                <div className="hunk-header bg-cyan-100 px-6">
                   {hunk.content}
                 </div>
               </Decoration>

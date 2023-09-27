@@ -6,7 +6,7 @@ export async function create(data) {
 }
 
 export async function findOneById(id) {
-  return await prisma.assessmentSession.findFirstOrThrow({
+  return await prisma.assessmentSession.findFirst({
     where: { id },
     include: { assessment: true },
   });

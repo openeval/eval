@@ -71,13 +71,14 @@ model User {
   emailVerified        DateTime?      @map("email_verified")
   completedOnboarding  Boolean        @default(false) @map("onboarding_completed")
   image                String?
+  ghUsername           String?        @unique
   accounts             Account[]
   sessions             Session[]
   createdAssessments   Assessment[]
   memberships          Membership[]
   type                 UserType?      @map("type") //TODO: we are not discriminating by type yet
   candidate            Candidate?
-  activeOrgId          String?        @db.Uuid
+  activeOrgId          String?        @map("active_org_id") @db.Uuid
   activeOrg            Organization?  @relation(fields: [activeOrgId], references: [id])
   createdCandidates    Candidate[]    @relation("userCandidateCreated")
   reviewingAssessments Assessment[]   @relation("userAssessmentReviewing")
@@ -137,37 +138,51 @@ model Membership {
   @@map("membership")
 }
 
-// TODO: DEFINE STATUS
 enum CandidateStatus {
   PENDING
-  ACCEPTED
-  VERIFIED
+  VERIFIED // github connect
   ARCHIVED
 }
 
 model Candidate {
-  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user               User?               @relation(fields: [userId], references: [id])
-  userId             String?             @unique @map("user_id") @db.Uuid
-  organizationId     String?             @map("organization_id") @db.Uuid
-  assessmentSessions AssessmentSession[]
-  organization       Organization?       @relation(fields: [organizationId], references: [id])
-  assessments        Assessment[]
-  // assessmentId       String?             @map("assessment_id") @db.Uuid
-  name               String
-  ghUsername         String?             @map("gh_username")
-  status             CandidateStatus     @default(PENDING) @map("status")
-  lastName           String              @map("last_name")
-  email              String              @unique
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
-  createdBy          User?               @relation("userCandidateCreated", fields: [createdById], references: [id])
-  createdById        String?             @map("created_by_id") @db.Uuid
-  contributions      Contribution[]
-  submission         Submission[]
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user                    User?                     @relation(fields: [userId], references: [id])
+  userId                  String?                   @unique @map("user_id") @db.Uuid
+  organizationId          String?                   @map("organization_id") @db.Uuid
+  assessmentSessions      AssessmentSession[]
+  organization            Organization?             @relation(fields: [organizationId], references: [id])
+  name                    String
+  ghUsername              String?                   @map("gh_username")
+  status                  CandidateStatus           @default(PENDING) @map("status")
+  lastName                String                    @map("last_name")
+  email                   String                    @unique
+  createdAt               DateTime                  @default(now()) @map("created_at")
+  updatedAt               DateTime                  @default(now()) @updatedAt @map("updated_at")
+  createdBy               User?                     @relation("userCandidateCreated", fields: [createdById], references: [id])
+  createdById             String?                   @map("created_by_id") @db.Uuid
+  contributions           Contribution[]
+  submission              Submission[]
+  candidatesOnAssessments CandidatesOnAssessments[]
 
   @@unique([id, email, organizationId])
   @@map("candidate")
+}
+
+enum CandidateOnAssessmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model CandidatesOnAssessments {
+  assessment   Assessment                  @relation(fields: [assessmentId], references: [id])
+  assessmentId String                      @map("assessment_id") @db.Uuid
+  candidate    Candidate                   @relation(fields: [candidateId], references: [id])
+  candidateId  String                      @map("candidate_id") @db.Uuid
+  status       CandidateOnAssessmentStatus @default(PENDING)
+
+  @@id([candidateId, assessmentId])
+  @@map("candidates_on_assessment")
 }
 
 // TODO: V2
@@ -186,26 +201,26 @@ enum Visibility {
 }
 
 model Assessment {
-  id                   String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title                String
-  slug                 String?
-  description          String
-  status               AssessmentStatus    @default(ACTIVE) @map("status")
-  createdBy            User                @relation(fields: [createdById], references: [id])
-  createdById          String              @map("created_by_id") @db.Uuid
-  organization         Organization        @relation(fields: [organizationId], references: [id])
-  organizationId       String              @map("organization_id") @db.Uuid
-  candidates           Candidate[]
-  applicantSessions    AssessmentSession[]
-  repositories         Repo[]
-  ghIssuesQuerySeach   String?             @map("gh_issues_query_seach")
-  evaluationPeriodDays String?             @default("1") @map("evaluation_period_days")
-  createdAt            DateTime            @default(now()) @map("created_at")
-  updatedAt            DateTime            @default(now()) @updatedAt @map("updated_at")
-  published            Boolean             @default(false)
-  visibility           Visibility          @default(PUBLIC)
-  submission           Submission[]
-  reviewers            User[]              @relation(name: "userAssessmentReviewing")
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                   String
+  slug                    String?
+  description             String
+  status                  AssessmentStatus          @default(ACTIVE) @map("status")
+  createdBy               User                      @relation(fields: [createdById], references: [id])
+  createdById             String                    @map("created_by_id") @db.Uuid
+  organization            Organization              @relation(fields: [organizationId], references: [id])
+  organizationId          String                    @map("organization_id") @db.Uuid
+  applicantSessions       AssessmentSession[]
+  repositories            Repo[]
+  ghIssuesQuerySeach      String?                   @map("gh_issues_query_seach")
+  evaluationPeriodDays    String?                   @default("1") @map("evaluation_period_days")
+  createdAt               DateTime                  @default(now()) @map("created_at")
+  updatedAt               DateTime                  @default(now()) @updatedAt @map("updated_at")
+  published               Boolean                   @default(false)
+  visibility              Visibility                @default(PUBLIC)
+  submission              Submission[]
+  reviewers               User[]                    @relation(name: "userAssessmentReviewing")
+  candidatesOnAssessments CandidatesOnAssessments[]
 
   @@map("assessment")
 }
@@ -232,7 +247,7 @@ model AssessmentSession {
   @@map("assessment_session")
 }
 
-enum SubmissionState {
+enum SubmissionStatus {
   COMPLETED // candidated submitted they answers
   REVIEWING // hr reviewing submissions
   APPROVED // hr approved 
@@ -242,7 +257,7 @@ enum SubmissionState {
 model Submission {
   id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   contributions       Contribution[]
-  status              SubmissionState   @default(REVIEWING)
+  status              SubmissionStatus  @default(REVIEWING)
   notes               String?
   createdAt           DateTime          @default(now()) @map("created_at")
   updatedAt           DateTime          @default(now()) @updatedAt @map("updated_at")

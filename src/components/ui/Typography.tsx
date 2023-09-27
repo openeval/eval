@@ -6,17 +6,17 @@ import { cn } from "~/lib/utils";
 const typographyVariants = cva("", {
   variants: {
     variant: {
-      h1: "scroll-m-20 text-3xl font-extrabold tracking-tight ",
-      h2: "mt-10 scroll-m-20 border-b border-b-slate-200 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0 dark:border-b-slate-700",
-      h3: "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
-      h4: "mt-8 scroll-m-20 text-xl font-semibold tracking-tight",
+      h1: "scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-5xl",
+      h2: "scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0",
+      h3: "scroll-m-20 text-2xl font-semibold tracking-tight",
+      h4: "scroll-m-20 text-md font-semibold tracking-tight",
       p: "leading-7 [&:not(:first-child)]:mt-6",
-      blockquote:
-        "mt-6 border-l-2 border-slate-300 pl-6 italic text-slate-800 dark:border-slate-600 dark:text-slate-200",
-      lead: "text-xl text-slate-700 dark:text-slate-400",
+      blockquote: "mt-6 border-l-2 pl-6 italic",
+      lead: "text-xl text-muted-foreground",
       subtle: "text-sm text-slate-500 dark:text-slate-400",
       ul: "my-6 ml-6 list-disc [&>li]:mt-2",
       small: "text-sm font-medium leading-none",
+      muted: "text-sm text-muted-foreground",
     },
     size: {
       default: "",
@@ -43,7 +43,7 @@ const Typography = React.forwardRef<HTMLElement, TypographyProps>(
     // @ts-expect-error we avoid a switch case by variant
     const element = React.isValidElement(React.createElement(variant))
       ? variant
-      : "p";
+      : "span";
 
     const template = React.createElement(
       // @ts-expect-error no error here

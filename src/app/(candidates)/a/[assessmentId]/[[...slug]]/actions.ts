@@ -24,7 +24,7 @@ export async function startAssessmentSessionAction(assessmentId) {
 
   const { user } = session;
 
-  const candidate = await candidatesRepo.findCandidateByUserId(user.id);
+  const { candidate } = user;
   if (!candidate || candidate.status !== CandidateStatus.VERIFIED) {
     redirect(`/onboarding?callbackUrl=${absoluteUrl() + "a/" + assessmentId}`);
   }
@@ -47,7 +47,7 @@ export async function startAssessmentSessionAction(assessmentId) {
 
     const response = await assessmentSessionsRepo.create({
       assessment: { connect: { id: assessmentId } },
-      sessionToken: "TODO_SESSION_TOKEN",
+      sessionToken: "TODO_SESSION_TOKEN" + new Date().toString(),
       expiresAt: add(new Date(), {
         days: Number(assessment.evaluationPeriodDays) || 1,
       }),

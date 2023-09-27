@@ -30,11 +30,11 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div>
-      <Typography className="mb-4" variant="h1">
-        {assessment.title}
-      </Typography>
       <div className="pb-12">
-        <div className="prose pb-8">
+        <div className="prose prose-slate mx-auto lg:prose-lg">
+          <Typography className="mx-auto mb-4" variant="h1">
+            {assessment.title}
+          </Typography>
           <Markdown content={assessment.description} />
         </div>
         <div

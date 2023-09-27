@@ -17,7 +17,6 @@ export default async function Onboarding() {
 
   return (
     <div className="mx-auto max-w-md">
-      {/* TODO: handle onSuccess */}
       <CreateOrganizationForm action={createOrgAction} />
     </div>
   );

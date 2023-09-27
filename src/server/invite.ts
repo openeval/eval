@@ -80,7 +80,7 @@ export const inviteEmailProvider = EmailProvider({
     },
   },
   from: env.SMTP_FROM,
-  maxAge: 604800 ,// 1 week
+  maxAge: 604800, // 1 week
   sendVerificationRequest,
 });
 

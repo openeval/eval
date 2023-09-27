@@ -24,9 +24,9 @@ import {
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 
 type CreateOrganizationFormProps = React.HTMLAttributes<HTMLDivElement> & {
-  onSuccess: () => void;
   action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
 };
 
@@ -37,20 +37,19 @@ const orgSchema = z.object({
 type FormData = z.infer<typeof orgSchema>;
 
 export function CreateOrganizationForm({
-  className,
   ...props
 }: CreateOrganizationFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(orgSchema),
   });
-
+  const router = useRouter();
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
       try {
         await props.action(data);
-        props.onSuccess();
+        router.push("/");
       } catch (e) {
         // TODO: how to handle errors in with server actions
         toast({
