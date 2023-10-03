@@ -8,21 +8,12 @@ import { CopyButton } from "~/components/ui/CopyButton";
 import { absoluteUrl } from "~/lib/utils";
 import slugify from "slugify";
 import { notFound } from "next/navigation";
+import { findCandidatesByAssessment } from "~/server/repositories/Candidates";
 
 const getCandidates = async (
-  assessmentId: string
+  assessmentId: string,
 ): Promise<Candidate[] | null> => {
-  const data = await prisma.assessment.findFirst({
-    where: {
-      id: assessmentId,
-    },
-    include: { candidates: true },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
-
-  return data ? data.candidates : null;
+  return await findCandidatesByAssessment(assessmentId);
 };
 
 type AssessmentCandidatePageProps = {

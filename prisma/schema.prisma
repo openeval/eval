@@ -218,7 +218,7 @@ model Assessment {
   updatedAt               DateTime                  @default(now()) @updatedAt @map("updated_at")
   published               Boolean                   @default(false)
   visibility              Visibility                @default(PUBLIC)
-  submission              Submission[]
+  submissions             Submission[]
   reviewers               User[]                    @relation(name: "userAssessmentReviewing")
   candidatesOnAssessments CandidatesOnAssessments[]
 
@@ -293,9 +293,10 @@ enum ContributionType {
 // WE focus only in pull requests
 model Contribution {
   id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type          ContributionType @default(PULL_REQUEST) @map("status")
+  type          ContributionType @default(PULL_REQUEST)
   title         String
   description   String?
+  state         String
   url           String
   repo          String
   meta          Json?

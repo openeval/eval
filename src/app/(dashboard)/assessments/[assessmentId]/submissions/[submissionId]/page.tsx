@@ -1,6 +1,6 @@
-import { fetchPullRequest } from "~/server/github";
 import { SubmissionDetailPage } from "./SubmissionDetailPage";
 import * as submissionRepo from "~/server/repositories/Submissions";
+import { getPullRequest } from "~/server/github";
 import { notFound } from "next/navigation";
 
 type SubmissionDetailPageProps = {
@@ -11,9 +11,7 @@ type SubmissionDetailPageProps = {
 };
 
 export default async function Page({ params }: SubmissionDetailPageProps) {
-  const response = await fetch(
-    "https://github.com/openeval/eval/pull/21.diff",
-  ).then((r) => r.text());
+  // need to get this endpoint for changes
 
   const submission = await submissionRepo.findByIdFull(params.submissionId);
 
@@ -21,7 +19,12 @@ export default async function Page({ params }: SubmissionDetailPageProps) {
     notFound();
   }
 
-  const pr = await fetchPullRequest();
+  const diffText = await fetch(
+    submission.contributions[0].meta.pull_request.diff_url,
+  ).then((r) => r.text());
 
-  return <SubmissionDetailPage submission={submission} diffText={response} />;
+  // TODO: get the full pull request from github
+  // const pr = await getPullRequest("openeval", "eval", 26);
+  // console.log(pr);
+  return <SubmissionDetailPage submission={submission} diffText={diffText} />;
 }

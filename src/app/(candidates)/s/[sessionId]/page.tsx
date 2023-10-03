@@ -61,7 +61,7 @@ export default async function Page({ params }: PageProps) {
           </Typography>
         </div>
         <FinishAssessmentSessionButton
-          action={finishAssessmentSessionAction}
+          finishAssessmentSessionAction={finishAssessmentSessionAction}
           sessionId={params.sessionId}
         />
       </div>

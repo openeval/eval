@@ -1,6 +1,8 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
+import { Suspense } from "react";
+import { format, formatDistance, subDays } from "date-fns";
 
 import { Typography } from "~/components/ui/Typography";
 import { DiffViewer } from "./DiffViewer";
@@ -10,7 +12,7 @@ import Markdown from "~/components/Markdown";
 import { Separator } from "~/components/ui/Separator";
 import { Button } from "~/components/ui/Button";
 import { Textarea } from "~/components/ui/Textarea";
-import { GitPullRequest } from "lucide-react";
+import { GitPullRequest, Loader } from "lucide-react";
 import { Contribution, Submission } from "@prisma/client";
 
 type SubmissionDetailPageProps = {
@@ -28,18 +30,21 @@ export function SubmissionDetailPage({
         <>
           <div className="items-top mb-4 flex flex-row justify-between">
             <div className="flex flex-col">
-<<<<<<< HEAD
               <h2 className="text-2xl font-semibold">
                 {submission.contributions[0].title}
               </h2>
-=======
-              <h2 className="text-2xl font-semibold">Assessment session fix</h2>
->>>>>>> origin/main
               <div className="mt-2 flex items-center">
                 <Badge variant="outline" className="mr-2 py-2">
-                  <GitPullRequest className="x-4 mr-1 h-4" /> Open
+                  <GitPullRequest className="x-4 mr-1 h-4" />{" "}
+                  {submission.contributions[0].state}
                 </Badge>{" "}
-                <Typography variant={"subtle"}>created 2 days ago</Typography>
+                <Typography variant={"subtle"}>
+                  {formatDistance(
+                    new Date(submission.contributions[0].meta.created_at),
+                    new Date(),
+                    { addSuffix: true },
+                  )}
+                </Typography>
               </div>
             </div>
           </div>
@@ -64,14 +69,7 @@ export function SubmissionDetailPage({
             <TabsContent value="preview">
               <div className="prose pb-8">
                 <Markdown
-                  content={`## What does this MR do and why?
-
-candidates will start a new session when applying to an assignment
-sessions will helps to to collect the contributions in the given time 
-
-## MR acceptance list
-
- - it should have a test`}
+                  content={submission.contributions[0].description as string}
                 />
               </div>
               <Separator></Separator>
@@ -84,7 +82,9 @@ sessions will helps to to collect the contributions in the given time
               </form>
             </TabsContent>
             <TabsContent value="code">
-              <DiffViewer diffText={diffText}></DiffViewer>
+              <Suspense fallback={<Loader className="h-8 w-8" />}>
+                <DiffViewer diffText={diffText}></DiffViewer>
+              </Suspense>
             </TabsContent>
           </Tabs>
         </>

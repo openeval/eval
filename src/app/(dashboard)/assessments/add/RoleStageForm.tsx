@@ -80,7 +80,11 @@ export function RoleStageForm({
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="The role title..." {...field} />
+                    <Input
+                      placeholder="The role title..."
+                      autoFocus
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     This is your public display name.
@@ -98,7 +102,6 @@ export function RoleStageForm({
                   <FormControl>
                     <TextareaAutosize
                       minRows={5}
-                      autoFocus
                       id="description"
                       placeholder="description"
                       className="w-full resize-none appearance-none overflow-hidden rounded-md border border-slate-300 bg-transparent px-3 py-2 focus:outline-none "

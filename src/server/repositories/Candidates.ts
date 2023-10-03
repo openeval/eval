@@ -26,32 +26,30 @@ export async function linkInvitedUser(
   user: Partial<User>,
   assessmentId: string,
 ) {
-  return await await prisma.$transaction([
-    prisma.candidate.update({
-      where: {
-        email: user.email as string,
-        candidatesOnAssessments: {
-          some: {
-            assessmentId: assessmentId,
-          },
+  const candidate = await prisma.candidate.update({
+    where: {
+      email: user.email as string,
+      candidatesOnAssessments: {
+        some: {
+          assessmentId: assessmentId,
         },
       },
-      data: {
-        userId: user.id,
-      },
-    }),
-    prisma.candidatesOnAssessments.update({
-      // @ts-expect-error users will by always candidates
-      where: {
-        assessmentId: assessmentId,
-        // @ts-expect-error users will by always candidates
-        candidateId: user.candidate.id,
-      },
-      data: {
-        status: CandidateOnAssessmentStatus.ACCEPTED,
-      },
-    }),
-  ]);
+    },
+    data: {
+      userId: user.id,
+    },
+  });
+
+  await prisma.candidatesOnAssessments.update({
+    // @ts-ignore
+    where: {
+      assessmentId: assessmentId,
+      candidateId: candidate.id,
+    },
+    data: {
+      status: CandidateOnAssessmentStatus.ACCEPTED,
+    },
+  });
 }
 
 export async function update(where, data) {
@@ -74,6 +72,16 @@ export async function findById(id) {
   return await prisma.candidate.findFirst({
     where: {
       id,
+    },
+  });
+}
+
+export async function findCandidatesByAssessment(assessmentId) {
+  return await prisma.candidate.findMany({
+    where: {
+      candidatesOnAssessments: {
+        every: { assessmentId: assessmentId },
+      },
     },
   });
 }

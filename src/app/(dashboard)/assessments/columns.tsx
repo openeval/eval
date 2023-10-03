@@ -5,47 +5,16 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "~/components/ui/Badge";
 import { formatDate } from "~/lib/utils";
 import Link from "next/link";
-import type { AssessmentSchema } from "prisma/zod";
+import type { Assessment } from "@prisma/client";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Switch } from "~/components/ui/Switch";
-import type z from "zoid";
 
-export type Item = z.infer<
-  typeof AssessmentSchema & { _count: { candidates: string } }
->;
+export type Item = Assessment & {
+  _count: { candidatesOnAssessments: number; submissions: number };
+};
 
 export const columns: ColumnDef<Item>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={table.getIsAllPageRowsSelected()}
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //       className="translate-y-[2px]"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-  // {
-  //   accessorKey: "id",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Task" />
-  //   ),
-  //   cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -72,7 +41,22 @@ export const columns: ColumnDef<Item>[] = [
       return (
         <div className="flex items-center justify-between">
           <Link href={`/assessments/${row.original.id}/candidates`}>
-            {row.original._count.candidates}
+            {row.original._count.candidatesOnAssessments}
+          </Link>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "_count.submissions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Submissions" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center justify-between">
+          <Link href={`/assessments/${row.original.id}/submissions`}>
+            {row.original._count.submissions}
           </Link>
         </div>
       );
