@@ -2,18 +2,16 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Suspense } from "react";
-import { format, formatDistance, subDays } from "date-fns";
-
+import { formatDistance } from "date-fns";
+import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import { Typography } from "~/components/ui/Typography";
 import { DiffViewer } from "./DiffViewer";
 import "react-diff-view/style/index.css";
 import { Badge } from "~/components/ui/Badge";
 import Markdown from "~/components/Markdown";
 import { Separator } from "~/components/ui/Separator";
-import { Button } from "~/components/ui/Button";
-import { Textarea } from "~/components/ui/Textarea";
 import { GitPullRequest, Loader } from "lucide-react";
-import { Contribution, Submission } from "@prisma/client";
+import type { Contribution, Submission } from "@prisma/client";
 
 type SubmissionDetailPageProps = {
   submission: Submission & { contributions: Contribution[] };
@@ -69,17 +67,12 @@ export function SubmissionDetailPage({
             <TabsContent value="preview">
               <div className="prose pb-8">
                 <Markdown
-                  content={submission.contributions[0].description as string}
+                  content={
+                    (submission.contributions[0].description as string) ||
+                    "No description"
+                  }
                 />
               </div>
-              <Separator></Separator>
-              <form className="mt-4">
-                <Textarea placeholder="leave a comment on the review" />
-                <div className="mt-4 flex flex-row gap-x-2">
-                  <Button variant={"destructive"}>Reject</Button>
-                  <Button variant={"default"}>Approve</Button>
-                </div>
-              </form>
             </TabsContent>
             <TabsContent value="code">
               <Suspense fallback={<Loader className="h-8 w-8" />}>
@@ -87,6 +80,8 @@ export function SubmissionDetailPage({
               </Suspense>
             </TabsContent>
           </Tabs>
+          <Separator></Separator>
+          <ReviewSubmissionForm />
         </>
       )}
     </div>

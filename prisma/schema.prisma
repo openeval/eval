@@ -273,13 +273,15 @@ model Submission {
 }
 
 model Review {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  note        String
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
-  createdBy   User         @relation(fields: [createdById], references: [id])
-  createdById String       @map("created_by_id") @db.Uuid
-  submission  Submission[]
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  note                String
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at")
+  createdBy           User                 @relation(fields: [createdById], references: [id])
+  createdById         String               @map("created_by_id") @db.Uuid
+  submission          Submission[]
+  evaluationCriterias EvaluationCriteria[]
+  totalScore          Int
 
   @@map("review")
 }
@@ -311,7 +313,7 @@ model Contribution {
 }
 
 model Repo {
-  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           Int         @id @default(autoincrement())
   name         String
   fullName     String
   description  String
@@ -319,4 +321,19 @@ model Repo {
   isPrivate    Boolean
   assessment   Assessment? @relation(fields: [assessmentId], references: [id])
   assessmentId String?     @map("assessment_id") @db.Uuid
+}
+
+model EvaluationCriteria {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  weight               Int                  @default(0)
+  isChild              Boolean              @default(false)
+  children             EvaluationCriteria[] @relation("children")
+  evaluationCriteria   EvaluationCriteria?  @relation("children", fields: [evaluationCriteriaId], references: [id])
+  evaluationCriteriaId Int?
+  Review               Review?              @relation(fields: [reviewId], references: [id])
+  reviewId             String?              @db.Uuid
+
+  @@map("evaluation_criteria")
 }
