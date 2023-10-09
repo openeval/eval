@@ -109,8 +109,7 @@ async function seedCriteria(parentId, criteriaData) {
       data: {
         name,
         weight,
-        isChild: !!parentId,
-        evaluationCriteriaId: parentId ? parentId : undefined,
+        parentId: parentId ? parentId : undefined,
       },
     });
 

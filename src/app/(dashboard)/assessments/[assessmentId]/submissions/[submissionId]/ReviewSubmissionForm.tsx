@@ -23,57 +23,43 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Button } from "~/components/ui/Button";
-import { Input } from "~/components/ui/Input";
 import { Checkbox } from "~/components/ui/Checkbox";
 import { z } from "zod";
 import { Textarea } from "~/components/ui/Textarea";
+import type { Submission } from "@prisma/client";
+// import { Prisma } from "@prisma/client";
+
+type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
+  include: { children: true };
+}>;
 
 type ReviewSubmissionFormProps = {
+  submission: Partial<Submission>;
   onSuccess: () => void;
-  action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
+  evaluationCriterias: EvaluationCriteriaWithChildren[];
+  action: (data: Partial<Prisma.EvaluationCriteria>) => Promise<unknown>;
 };
 
-const candidateSchema = z.object({
-  feedback: z.string(),
-  items: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one item.",
-  }),
+const formSchema = z.object({
+  note: z.string(),
+  evaluationCriterias: z
+    .array(z.number())
+    .refine((value) => value.some((item) => item), {
+      message: "You have to select at least one item.",
+    }),
 });
 
-type FormData = z.infer<typeof candidateSchema>;
+type FormData = z.infer<typeof formSchema>;
 
-const items = [
-  {
-    id: "recents",
-    label: "Recents",
-  },
-  {
-    id: "home",
-    label: "Home",
-  },
-  {
-    id: "applications",
-    label: "Applications",
-  },
-  {
-    id: "desktop",
-    label: "Desktop",
-  },
-  {
-    id: "downloads",
-    label: "Downloads",
-  },
-  {
-    id: "documents",
-    label: "Documents",
-  },
-] as const;
-
-export function ReviewSubmissionForm({ ...props }: ReviewSubmissionFormProps) {
+export function ReviewSubmissionForm({
+  submission,
+  evaluationCriterias,
+  ...props
+}: ReviewSubmissionFormProps) {
   const form = useForm<FormData>({
-    resolver: zodResolver(candidateSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      items: ["recents", "home"],
+      evaluationCriterias: [], //TODO: set this correctly
     },
   });
 
@@ -82,7 +68,7 @@ export function ReviewSubmissionForm({ ...props }: ReviewSubmissionFormProps) {
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
       try {
-        await props.action(data);
+        await props.action(submission.id, data);
         props.onSuccess();
       } catch (e) {
         // TODO: how to handle errors in with server actions
@@ -97,7 +83,7 @@ export function ReviewSubmissionForm({ ...props }: ReviewSubmissionFormProps) {
 
   return (
     <Form {...form}>
-      <form className="mt-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
         <Card>
           <CardHeader>
             <CardTitle>Review</CardTitle>
@@ -108,55 +94,67 @@ export function ReviewSubmissionForm({ ...props }: ReviewSubmissionFormProps) {
           <CardContent className="grid gap-6">
             <FormField
               control={form.control}
-              name="items"
+              name="evaluationCriterias"
               render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Sidebar</FormLabel>
-                    <FormDescription>
-                      Select the items you want to display in the sidebar.
-                    </FormDescription>
-                  </div>
-                  {items.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name="items"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id,
-                                        ),
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              {item.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
+                <FormItem className="space-y-4">
+                  {evaluationCriterias.map((item) => {
+                    return (
+                      <div>
+                        <div className="mb-4 flex">
+                          <FormLabel className="text-base">
+                            {item.name}
+                          </FormLabel>
+                        </div>
+                        <div className="space-y-2">
+                          {item.children.map((child) => (
+                            <FormField
+                              key={child.id}
+                              control={form.control}
+                              name="evaluationCriterias"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={child.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(
+                                          child.id,
+                                        )}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([
+                                                ...field.value,
+                                                child.id,
+                                              ])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (value) => value !== child.id,
+                                                ),
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {child.name}
+                                    </FormLabel>
+                                  </FormItem>
+                                );
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="feedback"
+              name="note"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Comments and Feedback</FormLabel>
@@ -175,8 +173,7 @@ export function ReviewSubmissionForm({ ...props }: ReviewSubmissionFormProps) {
             />
           </CardContent>
           <CardFooter className="gap-x-4">
-            <Button variant={"destructive"}>Reject</Button>
-            <Button variant={"default"}>Approve</Button>
+            <Button variant={"default"}>Submit</Button>
           </CardFooter>
         </Card>
       </form>

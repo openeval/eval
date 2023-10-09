@@ -324,16 +324,13 @@ model Repo {
 }
 
 model EvaluationCriteria {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-
-  weight               Int                  @default(0)
-  isChild              Boolean              @default(false)
-  children             EvaluationCriteria[] @relation("children")
-  evaluationCriteria   EvaluationCriteria?  @relation("children", fields: [evaluationCriteriaId], references: [id])
-  evaluationCriteriaId Int?
-  Review               Review?              @relation(fields: [reviewId], references: [id])
-  reviewId             String?              @db.Uuid
+  id       Int                  @id @default(autoincrement())
+  name     String               @unique
+  weight   Int                  @default(0)
+  children EvaluationCriteria[] @relation("children")
+  parent   EvaluationCriteria?  @relation("children", fields: [parentId], references: [id])
+  parentId Int?                 @map("parent_id")
+  reviews  Review[]
 
   @@map("evaluation_criteria")
 }

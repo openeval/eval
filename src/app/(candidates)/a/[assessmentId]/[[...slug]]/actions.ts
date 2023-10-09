@@ -3,10 +3,9 @@ import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
 import { add } from "date-fns";
 import { z } from "zod";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import * as assessmentsRepo from "~/server/repositories/Assessments";
-import * as candidatesRepo from "~/server/repositories/Candidates";
 import { AssessmentStatus } from "@prisma/client";
 import { CandidateStatus } from "@prisma/client";
 import { absoluteUrl } from "~/lib/utils";
@@ -29,9 +28,13 @@ export async function startAssessmentSessionAction(assessmentId) {
     redirect(`/onboarding?callbackUrl=${absoluteUrl() + "a/" + assessmentId}`);
   }
 
-  try {
-    const assessment = await assessmentsRepo.findOneById(assessmentId);
+  const assessment = await assessmentsRepo.findOneById(assessmentId);
 
+  if (!assessment) {
+    notFound();
+  }
+
+  try {
     if (assessment.status !== AssessmentStatus.ACTIVE) {
       throw new Error("Invalid assessment");
     }

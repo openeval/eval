@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Suspense } from "react";
-import { formatDistance } from "date-fns";
+import { timeAgo } from "~/lib/utils";
 import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import { Typography } from "~/components/ui/Typography";
 import { DiffViewer } from "./DiffViewer";
@@ -11,37 +11,59 @@ import { Badge } from "~/components/ui/Badge";
 import Markdown from "~/components/Markdown";
 import { Separator } from "~/components/ui/Separator";
 import { GitPullRequest, Loader } from "lucide-react";
-import type { Contribution, Submission } from "@prisma/client";
+import Pie from "./Pie";
+import {
+  type Prisma,
+  type Contribution,
+  type Submission,
+  EvaluationCriteria,
+  Review,
+} from "@prisma/client";
+import { Card, CardContent, CardHeader } from "~/components/ui/Card";
+import { useParams, useRouter } from "next/navigation";
+import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
+type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
+  include: { children: true };
+}>;
 
 type SubmissionDetailPageProps = {
-  submission: Submission & { contributions: Contribution[] };
+  submitReviewAction: (
+    data: Partial<Prisma.EvaluationCriteria>,
+  ) => Promise<unknown>;
+  data: {
+    submission: Submission & {
+      contributions: Contribution[];
+      reviews: Review[];
+    };
+    evaluationCriterias: EvaluationCriteriaWithChildren;
+  };
   diffText: string;
 };
 
 export function SubmissionDetailPage({
-  submission,
+  data,
   diffText,
+  submitReviewAction,
 }: SubmissionDetailPageProps) {
+  const router = useRouter();
+  const params = useParams();
+
   return (
     <div>
-      {submission.contributions.length > 0 && (
+      {data.submission.contributions.length > 0 && (
         <>
           <div className="items-top mb-4 flex flex-row justify-between">
-            <div className="flex flex-col">
+            <div className="flex flex-col pt-4">
               <h2 className="text-2xl font-semibold">
-                {submission.contributions[0].title}
+                {data.submission.contributions[0].title}
               </h2>
               <div className="mt-2 flex items-center">
                 <Badge variant="outline" className="mr-2 py-2">
                   <GitPullRequest className="x-4 mr-1 h-4" />{" "}
-                  {submission.contributions[0].state}
+                  {data.submission.contributions[0].state}
                 </Badge>{" "}
                 <Typography variant={"subtle"}>
-                  {formatDistance(
-                    new Date(submission.contributions[0].meta.created_at),
-                    new Date(),
-                    { addSuffix: true },
-                  )}
+                  {timeAgo(data.submission.contributions[0].meta.created_at)}
                 </Typography>
               </div>
             </div>
@@ -68,8 +90,8 @@ export function SubmissionDetailPage({
               <div className="prose pb-8">
                 <Markdown
                   content={
-                    (submission.contributions[0].description as string) ||
-                    "No description"
+                    (data.submission.contributions[0].description as string) ||
+                    "No description provided."
                   }
                 />
               </div>
@@ -81,7 +103,48 @@ export function SubmissionDetailPage({
             </TabsContent>
           </Tabs>
           <Separator></Separator>
-          <ReviewSubmissionForm />
+          {data.submission.reviews &&
+            data.submission.reviews.map((review) => (
+              <Card className="my-4" key={review.id}>
+                <CardHeader className="rounded-t-xl bg-slate-100 px-4 py-2 ">
+                  {timeAgo(review.createdAt)}
+                </CardHeader>
+                <CardContent className="flex flex-col md:flex-row">
+                  <div className="flex flex-col pt-4">
+                    <div className="mx-auto w-[240px]">
+                      <Pie {...review.plot} />
+                    </div>
+                    <ViewScoreDetailsButton
+                      review={review}
+                      evaluationCriterias={data.evaluationCriterias}
+                    />
+                    {/* <span className="mx-auto text-xs text-muted-foreground">
+                      view more
+                    </span> */}
+                  </div>
+
+                  <div className="flex flex-col pt-4">
+                    <span className="font-semibold leading-none tracking-tight">
+                      Feedback
+                    </span>
+                    <div className="pt-4">
+                      <Markdown content={(review.note as string) || ""} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+          {data.submission.reviews.length === 0 && (
+            <ReviewSubmissionForm
+              submission={data.submission}
+              evaluationCriterias={data.evaluationCriterias}
+              action={submitReviewAction}
+              onSuccess={() => {
+                router.push(`/assessments/${params?.assessmentId}/submissions`);
+              }}
+            />
+          )}
         </>
       )}
     </div>
