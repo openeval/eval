@@ -25,6 +25,7 @@ const getassessmentsForUser = cache(async (userId: User["id"]) => {
       _count: {
         select: {
           candidatesOnAssessments: true,
+          submissions: true,
         },
       },
       id: true,

@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth/next";
 import { z } from "zod";
 import { redirect, notFound } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
-import * as candidatesRepo from "~/server/repositories/Candidates";
 import { prisma } from "~/server/db";
 import { AssessmentSessionStatus } from "@prisma/client";
 import { searchContributions } from "~/server/github";
@@ -15,8 +14,7 @@ import { searchContributions } from "~/server/github";
 
 export async function finishAssessmentSessionAction(sessionId: string) {
   const session = await getServerSession(authOptions);
-  // users shound't be able to execute an action without a session
-  // this is a security prevention
+
   if (!session) {
     redirect("/login");
   }
@@ -30,23 +28,19 @@ export async function finishAssessmentSessionAction(sessionId: string) {
   }
 
   try {
-    const candidate = await candidatesRepo.findCandidateByUserId(user.id);
+    if (assessmentSession.status !== AssessmentSessionStatus.STARTED) {
+      throw new Error("Invalid session");
+    }
+
+    const candidate = user.candidate;
 
     if (!candidate) {
       throw new Error("candidate do not exist");
     }
 
-    const getPullRequests = async (username, assessment) => {
-      const pr = await searchContributions(
-        username,
-        assessment.ghIssuesQuerySeach,
-      );
-      return pr;
-    };
-
-    const ghContributions = await getPullRequests(
-      candidate.ghUsername,
-      assessmentSession.assessment,
+    const ghContributions = await searchContributions(
+      candidate.ghUsername as string,
+      assessmentSession.assessment.ghIssuesQuerySeach as string,
     );
 
     const contributions = await prisma.$transaction(
@@ -57,8 +51,9 @@ export async function finishAssessmentSessionAction(sessionId: string) {
             description: pr.body,
             url: pr.html_url,
             repo: pr.repository_url, //TODO: repo name or url ?
+            state: pr.state,
             contributorId: candidate.id,
-            meta: pr,
+            meta: pr, //save gh object
           },
         });
       }),

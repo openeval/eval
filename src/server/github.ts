@@ -2,12 +2,11 @@ import { Octokit } from "octokit";
 import { env } from "~/env.mjs";
 import { siteConfig } from "~/config/site";
 const octokit = new Octokit({
-  // auth: env.GITHUB_API_AUTH_TOKEN,
+  auth: env.GITHUB_API_AUTH_TOKEN,
   request: { fetch: fetch },
 });
 
 const octokitPublic = new Octokit({
-  // auth: env.GITHUB_API_AUTH_TOKEN,
   request: { fetch: fetch },
 });
 
@@ -15,7 +14,7 @@ interface SearchIssuesParams {
   querySearch?: string[] | string | undefined;
 }
 
-async function searchIssues({ querySearch }: SearchIssuesParams) {
+export async function searchIssues({ querySearch }: SearchIssuesParams) {
   const defaulQuery = `type:issue no:assignee ${
     siteConfig.github.searchQueryString
   } ${(querySearch as string) || ""}`;
@@ -26,8 +25,8 @@ async function searchIssues({ querySearch }: SearchIssuesParams) {
   return data.items;
 }
 
-async function searchRepos(searchQueryString) {
-  return await octokitPublic.request(
+export async function searchRepos(searchQueryString) {
+  return await octokit.request(
     `GET /search/repositories?q=${searchQueryString}&has_issues=true&archived=false&per_page=10`,
   );
 }
@@ -62,18 +61,19 @@ export async function getInstallations() {
 }
 
 export async function getPullRequests(username, assessment) {
-  const pr = await searchContributions(username, assessment.ghIssuesQuerySeach);
-  return pr;
+  return await searchContributions(username, assessment.ghIssuesQuerySeach);
 }
 
-export async function fetchPullRequest() {
+export async function getPullRequest(
+  owner: string,
+  repo: string,
+  pull_number: number,
+) {
   const { data: pullRequest } = await octokit.rest.pulls.get({
-    owner: "octokit",
-    repo: "rest.js",
-    pull_number: 123,
+    owner,
+    repo,
+    pull_number,
   });
 
   return pullRequest;
 }
-
-export { octokit, searchIssues, searchRepos };

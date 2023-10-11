@@ -139,8 +139,6 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
       clientSecret: env.GITHUB_APP_CLIENT_SECRET,
-      clientId: env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
-      clientSecret: env.GITHUB_APP_CLIENT_SECRET,
       profile(profile) {
         return {
           id: profile.id.toString(),
@@ -169,8 +167,8 @@ export const authOptions: NextAuthOptions = {
   theme: {
     colorScheme: "auto",
     logo: "",
-    brandColor: "f2f2f2f2",
-    buttonText: "f2f2f2f2",
+    brandColor: "000000",
+    buttonText: "ffffff",
   },
 };
 

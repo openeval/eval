@@ -1,7 +1,9 @@
-import { fetchPullRequest } from "~/server/github";
 import { SubmissionDetailPage } from "./SubmissionDetailPage";
 import * as submissionRepo from "~/server/repositories/Submissions";
+import { getPullRequest } from "~/server/github";
 import { notFound } from "next/navigation";
+import { findAllWithChildren } from "~/server/repositories/EvaluationCriteria";
+import { submitReviewAction } from "../actions";
 
 type SubmissionDetailPageProps = {
   params: {
@@ -11,17 +13,32 @@ type SubmissionDetailPageProps = {
 };
 
 export default async function Page({ params }: SubmissionDetailPageProps) {
-  const response = await fetch(
-    "https://github.com/openeval/eval/pull/21.diff",
-  ).then((r) => r.text());
+  // need to get this endpoint for changes
 
-  const submission = await submissionRepo.findByIdFull(params.submissionId);
+  const submission = await submissionRepo.findByIdFull(params.submissionId, {
+    plotReviewsData: true,
+  });
 
   if (!submission) {
     notFound();
   }
 
-  const pr = await fetchPullRequest();
+  const diffText = await fetch(
+    submission.contribution?.meta?.pull_request.diff_url,
+  ).then((r) => r.text());
 
-  return <SubmissionDetailPage submission={submission} diffText={response} />;
+  const evaluationCriterias = await findAllWithChildren();
+
+  const data = {
+    submission,
+    evaluationCriterias,
+  };
+
+  return (
+    <SubmissionDetailPage
+      data={data}
+      submitReviewAction={submitReviewAction}
+      diffText={diffText}
+    />
+  );
 }

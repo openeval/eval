@@ -18,12 +18,14 @@ import {
 
 interface FinishAssessmentSessionButtonProps {
   sessionId: string;
-  action: (sessionId: string) => Promise<AssessmentSession>;
+  finishAssessmentSessionAction: (
+    sessionId: string,
+  ) => Promise<AssessmentSession>;
 }
 // add alert to start
 export default function FinishAssessmentSessionButton({
   sessionId,
-  action,
+  finishAssessmentSessionAction,
 }: FinishAssessmentSessionButtonProps) {
   const [isLoading, startActionTransition] = React.useTransition();
   const router = useRouter();
@@ -33,7 +35,7 @@ export default function FinishAssessmentSessionButton({
     // create an assessment session
     startActionTransition(async () => {
       try {
-        await action(sessionId);
+        await finishAssessmentSessionAction(sessionId);
 
         // router.refresh();
         router.push(`/s/${sessionId}/confirmation`);

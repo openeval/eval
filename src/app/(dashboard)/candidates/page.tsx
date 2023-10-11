@@ -9,8 +9,8 @@ import { buttonVariants } from "~/components/ui/Button";
 import { cache } from "react";
 import prisma from "~/server/db";
 import { type User } from "@prisma/client";
-import { CandidateItem } from "~/components/CandidateItem";
-
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
 export const metadata = {
   title: "Candidates",
 };
@@ -23,6 +23,7 @@ const getCandidates = cache(async (userId: User["id"]) => {
     select: {
       id: true,
       name: true,
+      status: true,
       lastName: true,
       email: true,
       createdAt: true,
@@ -33,6 +34,7 @@ const getCandidates = cache(async (userId: User["id"]) => {
   });
 });
 
+// TODO: move to query table
 export default async function CandidatesPage() {
   const user = await getCurrentUser();
 
@@ -41,7 +43,6 @@ export default async function CandidatesPage() {
   }
 
   const candidates = await getCandidates(user.id);
-  console.log(candidates);
 
   return (
     <>
@@ -63,11 +64,7 @@ export default async function CandidatesPage() {
       <Separator className="my-4" />
 
       {candidates.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-          {candidates.map((candidate) => (
-            <CandidateItem key={candidate.id} candidate={candidate} />
-          ))}
-        </div>
+        <DataTable columns={columns} data={candidates} />
       )}
 
       {!candidates.length && (

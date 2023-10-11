@@ -1,11 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "~/components/ui/Sheet";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/Sheet";
 import { InviteCandidateForm } from "~/components/InviteCandidateForm";
 import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -32,20 +28,11 @@ export function InviteCandidateButton({
       <SheetTrigger asChild>
         <Button>Invite</Button>
       </SheetTrigger>
-      <SheetContent position="right">
-        {/* <SheetHeader>
-          <SheetTitle>Edit profile</SheetTitle>
-          <SheetDescription>
-            Make changes to your profile here. Click save when you're done.
-          </SheetDescription>
-        </SheetHeader> */}
+      <SheetContent side="right">
         <InviteCandidateForm
           onSuccess={onSuccess}
           assessmentId={assessmentId}
         />
-        {/* <SheetFooter>
-          <Button type="submit">Save changes</Button>
-        </SheetFooter> */}
       </SheetContent>
     </Sheet>
   );
