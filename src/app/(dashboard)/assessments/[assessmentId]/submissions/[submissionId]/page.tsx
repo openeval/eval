@@ -22,8 +22,9 @@ export default async function Page({ params }: SubmissionDetailPageProps) {
   if (!submission) {
     notFound();
   }
+
   const diffText = await fetch(
-    submission.contributions[0].meta.pull_request.diff_url,
+    submission.contribution?.meta?.pull_request.diff_url,
   ).then((r) => r.text());
 
   const evaluationCriterias = await findAllWithChildren();
@@ -32,11 +33,6 @@ export default async function Page({ params }: SubmissionDetailPageProps) {
     submission,
     evaluationCriterias,
   };
-
-  // const plotScoreData = await getDetailScore(
-  //   submission.reviews[0].evaluationCriterias.map((value) => value.id),
-  // );
-  // console.log(plotScoreData);
 
   return (
     <SubmissionDetailPage

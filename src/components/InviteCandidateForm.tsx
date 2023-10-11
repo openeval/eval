@@ -45,7 +45,7 @@ export function InviteCandidateForm({
 
   async function onHandleSubmit(data: FormData) {
     setIsLoading(true);
-
+    // TODO: move to server actions
     const response = await fetch(`/api/candidates/invite`, {
       method: "POST",
       headers: {

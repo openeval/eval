@@ -1,5 +1,5 @@
 import { prisma } from "~/server/db";
-import { CandidateOnAssessmentStatus, CandidateStatus } from "@prisma/client";
+import { CandidateOnAssessmentStatus } from "@prisma/client";
 import { User } from "next-auth";
 
 export async function findInvitedCandidate(
@@ -21,7 +21,12 @@ export async function findInvitedCandidate(
   });
 }
 
-// TODO: set on relationship not on the user
+/**
+ * Link invited users from assessments to candidates
+ * when they loging for the first time
+ * @param user
+ * @param assessmentId
+ */
 export async function linkInvitedUser(
   user: Partial<User>,
   assessmentId: string,
@@ -41,7 +46,7 @@ export async function linkInvitedUser(
   });
 
   await prisma.candidatesOnAssessments.update({
-    // @ts-ignore
+    // @ts-expect-error check the candidate on assessment mtm
     where: {
       assessmentId: assessmentId,
       candidateId: candidate.id,

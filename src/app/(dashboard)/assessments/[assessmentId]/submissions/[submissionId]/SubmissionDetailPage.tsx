@@ -16,7 +16,6 @@ import {
   type Prisma,
   type Contribution,
   type Submission,
-  EvaluationCriteria,
   Review,
 } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "~/components/ui/Card";
@@ -28,11 +27,11 @@ type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
 
 type SubmissionDetailPageProps = {
   submitReviewAction: (
-    data: Partial<Prisma.EvaluationCriteria>,
+    data: Partial<Prisma.EvaluationCriteriaCreateInput>,
   ) => Promise<unknown>;
   data: {
     submission: Submission & {
-      contributions: Contribution[];
+      contribution: Contribution;
       reviews: Review[];
     };
     evaluationCriterias: EvaluationCriteriaWithChildren;
@@ -50,20 +49,20 @@ export function SubmissionDetailPage({
 
   return (
     <div>
-      {data.submission.contributions.length > 0 && (
+      {data.submission.contribution && (
         <>
           <div className="items-top mb-4 flex flex-row justify-between">
             <div className="flex flex-col pt-4">
               <h2 className="text-2xl font-semibold">
-                {data.submission.contributions[0].title}
+                {data.submission.contribution.title}
               </h2>
               <div className="mt-2 flex items-center">
                 <Badge variant="outline" className="mr-2 py-2">
                   <GitPullRequest className="x-4 mr-1 h-4" />{" "}
-                  {data.submission.contributions[0].state}
+                  {data.submission.contribution.state}
                 </Badge>{" "}
                 <Typography variant={"subtle"}>
-                  {timeAgo(data.submission.contributions[0].meta.created_at)}
+                  {timeAgo(data.submission.contribution.meta?.created_at)}
                 </Typography>
               </div>
             </div>
@@ -90,7 +89,7 @@ export function SubmissionDetailPage({
               <div className="prose pb-8">
                 <Markdown
                   content={
-                    (data.submission.contributions[0].description as string) ||
+                    (data.submission.contribution.description as string) ||
                     "No description provided."
                   }
                 />
@@ -107,7 +106,9 @@ export function SubmissionDetailPage({
             data.submission.reviews.map((review) => (
               <Card className="my-4" key={review.id}>
                 <CardHeader className="rounded-t-xl bg-slate-100 px-4 py-2 ">
-                  {timeAgo(review.createdAt)}
+                  <Typography variant={"subtle"}>
+                    {timeAgo(review.createdAt)}
+                  </Typography>
                 </CardHeader>
                 <CardContent className="flex flex-col md:flex-row">
                   <div className="flex flex-col pt-4">
@@ -118,9 +119,6 @@ export function SubmissionDetailPage({
                       review={review}
                       evaluationCriterias={data.evaluationCriterias}
                     />
-                    {/* <span className="mx-auto text-xs text-muted-foreground">
-                      view more
-                    </span> */}
                   </div>
 
                   <div className="flex flex-col pt-4">

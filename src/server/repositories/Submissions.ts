@@ -12,7 +12,7 @@ export async function findAll() {
 export async function findByAssessmentId(assessmentId: string) {
   return await prisma.submission.findMany({
     where: { assessmentId },
-    include: { contributions: true },
+    include: { contribution: true, reviews: true },
   });
 }
 
@@ -23,7 +23,7 @@ export async function findByIdFull(
   const data = await prisma.submission.findFirst({
     where: { id },
     include: {
-      contributions: true,
+      contribution: true,
       reviews: { include: { evaluationCriterias: true } },
     },
   });

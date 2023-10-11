@@ -45,7 +45,7 @@ export default async function Layout({
           <div className="font-medium text-foreground">{assessment.title}</div>
         </div>
       </div>
-      <div className="mb-8">
+      <div className="mb-4">
         <Typography variant={"h1"} className="mb-8">
           {assessment.title}
         </Typography>

@@ -3,6 +3,8 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { env } from "~/env.mjs";
 import { formatDistanceStrict } from "date-fns";
+import type { Metadata } from "next";
+
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
@@ -36,4 +38,48 @@ export function kIntFormat(int) {
   return Intl.NumberFormat("en", {
     notation: "compact",
   }).format(int);
+}
+
+export function constructMetadata({
+  title = "Eval - The open skills assessment platform",
+  description = "Eval is an open-source assessment platform to evaluate technical skills",
+  image = "https://useeval.com/_static/thumbnail.png",
+  icons = "/favicon.ico",
+  noIndex = false,
+}: {
+  title?: string;
+  description?: string;
+  image?: string;
+  icons?: string;
+  noIndex?: boolean;
+} = {}): Metadata {
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: image,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+      creator: "@IvanHoromanski",
+    },
+    icons,
+    metadataBase: new URL(absoluteUrl()),
+    themeColor: "#FFF",
+    ...(noIndex && {
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }),
+  };
 }

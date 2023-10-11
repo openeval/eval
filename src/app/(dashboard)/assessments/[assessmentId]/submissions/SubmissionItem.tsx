@@ -2,28 +2,26 @@
 
 import * as React from "react";
 import { formatDate } from "~/lib/utils";
-
 import { GitMerge } from "lucide-react";
-
 import { Skeleton } from "~/components/ui/Skeleton";
-import { Contribution, Submission } from "@prisma/client";
 import Link from "next/link";
+import { SubmissionOperations } from "./SubmissionOperation";
+import { Progress } from "~/components/ui/Progress";
+import type { Prisma } from "@prisma/client";
+
 interface SubmissionItemProps {
-  item: Partial<Submission> & { contributions: Contribution[] };
+  item: Prisma.SubmissionGetPayload<{ include: { contribution; reviews } }>;
 }
 
 export function SubmissionItem({ item }: SubmissionItemProps) {
   return (
-    <div className="grid grid-cols-3 p-2 text-sm  hover:bg-slate-100">
-      <div className="">
+    <div className="grid grid-cols-4 p-4 text-sm  hover:bg-slate-100">
+      <div className="grid gap-1">
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">
             <Link href={`submissions/${item.id}`}>
               <span className="text-zinc-400 hover:text-sky-500">
-                {
-                  /* @ts-expect-error  never undefined */
-                  formatDate(new Date(item.createdAt).toDateString())
-                }
+                {formatDate(new Date(item.createdAt).toDateString())}
               </span>
             </Link>
           </span>
@@ -31,15 +29,21 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
         <div className="">{item.status}</div>
       </div>
 
-      <div className="">
+      <div className="grid gap-1">
         <span className="flex cursor-pointer font-medium hover:text-sky-500">
-          {item.contributions.length > 0 && (
+          {item.contribution && (
             <>
-              <GitMerge className="mr-2 h-5 w-5" />
-              {item.contributions.length}
+              <GitMerge className="ml-2 h-4 w-4" />
             </>
           )}
         </span>
+      </div>
+      <div className="grid w-2/6  text-right">
+        <div>{item.reviews[0].totalScore}%</div>
+        <Progress value={item.reviews[0].totalScore} className="h-4 " />
+      </div>
+      <div className="flex items-center justify-end">
+        <SubmissionOperations submission={{ id: item.id }} />
       </div>
     </div>
   );

@@ -173,7 +173,9 @@ export function ReviewSubmissionForm({
             />
           </CardContent>
           <CardFooter className="gap-x-4">
-            <Button variant={"default"}>Submit</Button>
+            <Button disabled={isLoading} variant={"default"}>
+              Submit
+            </Button>
           </CardFooter>
         </Card>
       </form>

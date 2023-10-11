@@ -17,7 +17,7 @@ export default async function SubmissionsPage({
 
   const submissions = await submissionRepo.findByAssessmentId(assessmentId);
   return (
-    <div>
+    <div className="">
       {submissions && submissions.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
           {submissions.map((item) => (
