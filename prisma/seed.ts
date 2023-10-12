@@ -3,10 +3,16 @@ import type { Prisma } from "@prisma/client";
 
 const userData: Prisma.UserCreateInput[] = [
   {
-    name: "Test",
-    email: "test@useeval.com",
+    name: "Unverified",
+    email: "test+unverified@useeval.com",
     emailVerified: new Date(),
     completedOnboarding: false,
+  },
+  {
+    name: "Test verified",
+    email: "test@useeval.com",
+    emailVerified: new Date(),
+    completedOnboarding: true,
   },
 ];
 
@@ -125,7 +131,7 @@ async function main() {
     const user = await prisma.user.upsert({
       create: u,
       update: {},
-      where: { email: u.email },
+      where: { email: u.email as string },
     });
     console.log(`Created user with id: ${user.id}`);
   }

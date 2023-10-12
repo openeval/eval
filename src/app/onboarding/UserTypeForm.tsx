@@ -76,8 +76,8 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card className="mx-auto max-w-md">
           <CardHeader>
-            <CardTitle>User type</CardTitle>
-            <CardDescription>what is your main profession</CardDescription>
+            <CardTitle>User role</CardTitle>
+            <CardDescription>what is your main rol?</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
             <FormField
@@ -101,7 +101,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                             id="candidate"
                             className="sr-only"
                           />
-                          Candidate
+                          I'm a Candidate
                         </Label>
                         <Label
                           htmlFor="recruiter"
@@ -112,7 +112,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                             id="recruiter"
                             className="sr-only"
                           />
-                          Recruiter
+                          I'm a Recruiter
                         </Label>
                       </RadioGroup>
                     </FormControl>

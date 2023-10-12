@@ -10,6 +10,11 @@ export const siteConfig = {
       icon: "FileBadge",
     },
     {
+      title: "Submissions",
+      href: "/submissions",
+      icon: "ListTodo",
+    },
+    {
       title: "Candidates",
       href: "/candidates",
       icon: "Users",

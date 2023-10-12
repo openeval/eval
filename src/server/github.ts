@@ -31,7 +31,7 @@ export async function searchRepos(searchQueryString) {
   );
 }
 
-export async function searchContributions(
+export async function searchPullRequestContributions(
   username: string,
   querySearch: string,
 ) {
@@ -61,7 +61,10 @@ export async function getInstallations() {
 }
 
 export async function getPullRequests(username, assessment) {
-  return await searchContributions(username, assessment.ghIssuesQuerySeach);
+  return await searchPullRequestContributions(
+    username,
+    assessment.ghIssuesQuerySeach,
+  );
 }
 
 export async function getPullRequest(

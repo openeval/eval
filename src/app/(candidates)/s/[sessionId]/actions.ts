@@ -6,7 +6,7 @@ import { redirect, notFound } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import { prisma } from "~/server/db";
 import { AssessmentSessionStatus } from "@prisma/client";
-import { searchContributions } from "~/server/github";
+import { searchPullRequestContributions } from "~/server/github";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
@@ -38,26 +38,29 @@ export async function finishAssessmentSessionAction(sessionId: string) {
       throw new Error("candidate do not exist");
     }
 
-    const ghContributions = await searchContributions(
+    //TODO  Users need to pick the contribution they want to submit
+    const ghContributions = await searchPullRequestContributions(
       candidate.ghUsername as string,
       assessmentSession.assessment.ghIssuesQuerySeach as string,
     );
 
-    const contributions = await prisma.$transaction(
-      ghContributions.map((pr) => {
-        return prisma.contribution.create({
-          data: {
-            title: pr.title,
-            description: pr.body,
-            url: pr.html_url,
-            repo: pr.repository_url, //TODO: repo name or url ?
-            state: pr.state,
-            contributorId: candidate.id,
-            meta: pr, //save gh object
-          },
-        });
-      }),
-    );
+    const pr = ghContributions[0];
+
+    // const contributions = await prisma.$transaction(
+    //   ghContributions.map((pr) => {
+    //     return prisma.contribution.create({
+    //       data: {
+    //         title: pr.title,
+    //         description: pr.body,
+    //         url: pr.html_url,
+    //         repo: pr.repository_url, //TODO: repo name or url ?
+    //         state: pr.state,
+    //         contributorId: candidate.id,
+    //         meta: pr, //save gh object
+    //       },
+    //     });
+    //   }),
+    // );
 
     const response = await prisma.$transaction([
       prisma.assessmentSession.update({
@@ -72,10 +75,17 @@ export async function finishAssessmentSessionAction(sessionId: string) {
           assessmentSessionId: sessionId,
           candidateId: candidate.id,
           assessmentId: assessmentSession.assessment.id,
-          contributions: {
-            connect: contributions.map((c) => {
-              return { id: c.id };
-            }),
+          organizationId: assessmentSession.assessment.organizationId,
+          contribution: {
+            create: {
+              title: pr.title,
+              description: pr.body,
+              url: pr.html_url,
+              repo: pr.repository_url, //TODO: repo name or url ?
+              state: pr.state,
+              contributorId: candidate.id,
+              meta: pr, //
+            },
           },
         },
       }),

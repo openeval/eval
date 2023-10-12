@@ -11,11 +11,13 @@ import prisma from "~/server/db";
 import { type User } from "@prisma/client";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { findAllForList } from "~/server/repositories/Submissions";
+
 export const metadata = {
-  title: "Candidates",
+  title: "Submissions",
 };
 
-const getCandidates = cache(async (userId: User["id"]) => {
+const getSubmissions = cache(async (userId: User["id"]) => {
   return await prisma.candidate.findMany({
     where: {
       createdById: userId,
@@ -34,50 +36,52 @@ const getCandidates = cache(async (userId: User["id"]) => {
   });
 });
 
-export default async function CandidatesPage() {
+export default async function SubmissionsPage() {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
 
-  const candidates = await getCandidates(user.id);
+  const submissions = await findAllForList({
+    organizationId: user.activeOrgId,
+  });
 
   return (
     <>
       <div className="flex justify-between px-2">
         <div className="grid gap-1">
           <h1 className="text-2xl font-bold tracking-wide text-slate-900">
-            Candidates
+            Submissions
           </h1>
           {/* <p className="text-neutral-500">list of users</p> */}
         </div>
-        <Link
-          href={"/candidates/add"}
+        {/* <Link
+          href={"/submissions/add"}
           className={cn(buttonVariants({ variant: "default" }))}
         >
-          Add Candidate
-        </Link>
+          Add Assessment
+        </Link> */}
       </div>
 
       <Separator className="my-4" />
 
-      {candidates.length > 0 && (
-        <DataTable columns={columns} data={candidates} />
+      {submissions.length > 0 && (
+        <DataTable columns={columns} data={submissions} />
       )}
 
-      {!candidates.length && (
+      {!submissions.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
-          <EmptyPlaceholder.Title> No candidates added</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title> No submissions added</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
-            Get started by creating a new one.
+            Get started by creating a new assessment.
           </EmptyPlaceholder.Description>
           <Link
-            href={"/candidates/add"}
+            href={"/assessments/add"}
             className={cn(buttonVariants({ variant: "default" }))}
           >
-            Add Candidate
+            Add Assessment
           </Link>
         </EmptyPlaceholder>
       )}

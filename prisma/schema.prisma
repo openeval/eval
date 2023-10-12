@@ -112,7 +112,8 @@ model Organization {
   createdBy   User         @relation(name: "userOrganizationOwner", fields: [createdById], references: [id])
   createdById String       @map("created_by_id") @db.Uuid
 
-  user User[]
+  user       User[]
+  Submission Submission[]
 
   @@map("organization")
 }
@@ -268,6 +269,8 @@ model Submission {
   assessmentId        String            @map("assessment_id") @db.Uuid
   reviews             Review[]
   contribution        Contribution?
+  organization        Organization?     @relation(fields: [organizationId], references: [id])
+  organizationId      String            @map("organization_id") @db.Uuid
 
   @@map("submission")
 }
