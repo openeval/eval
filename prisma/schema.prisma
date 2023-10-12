@@ -249,15 +249,14 @@ model AssessmentSession {
 }
 
 enum SubmissionStatus {
-  COMPLETED // candidated submitted they answers
-  REVIEWING // hr reviewing submissions
-  APPROVED // hr approved 
+  TO_REVIEW // hr reviewing submissions
+  REVIEWED // hr approved 
   REJECTED // hr rejected 
 }
 
 model Submission {
   id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  status              SubmissionStatus  @default(REVIEWING)
+  status              SubmissionStatus  @default(TO_REVIEW)
   notes               String?
   createdAt           DateTime          @default(now()) @map("created_at")
   updatedAt           DateTime          @default(now()) @updatedAt @map("updated_at")
@@ -267,7 +266,7 @@ model Submission {
   assessmentSessionId String            @map("assessment_session_id") @db.Uuid
   assessment          Assessment        @relation(fields: [assessmentId], references: [id])
   assessmentId        String            @map("assessment_id") @db.Uuid
-  reviews             Review[]
+  review              Review?
   contribution        Contribution?
   organization        Organization?     @relation(fields: [organizationId], references: [id])
   organizationId      String            @map("organization_id") @db.Uuid
@@ -282,9 +281,10 @@ model Review {
   updatedAt           DateTime             @default(now()) @updatedAt @map("updated_at")
   createdBy           User                 @relation(fields: [createdById], references: [id])
   createdById         String               @map("created_by_id") @db.Uuid
-  submission          Submission[]
   evaluationCriterias EvaluationCriteria[]
   totalScore          Int
+  submission          Submission           @relation(fields: [submissionId], references: [id])
+  submissionId        String               @unique @map("submission_id") @db.Uuid
 
   @@map("review")
 }

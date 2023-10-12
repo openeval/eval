@@ -5,18 +5,36 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "~/components/ui/Badge";
 import { formatDate } from "~/lib/utils";
 import Link from "next/link";
-import type { Candidate } from "@prisma/client";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import type { SubmissionsListData } from "~/server/repositories/Submissions";
+import { Progress } from "~/components/ui/Progress";
 
 export type Item = SubmissionsListData;
 
 export const columns: ColumnDef<Item>[] = [
   {
+    accessorKey: "assessment.title",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Assessment" />
+    ),
+
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">
+            <Link href={`/assessment/${row.original.assessment.id as string}`}>
+              {row.original.assessment.title}
+            </Link>
+          </span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title="Contribution" />
     ),
 
     cell: ({ row }) => {
@@ -24,7 +42,7 @@ export const columns: ColumnDef<Item>[] = [
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
             <Link href={`/submissions/${row.original.id as string}`}>
-              {row.original.review.title}
+              {row.original.contribution.title}
             </Link>
           </span>
         </div>
@@ -47,11 +65,27 @@ export const columns: ColumnDef<Item>[] = [
       return value.includes(row.getValue(id));
     },
   },
+  {
+    accessorKey: "review.totalScore",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Score" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex w-[100px] items-center">
+          <Progress value={row.getValue("totalScore")} />
+        </div>
+      );
+    },
+    filterFn: (row, id, value: string) => {
+      return value.includes(row.getValue(id));
+    },
+  },
 
   {
     accessorKey: "createdAt",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
+      <DataTableColumnHeader column={column} title="Submitted" />
     ),
     cell: ({ row }) => {
       return (

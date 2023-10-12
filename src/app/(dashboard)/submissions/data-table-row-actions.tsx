@@ -34,19 +34,12 @@ export function DataTableRowActions<TData>({
         <DropdownMenuItem>
           <Pen className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
           <Link
-            href={`/candidates/${row.original.id as string}`}
+            href={`/submissions/${row.original.id as string}`}
             className="flex w-full"
           >
-            Edit
+            Review
           </Link>
         </DropdownMenuItem>
-        {/* TODO: implement delete  */}
-        {/* <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Trash className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
