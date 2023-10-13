@@ -1,7 +1,11 @@
 import { cache } from "react";
 import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
-import { searchIssues, searchContributions, getProfile } from "~/server/github";
+import {
+  searchIssues,
+  searchPullRequestContributions,
+  getProfile,
+} from "~/server/github";
 import { getCurrentUser } from "~/server/auth";
 import FinishAssessmentSessionButton from "~/components/FinishAssessmentSessionButton";
 interface PageProps {
@@ -32,7 +36,7 @@ const getPullRequests = cache(async (user, assessment) => {
     where: { userId: user.id, provider: "github" },
   });
   const ghProfile = await getProfile(account.providerAccountId);
-  const pr = await searchContributions(
+  const pr = await searchPullRequestContributions(
     ghProfile.login,
     assessment.ghIssuesQuerySeach,
   );

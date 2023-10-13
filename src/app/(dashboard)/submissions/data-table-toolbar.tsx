@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
-import { AssessmentStatus } from "@prisma/client";
+import { SubmissionStatus } from "@prisma/client";
 
 import { DataTableFacetedFilter } from "~/components/ui/data-table-faceted-filter";
 
@@ -24,9 +24,14 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("assessment.title")?.getFilterValue() as string) ??
+            ""
+          }
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table
+              .getColumn("assessment.title")
+              ?.setFilterValue(event.target.value)
           }
           className="h-10 w-[150px] lg:w-[250px]"
         />
@@ -34,7 +39,7 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
-            options={Object.values(AssessmentStatus).map((item) => {
+            options={Object.values(SubmissionStatus).map((item) => {
               return { label: item, value: item };
             })}
           />

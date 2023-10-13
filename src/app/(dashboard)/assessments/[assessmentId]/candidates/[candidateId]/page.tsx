@@ -1,6 +1,6 @@
 import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { getProfile, searchContributions } from "~/server/github";
+import { getProfile, searchPullRequestContributions } from "~/server/github";
 import { format } from "date-fns";
 import { Typography } from "~/components/ui/Typography";
 import { OpenTaskItem } from "~/components/OpenTaskItem";
@@ -47,7 +47,10 @@ export default async function CandidateDetailPage({
   )?.providerAccountId;
   const ghProfile = await getProfile(githubUserId);
   console.log(ghProfile);
-  const contributions = await searchContributions(ghProfile.login, queryString);
+  const contributions = await searchPullRequestContributions(
+    ghProfile.login,
+    queryString,
+  );
 
   return (
     <div>

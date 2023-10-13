@@ -32,7 +32,7 @@ type SubmissionDetailPageProps = {
   data: {
     submission: Submission & {
       contribution: Contribution;
-      reviews: Review[];
+      review: Review;
     };
     evaluationCriterias: EvaluationCriteriaWithChildren;
   };
@@ -46,13 +46,13 @@ export function SubmissionDetailPage({
 }: SubmissionDetailPageProps) {
   const router = useRouter();
   const params = useParams();
-
+  const { review } = data.submission;
   return (
     <div>
       {data.submission.contribution && (
         <>
-          <div className="items-top mb-4 flex flex-row justify-between">
-            <div className="flex flex-col pt-4">
+          <div className="items-top mb-8 flex flex-row justify-between">
+            <div className="flex flex-col">
               <h2 className="text-2xl font-semibold">
                 {data.submission.contribution.title}
               </h2>
@@ -102,38 +102,38 @@ export function SubmissionDetailPage({
             </TabsContent>
           </Tabs>
           <Separator></Separator>
-          {data.submission.reviews &&
-            data.submission.reviews.map((review) => (
-              <Card className="my-4" key={review.id}>
-                <CardHeader className="rounded-t-xl bg-slate-100 px-4 py-2 ">
-                  <Typography variant={"subtle"}>
-                    {timeAgo(review.createdAt)}
-                  </Typography>
-                </CardHeader>
-                <CardContent className="flex flex-col md:flex-row">
-                  <div className="flex flex-col pt-4">
-                    <div className="mx-auto w-[240px]">
-                      <Pie {...review.plot} />
-                    </div>
-                    <ViewScoreDetailsButton
-                      review={review}
-                      evaluationCriterias={data.evaluationCriterias}
-                    />
-                  </div>
 
-                  <div className="flex flex-col pt-4">
-                    <span className="font-semibold leading-none tracking-tight">
-                      Feedback
-                    </span>
-                    <div className="pt-4">
-                      <Markdown content={(review.note as string) || ""} />
-                    </div>
+          {review && (
+            <Card className="my-4" key={review.id}>
+              <CardHeader className="rounded-t-xl bg-slate-100 px-4 py-2 ">
+                <Typography variant={"subtle"}>
+                  {timeAgo(review.createdAt)}
+                </Typography>
+              </CardHeader>
+              <CardContent className="flex flex-col md:flex-row">
+                <div className="flex flex-col pt-4">
+                  <div className="mx-auto w-[240px]">
+                    <Pie {...review.plot} />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <ViewScoreDetailsButton
+                    review={review}
+                    evaluationCriterias={data.evaluationCriterias}
+                  />
+                </div>
 
-          {data.submission.reviews.length === 0 && (
+                <div className="flex flex-col pt-4">
+                  <span className="font-semibold leading-none tracking-tight">
+                    Feedback
+                  </span>
+                  <div className="pt-4">
+                    <Markdown content={(review.note as string) || ""} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {!review && (
             <ReviewSubmissionForm
               submission={data.submission}
               evaluationCriterias={data.evaluationCriterias}

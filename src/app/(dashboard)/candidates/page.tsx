@@ -34,7 +34,6 @@ const getCandidates = cache(async (userId: User["id"]) => {
   });
 });
 
-// TODO: move to query table
 export default async function CandidatesPage() {
   const user = await getCurrentUser();
 

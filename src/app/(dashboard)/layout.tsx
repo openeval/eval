@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "~/server/auth";
 import { UserType } from "@prisma/client";
 
-// TODO: duplicated in assessments
 export default async function Layout({
   children,
 }: {

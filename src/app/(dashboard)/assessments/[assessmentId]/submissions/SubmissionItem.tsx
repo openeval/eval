@@ -10,7 +10,7 @@ import { Progress } from "~/components/ui/Progress";
 import type { Prisma } from "@prisma/client";
 
 interface SubmissionItemProps {
-  item: Prisma.SubmissionGetPayload<{ include: { contribution; reviews } }>;
+  item: Prisma.SubmissionGetPayload<{ include: { contribution; review } }>;
 }
 
 export function SubmissionItem({ item }: SubmissionItemProps) {
@@ -39,8 +39,12 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
         </span>
       </div>
       <div className="grid w-2/6  text-right">
-        <div>{item.reviews[0].totalScore}%</div>
-        <Progress value={item.reviews[0].totalScore} className="h-4 " />
+        {item.review && (
+          <>
+            <div>{item.review.totalScore}%</div>
+            <Progress value={item.review.totalScore} className="h-4 " />
+          </>
+        )}
       </div>
       <div className="flex items-center justify-end">
         <SubmissionOperations submission={{ id: item.id }} />

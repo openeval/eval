@@ -1,6 +1,6 @@
 import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
-
+import type { Prisma } from "@prisma/client";
 export async function findOneById(id) {
   return await prisma.submission.findFirst(id);
 }
@@ -9,10 +9,24 @@ export async function findAll() {
   return await prisma.submission.findMany();
 }
 
+export type SubmissionsListData = Prisma.PromiseReturnType<
+  typeof findAllForList
+>;
+
+export async function findAllForList(where: Prisma.SubmissionWhereInput) {
+  return await prisma.submission.findMany({
+    where,
+    include: { contribution: true, review: true, assessment: true },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+
 export async function findByAssessmentId(assessmentId: string) {
   return await prisma.submission.findMany({
     where: { assessmentId },
-    include: { contribution: true, reviews: true },
+    include: { contribution: true, review: true },
   });
 }
 
@@ -24,24 +38,22 @@ export async function findByIdFull(
     where: { id },
     include: {
       contribution: true,
-      reviews: { include: { evaluationCriterias: true } },
+      review: { include: { evaluationCriterias: true } },
     },
   });
 
-  if (data) {
+  if (data && data.review) {
     if (withOptions.plotReviewsData) {
-      for (let i = 0; i < data.reviews.length; i++) {
-        const plotData = await getDetailScore(
-          data.reviews[i].evaluationCriterias.map((value) => value.id),
-        );
-        const series = plotData.map((item) => item.score);
-        const labels = plotData.map((item) => item.name);
+      const plotData = await getDetailScore(
+        data.review.evaluationCriterias.map((value) => value.id),
+      );
+      const series = plotData.map((item) => item.score);
+      const labels = plotData.map((item) => item.name);
 
-        data.reviews[i] = {
-          ...data.reviews[i],
-          plot: { series: series, labels: labels },
-        };
-      }
+      data.review = {
+        ...data.review,
+        plot: { series: series, labels: labels },
+      };
     }
   }
 
