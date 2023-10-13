@@ -14,7 +14,13 @@ export type Item = SubmissionsListData;
 
 export const columns: ColumnDef<Item>[] = [
   {
-    accessorKey: "assessment.title",
+    // accessorKey doesn't work with relationships...
+    // https://github.com/TanStack/table/issues/579#issuecomment-841844029
+    // accessorKey: "assessment.title",
+    id: "assessment.title",
+    accessorFn: (row) => {
+      return row.assessment.title;
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Assessment" />
     ),
@@ -41,7 +47,7 @@ export const columns: ColumnDef<Item>[] = [
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            <Link href={`/submissions/${row.original.id as string}`}>
+            <Link href={`submissions/${row.original.id as string}`}>
               {row.original.contribution.title}
             </Link>
           </span>
@@ -66,19 +72,17 @@ export const columns: ColumnDef<Item>[] = [
     },
   },
   {
-    accessorKey: "review.totalScore",
+    id: "review.totalScore",
+    accessorFn: (row) => row.review?.totalScore || 0,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Score" />
     ),
     cell: ({ row }) => {
       return (
         <div className="flex w-[100px] items-center">
-          <Progress value={row.getValue("totalScore")} />
+          <Progress value={row.getValue("review.totalScore")} />
         </div>
       );
-    },
-    filterFn: (row, id, value: string) => {
-      return value.includes(row.getValue(id));
     },
   },
 
@@ -93,9 +97,6 @@ export const columns: ColumnDef<Item>[] = [
           {formatDate(row.getValue("createdAt").toDateString())}
         </div>
       );
-    },
-    filterFn: (row, id, value: string) => {
-      return value.includes(row.getValue(id));
     },
   },
   {

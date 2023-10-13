@@ -6,9 +6,6 @@ import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/Button";
-import { cache } from "react";
-import prisma from "~/server/db";
-import { type User } from "@prisma/client";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { findAllForList } from "~/server/repositories/Submissions";
@@ -17,34 +14,20 @@ export const metadata = {
   title: "Submissions",
 };
 
-const getSubmissions = cache(async (userId: User["id"]) => {
-  return await prisma.candidate.findMany({
-    where: {
-      createdById: userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      status: true,
-      lastName: true,
-      email: true,
-      createdAt: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-});
+const getSubmissions = async (where) => {
+  return await findAllForList(where);
+};
 
-export default async function SubmissionsPage() {
+export default async function SubmissionsPage({ params }) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
 
-  const submissions = await findAllForList({
+  const submissions = await getSubmissions({
     organizationId: user.activeOrgId,
+    assessmentId: params.assessmentId,
   });
 
   return (
@@ -54,14 +37,7 @@ export default async function SubmissionsPage() {
           <h1 className="text-2xl font-bold tracking-wide text-slate-900">
             Submissions
           </h1>
-          {/* <p className="text-neutral-500">list of users</p> */}
         </div>
-        {/* <Link
-          href={"/submissions/add"}
-          className={cn(buttonVariants({ variant: "default" }))}
-        >
-          Add Assessment
-        </Link> */}
       </div>
 
       <Separator className="my-4" />
@@ -73,16 +49,20 @@ export default async function SubmissionsPage() {
       {!submissions.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
-          <EmptyPlaceholder.Title> No submissions added</EmptyPlaceholder.Title>
-          <EmptyPlaceholder.Description>
-            Get started by creating a new assessment.
-          </EmptyPlaceholder.Description>
-          <Link
-            href={"/assessments/add"}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            Add Assessment
-          </Link>
+          <EmptyPlaceholder.Title> No submissions yet</EmptyPlaceholder.Title>
+          {!params.assessmentId && (
+            <>
+              <EmptyPlaceholder.Description>
+                Get started by creating a new assessment.
+              </EmptyPlaceholder.Description>
+              <Link
+                href={"/assessments/add"}
+                className={cn(buttonVariants({ variant: "default" }))}
+              >
+                Add Assessment
+              </Link>
+            </>
+          )}
         </EmptyPlaceholder>
       )}
     </>

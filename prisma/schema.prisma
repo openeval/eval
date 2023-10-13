@@ -324,6 +324,8 @@ model Repo {
   isPrivate    Boolean
   assessment   Assessment? @relation(fields: [assessmentId], references: [id])
   assessmentId String?     @map("assessment_id") @db.Uuid
+
+  @@map("repo")
 }
 
 model EvaluationCriteria {

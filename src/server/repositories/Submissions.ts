@@ -13,7 +13,7 @@ export type SubmissionsListData = Prisma.PromiseReturnType<
   typeof findAllForList
 >;
 
-export async function findAllForList(where) {
+export async function findAllForList(where: Prisma.SubmissionWhereInput) {
   return await prisma.submission.findMany({
     where,
     include: { contribution: true, review: true, assessment: true },

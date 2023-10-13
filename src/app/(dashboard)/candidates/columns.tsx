@@ -20,7 +20,7 @@ export const columns: ColumnDef<Item>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" />
     ),
-
+    accessorFn: (row) => row.name + row.lastName,
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">

@@ -39,7 +39,7 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
         </span>
       </div>
       <div className="grid w-2/6  text-right">
-        {item.review > 0 && (
+        {item.review && (
           <>
             <div>{item.review.totalScore}%</div>
             <Progress value={item.review.totalScore} className="h-4 " />
