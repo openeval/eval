@@ -70,8 +70,8 @@ export default async function Page({ params }: PageProps) {
         />
       </div>
 
-      <Typography variant="p">
-        To qualify for the role , make an open source contribution to any of the
+      <Typography variant="p" className="mb-8 max-w-2xl">
+        To qualify for the role, make an open source contribution to any of the
         issues listed below. we will collect your contributions and send it to
         the recruiter when you submit your assessment
       </Typography>
@@ -80,10 +80,13 @@ export default async function Page({ params }: PageProps) {
       <Typography variant={"ul"}>
         <li>One pull request</li>
       </Typography>
+
       <Separator className="my-4" />
 
-      <Typography variant={"h3"}>Issues</Typography>
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+      <Typography variant={"h3"} className="mb-4">
+        Issues
+      </Typography>
+      <div className="mb-8 divide-y divide-neutral-200 rounded-md border border-slate-200">
         {issues.map((item) => (
           <OpenTaskItem key={item.id} item={item} />
         ))}
