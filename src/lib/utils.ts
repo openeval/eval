@@ -17,6 +17,16 @@ export function formatDate(input: string | number): string {
     year: "numeric",
   });
 }
+export function formatDateWithTime(input: string | number): string {
+  const date = new Date(input);
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+}
 
 export function timeAgo(date: Date) {
   return formatDistanceStrict(new Date(date), new Date(), { addSuffix: true });

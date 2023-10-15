@@ -15,6 +15,8 @@ import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { finishAssessmentSessionAction } from "./actions";
+import { formatDateWithTime } from "~/lib/utils";
+
 const getAssessmentSessionById = cache(async (id: string) => {
   return await prisma.assessmentSession.findFirst({
     where: {
@@ -61,19 +63,20 @@ export default async function Page({ params }: PageProps) {
         <div className="grid gap-1">
           <Typography variant="h1">{session.assessment.title}</Typography>
           <Typography variant="small">
-            closes at {session.expiresAt.toString()}
+            closes at {formatDateWithTime(session.expiresAt.toString())}
           </Typography>
         </div>
         <FinishAssessmentSessionButton
           finishAssessmentSessionAction={finishAssessmentSessionAction}
           sessionId={params.sessionId}
+          contributions={contributions}
         />
       </div>
 
       <Typography variant="p" className="mb-8 max-w-2xl">
-        To qualify for the role, make an open source contribution to any of the
-        issues listed below. we will collect your contributions and send it to
-        the recruiter when you submit your assessment
+        To qualify for the role, make an open source contribution to one of the
+        issues listed below. We collect your contributions and send it to the
+        recruiter when you submit your assessment.
       </Typography>
 
       <Typography variant={"h3"}>Requirements</Typography>
@@ -91,6 +94,8 @@ export default async function Page({ params }: PageProps) {
           <OpenTaskItem key={item.id} item={item} />
         ))}
       </div>
+
+      {/* <ContributionList contributions={contributions} /> */}
 
       <Typography variant={"h3"}>Contributions</Typography>
       <Typography variant={"p"}>

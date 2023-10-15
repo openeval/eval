@@ -12,6 +12,13 @@ export async function findOneById(id) {
   });
 }
 
+export async function findOneByCandidate(id, candidateId) {
+  return await prisma.assessmentSession.findFirst({
+    where: { id, candidateId },
+    include: { assessment: true },
+  });
+}
+
 export async function findActiveSession(candidateId, assessmentId) {
   return await prisma.assessmentSession.findFirst({
     where: {
