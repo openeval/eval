@@ -6,13 +6,16 @@ import { redirect, notFound } from "next/navigation";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import { prisma } from "~/server/db";
 import { AssessmentSessionStatus } from "@prisma/client";
-import { searchPullRequestContributions } from "~/server/github";
+import type { components } from "@octokit/openapi-types";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export async function finishAssessmentSessionAction(sessionId: string) {
+export async function finishAssessmentSessionAction(
+  sessionId: string,
+  contribution: components["schemas"]["issue-search-result-item"],
+) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -21,7 +24,10 @@ export async function finishAssessmentSessionAction(sessionId: string) {
 
   const { user } = session;
 
-  const assessmentSession = await assessmentSessionsRepo.findOneById(sessionId);
+  const assessmentSession = await assessmentSessionsRepo.findOneByCandidate(
+    sessionId,
+    user.candidate?.id,
+  );
 
   if (!assessmentSession) {
     notFound();
@@ -37,30 +43,6 @@ export async function finishAssessmentSessionAction(sessionId: string) {
     if (!candidate) {
       throw new Error("candidate do not exist");
     }
-
-    //TODO  Users need to pick the contribution they want to submit
-    const ghContributions = await searchPullRequestContributions(
-      candidate.ghUsername as string,
-      assessmentSession.assessment.ghIssuesQuerySeach as string,
-    );
-
-    const pr = ghContributions[0];
-
-    // const contributions = await prisma.$transaction(
-    //   ghContributions.map((pr) => {
-    //     return prisma.contribution.create({
-    //       data: {
-    //         title: pr.title,
-    //         description: pr.body,
-    //         url: pr.html_url,
-    //         repo: pr.repository_url, //TODO: repo name or url ?
-    //         state: pr.state,
-    //         contributorId: candidate.id,
-    //         meta: pr, //save gh object
-    //       },
-    //     });
-    //   }),
-    // );
 
     const response = await prisma.$transaction([
       prisma.assessmentSession.update({
@@ -78,13 +60,13 @@ export async function finishAssessmentSessionAction(sessionId: string) {
           organizationId: assessmentSession.assessment.organizationId,
           contribution: {
             create: {
-              title: pr.title,
-              description: pr.body,
-              url: pr.html_url,
-              repo: pr.repository_url, //TODO: repo name or url ?
-              state: pr.state,
+              title: contribution.title,
+              description: contribution.body,
+              url: contribution.html_url,
+              repo: contribution.repository_url,
+              state: contribution.state,
               contributorId: candidate.id,
-              meta: pr, //
+              meta: contribution,
             },
           },
         },

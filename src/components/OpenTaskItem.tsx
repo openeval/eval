@@ -6,7 +6,7 @@ import { formatDate } from "~/lib/utils";
 import { CircleDot, GitMerge, MessageSquare } from "lucide-react";
 
 import { Skeleton } from "~/components/ui/Skeleton";
-
+import { cn } from "~/lib/utils";
 interface IIssueData {
   id: string;
   entity: string;
@@ -28,11 +28,18 @@ interface IIssueData {
 
 interface OpenTaskItemProps {
   item: IIssueData;
+  active?: boolean;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
-export function OpenTaskItem({ item }: OpenTaskItemProps) {
+export function OpenTaskItem({ item, active, ...props }: OpenTaskItemProps) {
   return (
-    <div className="grid grid-cols-8 p-2 text-sm  hover:bg-slate-100">
+    <div
+      {...props}
+      className={cn("grid grid-cols-8 p-2 text-sm hover:bg-slate-100", {
+        "bg-cyan-50": active,
+      })}
+    >
       <div className="col-span-8 sm:col-span-6">
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">

@@ -6,6 +6,7 @@ const octokit = new Octokit({
   request: { fetch: fetch },
 });
 
+// public client to use in auto completions
 const octokitPublic = new Octokit({
   request: { fetch: fetch },
 });
@@ -49,6 +50,14 @@ export async function searchPullRequestContributions(
 type Profile = {
   login: string;
 };
+
+/**
+ * Return Github username by userId instead of
+ * using Github `username` field.
+ * NOTE: this is better in case users changes its username
+ * @param userId
+ * @returns
+ */
 export async function getProfile(userId: string): Promise<Profile> {
   const response: { data: Profile } = await octokit.request(
     "GET /user/" + userId,
