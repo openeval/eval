@@ -5,7 +5,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { update as updateUser } from "~/server/repositories/User";
 import { create as createCandidate } from "~/server/repositories/Candidates";
-import { Prisma, MembershipRole } from "@prisma/client";
+import { type Prisma, MembershipRole } from "@prisma/client";
 import { prisma } from "~/server/db";
 import slugify from "slugify";
 

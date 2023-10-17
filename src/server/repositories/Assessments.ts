@@ -1,7 +1,34 @@
 import { prisma } from "~/server/db";
+import type { Prisma } from "@prisma/client";
 
 export async function findAll() {
   return await prisma.assessment.findMany();
+}
+
+export type AssessmentsListData = Prisma.PromiseReturnType<
+  typeof findAllForList
+>;
+
+export async function findAllForList(where: Prisma.AssessmentWhereInput) {
+  return await prisma.assessment.findMany({
+    where,
+    select: {
+      _count: {
+        select: {
+          candidatesOnAssessments: true,
+          submissions: true,
+        },
+      },
+      id: true,
+      title: true,
+      status: true,
+      published: true,
+      createdAt: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
 }
 
 export async function findOneById(id, organizationId?) {

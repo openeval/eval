@@ -3,7 +3,6 @@
 import type { Row } from "@tanstack/react-table";
 import { MoreHorizontal, Pen } from "lucide-react";
 import Link from "next/link";
-
 import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
@@ -11,12 +10,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import type { SubmissionsListData } from "~/server/repositories/Submissions";
+
+type Item = SubmissionsListData[0];
 
 interface DataTableRowActionsProps<TData> {
-  row: Row<TData & { original: TData }>;
+  row: Row<TData>;
 }
 
-export function DataTableRowActions<TData>({
+export function DataTableRowActions<TData extends Item>({
   row,
 }: DataTableRowActionsProps<TData>) {
   return (
@@ -34,7 +36,7 @@ export function DataTableRowActions<TData>({
         <DropdownMenuItem>
           <Pen className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
           <Link
-            href={`/submissions/${row.original.id as string}`}
+            href={`/submissions/${row.original.id}`}
             className="flex w-full"
           >
             Review

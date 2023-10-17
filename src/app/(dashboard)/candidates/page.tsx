@@ -7,31 +7,16 @@ import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/Button";
 import { cache } from "react";
-import prisma from "~/server/db";
-import { type User } from "@prisma/client";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { findAllForList } from "~/server/repositories/Candidates";
+
 export const metadata = {
   title: "Candidates",
 };
 
-const getCandidates = cache(async (userId: User["id"]) => {
-  return await prisma.candidate.findMany({
-    where: {
-      createdById: userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      status: true,
-      lastName: true,
-      email: true,
-      createdAt: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+const getCandidates = cache(async (where) => {
+  return await findAllForList(where);
 });
 
 export default async function CandidatesPage() {
@@ -41,7 +26,7 @@ export default async function CandidatesPage() {
     redirect("/login");
   }
 
-  const candidates = await getCandidates(user.id);
+  const candidates = await getCandidates({ organizationId: user.activeOrgId });
 
   return (
     <>
@@ -50,7 +35,6 @@ export default async function CandidatesPage() {
           <h1 className="text-2xl font-bold tracking-wide text-slate-900">
             Candidates
           </h1>
-          {/* <p className="text-neutral-500">list of users</p> */}
         </div>
         <Link
           href={"/candidates/add"}
@@ -69,9 +53,9 @@ export default async function CandidatesPage() {
       {!candidates.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
-          <EmptyPlaceholder.Title> No candidates added</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title> No Candidates yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
-            Get started by creating a new one.
+            Get started by inviting a new one.
           </EmptyPlaceholder.Description>
           <Link
             href={"/candidates/add"}

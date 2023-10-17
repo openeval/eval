@@ -1,6 +1,5 @@
 import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { UserTypeForm } from "./UserTypeForm";
 import { updateUserType } from "./actions";
 import { CandidateStatus, UserType } from "@prisma/client";

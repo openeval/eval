@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import { formatDate } from "~/lib/utils";
-
 import { CircleDot, GitMerge, MessageSquare } from "lucide-react";
-
 import { Skeleton } from "~/components/ui/Skeleton";
 import { cn } from "~/lib/utils";
+
 interface IIssueData {
   id: string;
   entity: string;

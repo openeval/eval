@@ -11,12 +11,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { type AssessmentsListData } from "~/server/repositories/Assessments";
+type Item = AssessmentsListData[0];
 
 interface DataTableRowActionsProps<TData> {
-  row: Row<TData & { original: TData }>;
+  row: Row<TData>;
 }
 
-export function DataTableRowActions<TData>({
+export function DataTableRowActions<TData extends Item>({
   row,
 }: DataTableRowActionsProps<TData>) {
   return (
@@ -34,19 +36,12 @@ export function DataTableRowActions<TData>({
         <DropdownMenuItem>
           <Pen className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
           <Link
-            href={`/assessments/${row.original.id as string}`}
+            href={`/assessments/${row.original.id}`}
             className="flex w-full"
           >
             Edit
           </Link>
         </DropdownMenuItem>
-        {/* TODO: implement delete  */}
-        {/* <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Trash className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

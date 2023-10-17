@@ -24,21 +24,20 @@ export default withAuth(
       }
 
       return NextResponse.redirect(
-        new URL(`/login?from=${encodeURIComponent(from)}`, req.url)
+        new URL(`/login?from=${encodeURIComponent(from)}`, req.url),
       );
     }
   },
   {
     callbacks: {
       authorized() {
-        console.log("middleware");
         // This is a work-around for handling redirect on auth pages.
         // We return true here so that the middleware function above
         // is always called.
         return true;
       },
     },
-  }
+  },
 );
 
 export const config = {

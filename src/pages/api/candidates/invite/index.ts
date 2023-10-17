@@ -7,7 +7,6 @@ import { InviteCandidateSchema } from "~/dto/InviteCandidateDto";
 import { findInvitedCandidate } from "~/server/repositories/Candidates";
 import { ApiError, ERROR_CODES } from "~/server/error";
 import sendInvitationEmail from "~/server/invite";
-import { CandidateOnAssessmentStatus } from "@prisma/client";
 
 // TODO: move to nextjs actions
 export default async function handle(

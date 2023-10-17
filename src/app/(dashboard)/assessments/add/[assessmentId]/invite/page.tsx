@@ -76,7 +76,7 @@ export default async function AssessmentCandidatePage({
       {candidates && candidates?.length <= 0 && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={Users} />
-          <EmptyPlaceholder.Title> No candidates yet</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title> No Candidates yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
             Get started by inviting candidates to the assessment.
           </EmptyPlaceholder.Description>

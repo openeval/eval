@@ -7,37 +7,16 @@ import Link from "next/link";
 import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/Button";
 import { cache } from "react";
-import prisma from "~/server/db";
-import { type User } from "@prisma/client";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
+import { findAllForList } from "~/server/repositories/Assessments";
 
 export const metadata = {
   title: "Assessments",
 };
 
-const getassessmentsForUser = cache(async (userId: User["id"]) => {
-  return await prisma.assessment.findMany({
-    where: {
-      createdById: userId,
-    },
-    select: {
-      _count: {
-        select: {
-          candidatesOnAssessments: true,
-          submissions: true,
-        },
-      },
-      id: true,
-      title: true,
-      status: true,
-      published: true,
-      createdAt: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
+const getAssessmentsForUser = cache(async (where) => {
+  return await findAllForList(where);
 });
 
 export default async function AssessmentPage() {
@@ -47,7 +26,9 @@ export default async function AssessmentPage() {
     redirect("/login");
   }
 
-  const assessments = await getassessmentsForUser(user.id);
+  const assessments = await getAssessmentsForUser({
+    organizationId: user.activeOrgId,
+  });
 
   return (
     <>
@@ -75,7 +56,7 @@ export default async function AssessmentPage() {
       {!assessments.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
-          <EmptyPlaceholder.Title> No assessments added</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title> No Assessments yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
             Get started by creating a new one.
           </EmptyPlaceholder.Description>

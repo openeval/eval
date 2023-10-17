@@ -16,7 +16,7 @@ import {
   type Prisma,
   type Contribution,
   type Submission,
-  Review,
+  type Review,
 } from "@prisma/client";
 import { Card, CardContent, CardHeader } from "~/components/ui/Card";
 import { useParams, useRouter } from "next/navigation";

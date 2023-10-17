@@ -9,12 +9,12 @@ import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-import { Candidate, type User, type UserType } from "@prisma/client";
+import { type Candidate, type UserType } from "@prisma/client";
 import { inviteEmailProvider } from "./invite";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
 import { update as updateUser } from "~/server/repositories/User";
 
-import { CandidateStatus, User as BaseUser } from "@prisma/client";
+import { CandidateStatus, type User as BaseUser } from "@prisma/client";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -102,18 +102,9 @@ export const authOptions: NextAuthOptions = {
     newUser: "/onboarding",
   },
   events: {
-    async createUser(message) {
-      /* user created */
-    },
-    async updateUser(message) {
-      /* user updated - e.g. their email was verified */
-    },
     async linkAccount({ account, user, profile }) {
       // TODO:add extra validations
       if (account.provider === "github") {
-        console.log("--------------------------");
-        console.log(profile);
-        console.log(account);
         // candidates need to link their github account to verify their profiles
         // this happens when a candidate is invited (created by organization) and
         // when the candidate is created in the onboarding process
