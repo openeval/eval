@@ -9,12 +9,12 @@ import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
-import { Candidate, type User, type UserType } from "@prisma/client";
+import { type Candidate, type UserType } from "@prisma/client";
 import { inviteEmailProvider } from "./invite";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
 import { update as updateUser } from "~/server/repositories/User";
 
-import { CandidateStatus, User as BaseUser } from "@prisma/client";
+import { CandidateStatus, type User as BaseUser } from "@prisma/client";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.

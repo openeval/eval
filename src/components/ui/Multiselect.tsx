@@ -8,7 +8,6 @@ import {
   Command,
   CommandGroup,
   CommandItem,
-  CommandInput,
 } from "~/components/ui/Command";
 import { Command as CommandPrimitive } from "cmdk";
 import { useDebounce } from "use-debounce";

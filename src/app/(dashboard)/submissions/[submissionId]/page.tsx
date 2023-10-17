@@ -1,6 +1,5 @@
 import { SubmissionDetailPage } from "./SubmissionDetailPage";
 import * as submissionRepo from "~/server/repositories/Submissions";
-import { getPullRequest } from "~/server/github";
 import { notFound } from "next/navigation";
 import { findAllWithChildren } from "~/server/repositories/EvaluationCriteria";
 import { submitReviewAction } from "../actions";
