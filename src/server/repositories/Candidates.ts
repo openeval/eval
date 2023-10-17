@@ -78,6 +78,9 @@ export async function findById(id) {
     where: {
       id,
     },
+    include: {
+      submissions: true,
+    },
   });
 }
 

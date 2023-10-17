@@ -25,7 +25,7 @@ import {
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { z } from "zod";
-type CandidateOnboardingFormProps = {
+type CandidateFormProps = {
   onSuccess: () => void;
   action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
 };
@@ -33,13 +33,12 @@ type CandidateOnboardingFormProps = {
 const candidateSchema = z.object({
   name: z.string(),
   lastName: z.string(),
+  email: z.string().min(1).email("This is not a valid email."),
 });
 
 type FormData = z.infer<typeof candidateSchema>;
 
-export function CandidateOnboardingForm({
-  ...props
-}: CandidateOnboardingFormProps) {
+export function CandidateForm({ ...props }: CandidateFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(candidateSchema),
   });
@@ -67,8 +66,7 @@ export function CandidateOnboardingForm({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
-            <CardTitle>My profile</CardTitle>
-            <CardDescription>tell us about you</CardDescription>
+            <CardTitle>Profile</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-6">
             <FormField
@@ -80,9 +78,7 @@ export function CandidateOnboardingForm({
                   <FormControl>
                     <Input placeholder="Jonh" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
+                  <FormDescription>The public display name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -96,18 +92,34 @@ export function CandidateOnboardingForm({
                   <FormControl>
                     <Input placeholder="Doeh" {...field} />
                   </FormControl>
+                  <FormDescription>The public display name.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="jonh.doeh@..."
+                      {...field}
+                    />
+                  </FormControl>
                   <FormDescription>
-                    This is your public display name.
+                    The email to contact the candidate.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </CardContent>
-          <CardFooter>
-            <Button className="w-full" disabled={isLoading}>
-              Continue
-            </Button>
+          <CardFooter className="justify-end bg-slate-100 p-4">
+            <Button disabled={isLoading}>save</Button>
           </CardFooter>
         </Card>
       </form>

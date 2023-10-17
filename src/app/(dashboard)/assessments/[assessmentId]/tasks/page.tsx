@@ -26,7 +26,6 @@ export default async function Page({
   }
 
   const issues = await getIssues(searchParams);
-  console.log(issues);
   return (
     <div>
       <div className="mb-8 flex justify-between px-2">
