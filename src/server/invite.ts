@@ -111,8 +111,7 @@ async function sendVerificationRequest(params) {
  * @note We don't add the email address to avoid needing to escape it, if you do, remember to sanitize it!
  */
 function html(params: { url: string; host: string; theme: Theme }) {
-  const { url, host, theme } = params;
-  const escapedHost = host.replace(/\./g, "&#8203;.");
+  const { url, theme } = params;
 
   const brandColor = theme.brandColor || "#346df1";
   const color = {

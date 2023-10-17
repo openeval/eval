@@ -102,18 +102,9 @@ export const authOptions: NextAuthOptions = {
     newUser: "/onboarding",
   },
   events: {
-    async createUser(message) {
-      /* user created */
-    },
-    async updateUser(message) {
-      /* user updated - e.g. their email was verified */
-    },
     async linkAccount({ account, user, profile }) {
       // TODO:add extra validations
       if (account.provider === "github") {
-        console.log("--------------------------");
-        console.log(profile);
-        console.log(account);
         // candidates need to link their github account to verify their profiles
         // this happens when a candidate is invited (created by organization) and
         // when the candidate is created in the onboarding process

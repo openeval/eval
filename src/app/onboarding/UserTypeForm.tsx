@@ -101,7 +101,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                             id="candidate"
                             className="sr-only"
                           />
-                          I'm a Candidate
+                          I&apos;m a Candidate
                         </Label>
                         <Label
                           htmlFor="recruiter"
@@ -112,7 +112,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                             id="recruiter"
                             className="sr-only"
                           />
-                          I'm a Recruiter
+                          I&apos;m a Recruiter
                         </Label>
                       </RadioGroup>
                     </FormControl>
