@@ -1,4 +1,3 @@
-import type { EvaluationCriteria } from "@prisma/client";
 import { prisma } from "~/server/db";
 
 // returns only one hierarchy level

@@ -5,14 +5,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "~/components/ui/Badge";
 import { formatDate } from "~/lib/utils";
 import Link from "next/link";
-import type { Candidate } from "@prisma/client";
+
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { Switch } from "~/components/ui/Switch";
+import { type CandidatesListData } from "~/server/repositories/Candidates";
 
-export type Item = Candidate & {
-  _count: { candidatesOnAssessments: number; submissions: number };
-};
+export type Item = CandidatesListData[0];
 
 export const columns: ColumnDef<Item>[] = [
   {
@@ -58,7 +56,7 @@ export const columns: ColumnDef<Item>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
-          {formatDate(row.getValue("createdAt").toDateString())}
+          {formatDate((row.getValue("createdAt") as Date).toDateString())}
         </div>
       );
     },

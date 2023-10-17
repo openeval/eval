@@ -1,6 +1,6 @@
 import { prisma } from "~/server/db";
-import { CandidateOnAssessmentStatus } from "@prisma/client";
-import { User } from "next-auth";
+import { CandidateOnAssessmentStatus, type Prisma } from "@prisma/client";
+import type { User } from "next-auth";
 
 export async function findInvitedCandidate(
   user: User,
@@ -87,6 +87,27 @@ export async function findCandidatesByAssessment(assessmentId) {
       candidatesOnAssessments: {
         every: { assessmentId: assessmentId },
       },
+    },
+  });
+}
+
+export type CandidatesListData = Prisma.PromiseReturnType<
+  typeof findAllForList
+>;
+
+export async function findAllForList(where: Prisma.CandidateWhereInput) {
+  return await prisma.candidate.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      lastName: true,
+      email: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 }

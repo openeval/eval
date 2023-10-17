@@ -44,34 +44,31 @@ export async function finishAssessmentSessionAction(
       throw new Error("candidate do not exist");
     }
 
-    const response = await prisma.$transaction([
-      prisma.assessmentSession.update({
-        where: { id: sessionId },
-        data: {
-          finishedAt: new Date(),
-          status: AssessmentSessionStatus.FINISHED,
-        },
-      }),
-      prisma.submission.create({
-        data: {
-          assessmentSessionId: sessionId,
-          candidateId: candidate.id,
-          assessmentId: assessmentSession.assessment.id,
-          organizationId: assessmentSession.assessment.organizationId,
-          contribution: {
-            create: {
-              title: contribution.title,
-              description: contribution.body,
-              url: contribution.html_url,
-              repo: contribution.repository_url,
-              state: contribution.state,
-              contributorId: candidate.id,
-              meta: contribution,
+    const response = await prisma.assessmentSession.update({
+      where: { id: sessionId },
+      data: {
+        finishedAt: new Date(),
+        status: AssessmentSessionStatus.FINISHED,
+        Submission: {
+          create: {
+            candidateId: candidate.id,
+            assessmentId: assessmentSession.assessment.id,
+            organizationId: assessmentSession.assessment.organizationId,
+            contribution: {
+              create: {
+                title: contribution.title,
+                description: contribution.body,
+                url: contribution.html_url,
+                repo: contribution.repository_url,
+                state: contribution.state,
+                contributorId: candidate.id,
+                meta: contribution,
+              },
             },
           },
         },
-      }),
-    ]);
+      },
+    });
     return response;
   } catch (error) {
     if (error instanceof z.ZodError) {

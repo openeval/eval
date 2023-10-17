@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "~/components/ui/Badge";
 import { formatDate } from "~/lib/utils";
@@ -10,7 +10,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import type { SubmissionsListData } from "~/server/repositories/Submissions";
 import { Progress } from "~/components/ui/Progress";
 
-export type Item = SubmissionsListData;
+export type Item = SubmissionsListData[0];
 
 export const columns: ColumnDef<Item>[] = [
   {
@@ -29,7 +29,7 @@ export const columns: ColumnDef<Item>[] = [
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            <Link href={`/assessment/${row.original.assessment.id as string}`}>
+            <Link href={`/assessments/${row.original.assessment.id as string}`}>
               {row.original.assessment.title}
             </Link>
           </span>
@@ -48,7 +48,7 @@ export const columns: ColumnDef<Item>[] = [
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
             <Link href={`submissions/${row.original.id as string}`}>
-              {row.original.contribution.title}
+              {row.original.contribution?.title}
             </Link>
           </span>
         </div>
@@ -94,7 +94,7 @@ export const columns: ColumnDef<Item>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
-          {formatDate(row.getValue("createdAt").toDateString())}
+          {formatDate((row.getValue("createdAt") as Date).toDateString())}
         </div>
       );
     },

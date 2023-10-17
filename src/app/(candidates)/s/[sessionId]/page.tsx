@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { prisma } from "~/server/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   searchIssues,
   searchPullRequestContributions,
@@ -16,14 +16,10 @@ import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { finishAssessmentSessionAction } from "./actions";
 import { formatDateWithTime } from "~/lib/utils";
+import { findOneByCandidate } from "~/server/repositories/AssessmentSessions";
 
-const getAssessmentSessionById = cache(async (id: string) => {
-  return await prisma.assessmentSession.findFirst({
-    where: {
-      id: id,
-    },
-    include: { assessment: true, candidate: true },
-  });
+const getAssessmentSession = cache(async (id: string, candidateId?: string) => {
+  return await findOneByCandidate(id, candidateId);
 });
 
 const getIssues = cache(
@@ -48,11 +44,19 @@ const getPullRequests = cache(async (user, assessment) => {
 export default async function Page({ params }: PageProps) {
   const user = await getCurrentUser();
 
-  const session = await getAssessmentSessionById(params.sessionId);
+  if (!user) {
+    redirect("/login");
+  }
+
+  const session = await getAssessmentSession(
+    params.sessionId,
+    user.candidate?.id,
+  );
 
   if (!session) {
     notFound();
   }
+
   const issues = await getIssues(session.assessment?.ghIssuesQuerySeach);
 
   const contributions = await getPullRequests(user, session.assessment);
@@ -94,8 +98,6 @@ export default async function Page({ params }: PageProps) {
           <OpenTaskItem key={item.id} item={item} />
         ))}
       </div>
-
-      {/* <ContributionList contributions={contributions} /> */}
 
       <Typography variant={"h3"}>Contributions</Typography>
       <Typography variant={"p"}>
