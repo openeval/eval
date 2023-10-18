@@ -4,6 +4,8 @@ import * as React from "react";
 
 import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
+import { Separator } from "~/components/ui/Separator";
+import { cn } from "~/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -12,14 +14,8 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "~/components/ui/Command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/Popover";
-import { Separator } from "~/components/ui/Separator";
-import { cn } from "~/lib/utils";
+} from "./Command";
+import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
 interface DataTableFacetedFilter<TData, TValue> {
   column?: Column<TData, TValue>;
