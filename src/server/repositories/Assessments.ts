@@ -1,5 +1,6 @@
-import { prisma } from "~/server/db";
 import type { Prisma } from "@prisma/client";
+
+import { prisma } from "~/server/db";
 
 export async function findAll() {
   return await prisma.assessment.findMany();

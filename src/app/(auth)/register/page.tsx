@@ -1,10 +1,9 @@
 import Link from "next/link";
 
-import { cn } from "~/lib/utils";
-import { Logo } from "~/components/ui/Logo";
-
 import { buttonVariants } from "~/components/ui/Button";
+import { Logo } from "~/components/ui/Logo";
 import { UserAuthForm } from "~/components/user-auth-form";
+import { cn } from "~/lib/utils";
 
 export const metadata = {
   title: "Create an account",
@@ -18,7 +17,7 @@ export default function RegisterPage() {
         href="/login"
         className={cn(
           buttonVariants({ variant: "ghost" }),
-          "absolute right-4 top-4 md:right-8 md:top-8"
+          "absolute right-4 top-4 md:right-8 md:top-8",
         )}
       >
         Login

@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { UserAccountNav } from "./UserNav";
 import { getCurrentUser } from "~/server/auth";
+import { UserAccountNav } from "./UserNav";
+
 const Header = async () => {
   const user = await getCurrentUser();
   return (

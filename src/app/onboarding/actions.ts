@@ -1,13 +1,15 @@
 "use server";
-import { authOptions } from "~/server/auth";
+
+import { MembershipRole, type Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
-import { z } from "zod";
 import { redirect } from "next/navigation";
-import { update as updateUser } from "~/server/repositories/User";
-import { create as createCandidate } from "~/server/repositories/Candidates";
-import { type Prisma, MembershipRole } from "@prisma/client";
-import { prisma } from "~/server/db";
 import slugify from "slugify";
+import { z } from "zod";
+
+import { authOptions } from "~/server/auth";
+import { prisma } from "~/server/db";
+import { create as createCandidate } from "~/server/repositories/Candidates";
+import { update as updateUser } from "~/server/repositories/User";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session

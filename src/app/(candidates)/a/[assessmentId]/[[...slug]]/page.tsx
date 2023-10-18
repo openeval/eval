@@ -1,10 +1,11 @@
-import { cache } from "react";
-import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "~/server/auth";
+import { cache } from "react";
+
 import Markdown from "~/components/Markdown";
-import { Typography } from "~/components/ui/Typography";
 import StartAssessmentButton from "~/components/StartAssessmentButton";
+import { Typography } from "~/components/ui/Typography";
+import { getCurrentUser } from "~/server/auth";
+import { prisma } from "~/server/db";
 import { startAssessmentSessionAction } from "./actions";
 
 interface PageProps {

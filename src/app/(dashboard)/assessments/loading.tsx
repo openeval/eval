@@ -1,9 +1,9 @@
-import { Separator } from "~/components/ui/Separator";
 import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/Button";
 
 import { AssessmentItem } from "~/components/AssessmentItem";
+import { buttonVariants } from "~/components/ui/Button";
+import { Separator } from "~/components/ui/Separator";
+import { cn } from "~/lib/utils";
 
 // careful loading is used everywhere here :)
 export default function DashboardLoading() {

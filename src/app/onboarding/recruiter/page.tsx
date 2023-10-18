@@ -1,8 +1,8 @@
-import { CreateOrganizationForm } from "./CreateOrganizationForm";
+import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { redirect } from "next/navigation";
 import { createOrgAction } from "../actions";
+import { CreateOrganizationForm } from "./CreateOrganizationForm";
 
 //we get callback,  can we pass params ?
 export default async function Onboarding() {

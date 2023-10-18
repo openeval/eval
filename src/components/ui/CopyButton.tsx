@@ -1,9 +1,9 @@
 "use client";
 
+import { Check, Copy } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "~/lib/utils";
-import { Check, Copy } from "lucide-react";
 
 interface CopyButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   value: string;
@@ -27,7 +27,7 @@ export function CopyButton({ value, className, ...props }: CopyButtonProps) {
     <button
       className={cn(
         "relative z-20 inline-flex h-8 items-center justify-center rounded-md border-slate-200 p-2 text-sm font-medium text-slate-900 transition-all hover:bg-slate-100 focus:outline-none dark:text-slate-100 dark:hover:bg-slate-800",
-        className
+        className,
       )}
       onClick={async () => {
         await copyToClipboardWithMeta(value);

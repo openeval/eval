@@ -1,10 +1,12 @@
 "use client";
 
-import * as React from "react";
-import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import type Prisma from "@prisma/client";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "~/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -22,9 +24,9 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/Form";
-import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
-import { z } from "zod";
+import { toast } from "~/hooks/use-toast";
+
 type CandidateOnboardingFormProps = {
   onSuccess: () => void;
   action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;

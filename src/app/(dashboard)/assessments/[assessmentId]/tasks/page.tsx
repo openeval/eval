@@ -1,12 +1,13 @@
-import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
-import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { cache } from "react";
 
 import { OpenTaskItem } from "~/components/OpenTaskItem";
-import { searchIssues } from "~/server/github";
+import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { Separator } from "~/components/ui/Separator";
+import { getCurrentUser } from "~/server/auth";
+import { searchIssues } from "~/server/github";
 import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
+
 const getIssues = cache(
   async (querySearch?: { [key: string]: string | string[] | undefined }) => {
     return await searchIssues({ querySearch: querySearch?.q });

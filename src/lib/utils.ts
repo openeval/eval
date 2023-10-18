@@ -1,15 +1,15 @@
-import type { ClassValue } from "clsx";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { env } from "~/env.mjs";
+import { clsx, type ClassValue } from "clsx";
 import { formatDistanceStrict } from "date-fns";
 import type { Metadata } from "next";
+import { twMerge } from "tailwind-merge";
+
+import { env } from "~/env.mjs";
 
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(input: string | number): string {
+export function formatDate(input: string | number | Date): string {
   const date = new Date(input);
   return date.toLocaleDateString("en-US", {
     month: "long",

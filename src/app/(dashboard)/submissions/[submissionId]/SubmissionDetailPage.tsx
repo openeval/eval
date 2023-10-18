@@ -1,26 +1,31 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Suspense } from "react";
-import { timeAgo } from "~/lib/utils";
-import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Typography } from "~/components/ui/Typography";
+import { timeAgo } from "~/lib/utils";
 import { DiffViewer } from "./DiffViewer";
+import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
+
 import "react-diff-view/style/index.css";
-import { Badge } from "~/components/ui/Badge";
-import Markdown from "~/components/Markdown";
-import { Separator } from "~/components/ui/Separator";
-import { GitPullRequest, Loader } from "lucide-react";
-import Pie from "./Pie";
+
 import {
-  type Prisma,
   type Contribution,
-  type Submission,
+  type Prisma,
   type Review,
+  type Submission,
 } from "@prisma/client";
-import { Card, CardContent, CardHeader } from "~/components/ui/Card";
+import { GitPullRequest, Loader } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+
+import Markdown from "~/components/Markdown";
+import { Badge } from "~/components/ui/Badge";
+import { Card, CardContent, CardHeader } from "~/components/ui/Card";
+import { Separator } from "~/components/ui/Separator";
+import Pie from "./Pie";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
+
 type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
   include: { children: true };
 }>;
@@ -105,7 +110,7 @@ export function SubmissionDetailPage({
 
           {review && (
             <Card className="my-4" key={review.id}>
-              <CardHeader className="rounded-t-xl bg-slate-100 px-4 py-2 ">
+              <CardHeader className="rounded-t-lg bg-slate-100 px-4 py-2 ">
                 <Typography variant={"subtle"}>
                   {timeAgo(review.createdAt)}
                 </Typography>
@@ -139,7 +144,11 @@ export function SubmissionDetailPage({
               evaluationCriterias={data.evaluationCriterias}
               action={submitReviewAction}
               onSuccess={() => {
-                router.push(`/assessments/${params?.assessmentId}/submissions`);
+                router.push(
+                  params?.assessmentId
+                    ? `/assessments/${params?.assessmentId}`
+                    : "" + `/submissions`,
+                );
               }}
             />
           )}

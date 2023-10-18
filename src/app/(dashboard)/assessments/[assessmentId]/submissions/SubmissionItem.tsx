@@ -1,13 +1,15 @@
 "use client";
 
-import * as React from "react";
-import { formatDate } from "~/lib/utils";
-import { GitMerge } from "lucide-react";
-import { Skeleton } from "~/components/ui/Skeleton";
-import Link from "next/link";
-import { SubmissionOperations } from "./SubmissionOperation";
-import { Progress } from "~/components/ui/Progress";
 import type { Prisma } from "@prisma/client";
+import { GitMerge } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
+
+import { Progress } from "~/components/ui/Progress";
+import { Skeleton } from "~/components/ui/Skeleton";
+import { formatDate } from "~/lib/utils";
+import { SubmissionOperations } from "./SubmissionOperation";
+
 interface SubmissionItemProps {
   item: Prisma.SubmissionGetPayload<{ include: { contribution; review } }>;
 }

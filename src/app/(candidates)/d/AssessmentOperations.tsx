@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
+import { type Assessment } from "@prisma/client";
+import { CircleEllipsis, Loader2 as SpinnerIcon, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "~/hooks/use-toast";
-import { type Assessment } from "@prisma/client";
-
-import { CircleEllipsis, Trash, Loader2 as SpinnerIcon } from "lucide-react";
+import * as React from "react";
 
 import {
   AlertDialog,
@@ -25,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { toast } from "~/hooks/use-toast";
 
 async function deleteAssessment(assessmentId: string) {
   const response = await fetch(`/api/assessments/${assessmentId}`, {

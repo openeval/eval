@@ -1,9 +1,10 @@
+import { format } from "date-fns";
+
+import { OpenTaskItem } from "~/components/OpenTaskItem";
+import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { getProfile, searchPullRequestContributions } from "~/server/github";
-import { format } from "date-fns";
-import { Typography } from "~/components/ui/Typography";
-import { OpenTaskItem } from "~/components/OpenTaskItem";
 
 const getCandidate = async (candidateId: string, assessmentId: string) => {
   return prisma.candidate.findFirst({

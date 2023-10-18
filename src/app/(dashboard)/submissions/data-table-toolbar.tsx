@@ -1,13 +1,12 @@
 "use client";
 
+import { SubmissionStatus } from "@prisma/client";
 import type { Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 
 import { Button } from "~/components/ui/Button";
-import { Input } from "~/components/ui/Input";
-import { SubmissionStatus } from "@prisma/client";
-
 import { DataTableFacetedFilter } from "~/components/ui/data-table-faceted-filter";
+import { Input } from "~/components/ui/Input";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;

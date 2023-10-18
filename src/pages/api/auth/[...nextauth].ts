@@ -1,9 +1,10 @@
+import { UserType } from "@prisma/client";
+import type { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth";
+
 import { authOptions } from "~/server/auth";
 import { linkInvitedUser } from "~/server/repositories/Candidates";
-import type { NextApiRequest, NextApiResponse } from "next";
 import { update as updateUser } from "~/server/repositories/User";
-import { UserType } from "@prisma/client";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   if (

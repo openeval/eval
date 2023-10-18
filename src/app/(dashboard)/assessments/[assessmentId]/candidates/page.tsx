@@ -1,8 +1,9 @@
 import { Users } from "lucide-react";
+
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
+import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 import prisma from "~/server/db";
 import { CandidateItem } from "./CandidateItem";
-import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 
 const getCandidates = async (assessmentId: string) => {
   return await prisma.candidatesOnAssessments.findMany({

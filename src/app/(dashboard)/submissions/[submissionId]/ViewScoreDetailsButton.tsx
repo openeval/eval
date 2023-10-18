@@ -1,17 +1,18 @@
 "use client";
+
+import type { Prisma } from "@prisma/client";
+import { BoxSelect, CheckSquare } from "lucide-react";
 import { useState } from "react";
+
 import { Button } from "~/components/ui/Button";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
+  SheetTrigger,
 } from "~/components/ui/Sheet";
-import { BoxSelect, CheckSquare } from "lucide-react";
-
-import type { Prisma } from "@prisma/client";
 
 type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
   include: { children: true };

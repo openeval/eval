@@ -1,6 +1,8 @@
 // "use client";
 import "~/styles/globals.css";
+
 import Header from "~/components/Header";
+
 // import { OnboardingProgress } from "./candidate/[[...step]]/OnboardingProgress";
 
 export default function Layout({ children }: { children: React.ReactNode }) {

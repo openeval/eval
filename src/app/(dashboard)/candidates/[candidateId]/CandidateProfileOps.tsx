@@ -1,12 +1,9 @@
 "use client";
 
-import * as React from "react";
-
+import { type Candidate } from "@prisma/client";
+import { CircleEllipsis, Loader2 as SpinnerIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { toast } from "~/hooks/use-toast";
-import { type Assessment } from "@prisma/client";
-
-import { CircleEllipsis, Trash, Loader2 as SpinnerIcon } from "lucide-react";
+import * as React from "react";
 
 import {
   AlertDialog,
@@ -25,18 +22,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/Sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "~/components/ui/Sheet";
+import { toast } from "~/hooks/use-toast";
 import { CandidateForm } from "./CandidateForm";
 
-async function deleteAssessment(assessmentId: string) {
-  const response = await fetch(`/api/assessments/${assessmentId}`, {
+async function archiveCandidate(dataId: string) {
+  const response = await fetch(`/api/datas/${dataId}`, {
     method: "DELETE",
   });
 
   if (!response?.ok) {
     toast({
       title: "Something went wrong.",
-      description: "Your Assessment was not deleted. Please try again.",
+      description: "Your Candidate was not archive. Please try again.",
       variant: "destructive",
     });
   }
@@ -44,11 +47,11 @@ async function deleteAssessment(assessmentId: string) {
   return true;
 }
 
-interface AssessmentOperationsProps {
-  assessment: Pick<Assessment, "id" | "title">;
+interface CandidateProfileOpsProps {
+  candidate: Candidate;
 }
 
-export function CandidateProfileOps({ assessment }: AssessmentOperationsProps) {
+export function CandidateProfileOps({ candidate }: CandidateProfileOpsProps) {
   const router = useRouter();
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
   const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false);
@@ -82,7 +85,7 @@ export function CandidateProfileOps({ assessment }: AssessmentOperationsProps) {
             className="flex cursor-pointer items-center text-red-600 focus:bg-red-50"
             onSelect={() => setShowDeleteAlert(true)}
           >
-            Delete
+            Archive
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -90,7 +93,7 @@ export function CandidateProfileOps({ assessment }: AssessmentOperationsProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you sure you want to delete this Assessment?
+              Are you sure you want to archive this Candidate?
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone.
@@ -103,9 +106,9 @@ export function CandidateProfileOps({ assessment }: AssessmentOperationsProps) {
                 event.preventDefault();
                 setIsDeleteLoading(true);
 
-                const deleted = await deleteAssessment(assessment.id);
+                const archive = await archiveCandidate(data.id);
 
-                if (deleted) {
+                if (archive) {
                   setIsDeleteLoading(false);
                   setShowDeleteAlert(false);
                   router.refresh();
@@ -118,7 +121,7 @@ export function CandidateProfileOps({ assessment }: AssessmentOperationsProps) {
               ) : (
                 <Trash className="mr-2 h-4 w-4" />
               )}
-              <span>Delete</span>
+              <span>archive</span>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -126,6 +129,10 @@ export function CandidateProfileOps({ assessment }: AssessmentOperationsProps) {
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right">
+          <SheetHeader className="mb-4">
+            <SheetTitle>Profile</SheetTitle>
+          </SheetHeader>
+
           <CandidateForm onSuccess={onSuccess} />
         </SheetContent>
       </Sheet>

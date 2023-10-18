@@ -1,8 +1,11 @@
 "use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+
 import { CandidateOnboardingForm } from "./CandidateOnboardingForm";
 import { ConnectGithubAccount } from "./ConnectGithubAccount";
 import { Success } from "./Success";
-import { useRouter, useSearchParams } from "next/navigation";
+
 const INITIAL_STEP = "profile";
 const steps = ["github-connect"] as const;
 

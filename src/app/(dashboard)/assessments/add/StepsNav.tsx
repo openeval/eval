@@ -1,8 +1,10 @@
 "use client";
+
+import { FileText, ListChecks, Settings, Users } from "lucide-react";
+import { useParams, usePathname } from "next/navigation";
 import * as React from "react";
-import { usePathname, useParams } from "next/navigation";
+
 import { Steps } from "~/components/ui/Steps";
-import { Users, Settings, ListChecks, FileText } from "lucide-react";
 
 type StepItem = {
   name: string;

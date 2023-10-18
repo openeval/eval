@@ -1,6 +1,8 @@
 import { Octokit } from "octokit";
-import { env } from "~/env.mjs";
+
 import { siteConfig } from "~/config/site";
+import { env } from "~/env.mjs";
+
 const octokit = new Octokit({
   auth: env.GITHUB_API_AUTH_TOKEN,
   request: { fetch: fetch },

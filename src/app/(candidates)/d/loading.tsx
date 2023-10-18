@@ -1,5 +1,5 @@
-import { Separator } from "~/components/ui/Separator";
 import { AssessmentItem } from "~/components/AssessmentItem";
+import { Separator } from "~/components/ui/Separator";
 
 // careful loading is used everywhere here :)
 export default function DashboardLoading() {

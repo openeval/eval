@@ -1,22 +1,24 @@
-import { cache } from "react";
-import { prisma } from "~/server/db";
 import { notFound, redirect } from "next/navigation";
-import {
-  searchIssues,
-  searchPullRequestContributions,
-  getProfile,
-} from "~/server/github";
-import { getCurrentUser } from "~/server/auth";
+import { cache } from "react";
+
 import FinishAssessmentSessionButton from "~/components/FinishAssessmentSessionButton";
-interface PageProps {
-  params: { sessionId: string };
-}
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
-import { finishAssessmentSessionAction } from "./actions";
 import { formatDateWithTime } from "~/lib/utils";
+import { getCurrentUser } from "~/server/auth";
+import { prisma } from "~/server/db";
+import {
+  getProfile,
+  searchIssues,
+  searchPullRequestContributions,
+} from "~/server/github";
 import { findOneByCandidate } from "~/server/repositories/AssessmentSessions";
+import { finishAssessmentSessionAction } from "./actions";
+
+interface PageProps {
+  params: { sessionId: string };
+}
 
 const getAssessmentSession = cache(async (id: string, candidateId?: string) => {
   return await findOneByCandidate(id, candidateId);

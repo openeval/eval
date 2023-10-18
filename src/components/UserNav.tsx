@@ -1,7 +1,10 @@
 "use client";
 
+import { User as UserIcon } from "lucide-react";
 import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
+
+import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
-import { User as UserIcon } from "lucide-react";
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Pick<User, "name" | "image" | "email">;
