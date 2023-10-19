@@ -6,9 +6,6 @@ import { CandidateOnboardingForm } from "./CandidateOnboardingForm";
 import { ConnectGithubAccount } from "./ConnectGithubAccount";
 import { Success } from "./Success";
 
-const INITIAL_STEP = "profile";
-const steps = ["github-connect"] as const;
-
 //we get callback,  can we pass params ?
 export function OnboardingCandidatePage({ createCandidateAction }) {
   const router = useRouter();

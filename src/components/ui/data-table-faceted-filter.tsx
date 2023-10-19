@@ -4,19 +4,22 @@ import * as React from "react";
 
 import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "~/components/ui/Command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/Popover";
 import { Separator } from "~/components/ui/Separator";
 import { cn } from "~/lib/utils";
-
-// import {
-//   Command,
-//   CommandEmpty,
-//   CommandGroup,
-//   CommandInput,
-//   CommandItem,
-//   CommandList,
-//   CommandSeparator,
-// } from "./Command";
-// import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
 interface DataTableFacetedFilter<TData, TValue> {
   column?: Column<TData, TValue>;
@@ -35,9 +38,9 @@ export function DataTableFacetedFilter<TData, TValue>({
 }: DataTableFacetedFilter<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
-  return <div></div>;
-  return {
-    /*<Popover>
+
+  return (
+    <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-10 border-dashed">
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -76,7 +79,7 @@ export function DataTableFacetedFilter<TData, TValue>({
             </>
           )}
         </Button>
-     </PopoverTrigger>
+      </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
           <CommandInput placeholder={title} />
@@ -139,6 +142,6 @@ export function DataTableFacetedFilter<TData, TValue>({
           </CommandList>
         </Command>
       </PopoverContent>
-    </Popover> */
-  };
+    </Popover>
+  );
 }

@@ -1,36 +1,27 @@
-import { Candidate } from "@prisma/client";
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { type Candidate } from "@prisma/client";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/Avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
 import { Badge } from "~/components/ui/Badge";
-import { Card, CardContent, CardHeader } from "~/components/ui/Card";
+import { Card, CardContent } from "~/components/ui/Card";
 import { Typography } from "~/components/ui/Typography";
 import { formatDate } from "~/lib/utils";
+import type { CandidateFullData } from "~/server/repositories/Candidates";
 import { CandidateProfileOps } from "./CandidateProfileOps";
 import { SubmissionItem } from "./SubmissionItem";
 
 type CandidateDetailPageProps = {
-  data: { candidate: Candidate };
+  data: { candidate: NonNullable<CandidateFullData> };
+  actions: { updateCandidateAction: (id, data) => Promise<Candidate | null> };
 };
 
 export default function CandidateDetailPage({
   data,
+  actions,
 }: CandidateDetailPageProps) {
   const { candidate } = data;
   return (
     <div>
-      <div className="mx-auto w-full min-w-0">
-        <div className="mb-4 flex items-center space-x-1 text-sm text-muted-foreground">
-          <div className="truncate">
-            <Link href={"/candidates"}>Candidates</Link>
-          </div>
-          <ChevronRight className="h-4 w-4" />
-          <div className="font-medium text-foreground">{"idhard idhard"}</div>
-        </div>
-      </div>
-
       <Card className="mb-6 pt-6">
         <CardContent className="flex justify-between">
           <div className="flex items-center space-x-4">
@@ -56,20 +47,18 @@ export default function CandidateDetailPage({
           </div>
 
           <div className="flex items-center justify-self-end">
-            <CandidateProfileOps />
+            <CandidateProfileOps
+              candidate={data.candidate}
+              updateCandidateAction={actions.updateCandidateAction}
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* <Card className="mb-6 pt-6"> */}
-      {/* <CardHeader>
-          
-        </CardHeader>
-        <CardContent className="flex flex-col gap-y-2"> */}
       <div className="mb-8">
         <Typography variant={"h2"}> Github stats</Typography>
         <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-y-2">
-          <div className="flex flex-grow">
+          <div className="flex grow">
             {/* contributions */}
             <img
               src={`https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=${candidate.ghUsername}&theme=github`}
@@ -89,9 +78,6 @@ export default function CandidateDetailPage({
           </div>
         </div>
       </div>
-      {/* </CardContent>
-      </Card> */}
-
       <Typography variant={"h2"} className="mb-8">
         Submissions
       </Typography>

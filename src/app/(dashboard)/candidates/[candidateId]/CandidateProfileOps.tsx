@@ -1,6 +1,6 @@
 "use client";
 
-import { type Candidate } from "@prisma/client";
+import { CandidateStatus, type Candidate } from "@prisma/client";
 import { CircleEllipsis, Loader2 as SpinnerIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -29,40 +29,52 @@ import {
   SheetTitle,
 } from "~/components/ui/Sheet";
 import { toast } from "~/hooks/use-toast";
-import { CandidateForm } from "./CandidateForm";
-
-async function archiveCandidate(dataId: string) {
-  const response = await fetch(`/api/datas/${dataId}`, {
-    method: "DELETE",
-  });
-
-  if (!response?.ok) {
-    toast({
-      title: "Something went wrong.",
-      description: "Your Candidate was not archive. Please try again.",
-      variant: "destructive",
-    });
-  }
-
-  return true;
-}
+import { CandidateUpdateForm } from "./CandidateUpdateForm";
 
 interface CandidateProfileOpsProps {
   candidate: Candidate;
+  updateCandidateAction: (id, data) => Promise<Candidate | null>;
 }
 
-export function CandidateProfileOps({ candidate }: CandidateProfileOpsProps) {
+export function CandidateProfileOps({
+  candidate,
+  updateCandidateAction,
+}: CandidateProfileOpsProps) {
   const router = useRouter();
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
-  const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const [isArchivingLoading, startActionTransition] = React.useTransition();
+
+  async function archiveCandidate(candidateId: string) {
+    startActionTransition(async () => {
+      try {
+        await updateCandidateAction(candidateId, {
+          status: CandidateStatus.ARCHIVED,
+        });
+
+        setShowDeleteAlert(false);
+        router.refresh();
+        toast({
+          title: "Success.",
+          description: "Candidate updated",
+        });
+      } catch (e) {
+        // TODO: how to handle errors in with server actions
+        toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    });
+  }
 
   function onSuccess() {
     router.refresh();
     setIsOpen(false);
     toast({
       title: "Success.",
-      description: "Invitation sent",
+      description: "Candidate updated",
     });
   }
 
@@ -104,19 +116,11 @@ export function CandidateProfileOps({ candidate }: CandidateProfileOpsProps) {
             <AlertDialogAction
               onClick={async (event) => {
                 event.preventDefault();
-                setIsDeleteLoading(true);
-
-                const archive = await archiveCandidate(data.id);
-
-                if (archive) {
-                  setIsDeleteLoading(false);
-                  setShowDeleteAlert(false);
-                  router.refresh();
-                }
+                await archiveCandidate(candidate.id);
               }}
               className="bg-red-600 focus:ring-red-600"
             >
-              {isDeleteLoading ? (
+              {isArchivingLoading ? (
                 <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Trash className="mr-2 h-4 w-4" />
@@ -133,7 +137,11 @@ export function CandidateProfileOps({ candidate }: CandidateProfileOpsProps) {
             <SheetTitle>Profile</SheetTitle>
           </SheetHeader>
 
-          <CandidateForm onSuccess={onSuccess} />
+          <CandidateUpdateForm
+            candidate={candidate}
+            action={updateCandidateAction}
+            onSuccess={onSuccess}
+          />
         </SheetContent>
       </Sheet>
     </>

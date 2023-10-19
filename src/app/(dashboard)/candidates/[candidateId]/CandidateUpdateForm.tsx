@@ -2,19 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type Prisma from "@prisma/client";
+import { Candidate } from "@prisma/client";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/Card";
+import { Card, CardContent, CardFooter } from "~/components/ui/Card";
 import {
   Form,
   FormControl,
@@ -28,8 +22,9 @@ import { Input } from "~/components/ui/Input";
 import { toast } from "~/hooks/use-toast";
 
 type CandidateFormProps = {
+  candidate: Partial<Candidate>;
   onSuccess: () => void;
-  action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
+  action: (id, data: Partial<Prisma.Candidate>) => Promise<unknown>;
 };
 
 const candidateSchema = z.object({
@@ -40,9 +35,13 @@ const candidateSchema = z.object({
 
 type FormData = z.infer<typeof candidateSchema>;
 
-export function CandidateForm({ ...props }: CandidateFormProps) {
+export function CandidateUpdateForm({
+  candidate,
+  ...props
+}: CandidateFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(candidateSchema),
+    defaultValues: { ...candidate },
   });
 
   const [isLoading, startActionTransition] = React.useTransition();
@@ -50,7 +49,7 @@ export function CandidateForm({ ...props }: CandidateFormProps) {
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
       try {
-        await props.action(data);
+        await props.action(candidate.id, data);
         props.onSuccess();
       } catch (e) {
         // TODO: how to handle errors in with server actions

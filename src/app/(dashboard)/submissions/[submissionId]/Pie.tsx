@@ -6,15 +6,7 @@ const Pie = ({ series, labels }) => {
   return (
     <ReactApexChart
       options={{
-        // labels: [
-        //   "Code Quality",
-        //   "Functionality and Purpose",
-        //   "Testing",
-        //   "Documentation",
-        //   "Consistency and Style",
-        //   "Dependencies and Compatibility",
-        //   "Security and Performance",
-        // ],
+        labels,
         chart: {
           type: "donut",
           height: 200,
@@ -69,7 +61,6 @@ const Pie = ({ series, labels }) => {
           },
         ],
       }}
-      // series={[12, 0, 0, 0, 6.666666666666667, 0, 0]}
       series={series}
       type="donut"
     />

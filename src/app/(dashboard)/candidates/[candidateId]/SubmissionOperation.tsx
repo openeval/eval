@@ -1,9 +1,8 @@
 "use client";
 
 import { type Submission } from "@prisma/client";
-import { CircleEllipsis, Loader2 as SpinnerIcon } from "lucide-react";
+import { CircleEllipsis } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import {
@@ -12,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { toast } from "~/hooks/use-toast";
 
 interface SubmissionOperationsProps {
   submission: Pick<Submission, "id">;

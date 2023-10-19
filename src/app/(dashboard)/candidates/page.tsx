@@ -37,12 +37,12 @@ export default async function CandidatesPage() {
             Candidates
           </h1>
         </div>
-        <Link
+        {/* <Link
           href={"/candidates/add"}
           className={cn(buttonVariants({ variant: "default" }))}
         >
-          Add Candidate
-        </Link>
+          Invite Candidate
+        </Link> */}
       </div>
 
       <Separator className="my-4" />
@@ -58,12 +58,6 @@ export default async function CandidatesPage() {
           <EmptyPlaceholder.Description>
             Get started by inviting a new one.
           </EmptyPlaceholder.Description>
-          <Link
-            href={"/candidates/add"}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            Add Candidate
-          </Link>
         </EmptyPlaceholder>
       )}
     </>

@@ -73,19 +73,18 @@ export async function findCandidateByUserId(userId) {
     },
   });
 }
-
-export async function findById(id) {
+export async function findOneById(id, organizationId?) {
   return await prisma.candidate.findFirst({
-    where: {
-      id,
-    },
+    where: { id, organizationId },
   });
 }
 
-export async function findByIdFull(id) {
+export type CandidateFullData = Prisma.PromiseReturnType<typeof findByIdFull>;
+export async function findByIdFull(id, organizationId?) {
   return await prisma.candidate.findFirst({
     where: {
       id,
+      organizationId,
     },
     include: {
       submissions: {

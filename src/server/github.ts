@@ -9,9 +9,9 @@ const octokit = new Octokit({
 });
 
 // public client to use in auto completions
-const octokitPublic = new Octokit({
-  request: { fetch: fetch },
-});
+// const octokitPublic = new Octokit({
+//   request: { fetch: fetch },
+// });
 
 interface SearchIssuesParams {
   querySearch?: string[] | string | undefined;

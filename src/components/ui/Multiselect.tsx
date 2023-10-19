@@ -34,11 +34,11 @@ export function Multiselect() {
   const [selected, setSelected] = React.useState([]);
   const [inputValue, setInputValue] = React.useState("");
 
-  const handleSelectResult = (repo: Repo) => {
-    // onSelectResult(repo);
-    // OPTIONAL: reset the search query upon selection
-    // setSearchQuery('');
-  };
+  // const handleSelectResult = (repo: Repo) => {
+  //   // onSelectResult(repo);
+  //   // OPTIONAL: reset the search query upon selection
+  //   // setSearchQuery('');
+  // };
 
   const handleUnselect = React.useCallback((framework: Framework) => {
     setSelected((prev) => prev.filter((s) => s.value !== framework.value));
