@@ -1,8 +1,9 @@
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
 import { getCurrentUser } from "~/server/auth";
 import { StepsNav } from "./StepsNav";
-import { ChevronRight } from "lucide-react";
 
 type AssessmentDetailPageProps = {
   children: React.ReactNode;

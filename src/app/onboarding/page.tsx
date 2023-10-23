@@ -1,9 +1,10 @@
-import { getCurrentUser } from "~/server/auth";
-import { redirect } from "next/navigation";
-import { UserTypeForm } from "./UserTypeForm";
-import { updateUserType } from "./actions";
 import { CandidateStatus, UserType } from "@prisma/client";
+import { redirect } from "next/navigation";
+
+import { getCurrentUser } from "~/server/auth";
 import { findCandidateByUserId } from "~/server/repositories/Candidates";
+import { updateUserType } from "./actions";
+import { UserTypeForm } from "./UserTypeForm";
 
 //we get callback,  can we pass params ?
 export default async function Onboarding({

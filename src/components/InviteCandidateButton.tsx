@@ -1,10 +1,12 @@
 "use client";
+
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+import { InviteCandidateForm } from "~/components/InviteCandidateForm";
 import { Button } from "~/components/ui/Button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/Sheet";
-import { InviteCandidateForm } from "~/components/InviteCandidateForm";
 import { toast } from "~/hooks/use-toast";
-import { useRouter } from "next/navigation";
 
 interface InviteCandidateButtonProps {
   assessmentId: string;

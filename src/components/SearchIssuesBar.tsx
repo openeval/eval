@@ -1,9 +1,10 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { Input } from "~/components/ui/Input";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
+
+import { Input } from "~/components/ui/Input";
 
 export default function SearchIssuesBar() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function SearchIssuesBar() {
 
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   const [searchQuery, setSearchQuery] = useState<string>(q || "");

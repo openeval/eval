@@ -1,10 +1,13 @@
 "use client";
 
-import * as React from "react";
-import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import type Prisma from "@prisma/client";
+import type { Submission } from "@prisma/client";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "~/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -13,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/Card";
+import { Checkbox } from "~/components/ui/Checkbox";
 import {
   Form,
   FormControl,
@@ -22,11 +26,9 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/Form";
-import { Button } from "~/components/ui/Button";
-import { Checkbox } from "~/components/ui/Checkbox";
-import { z } from "zod";
 import { Textarea } from "~/components/ui/Textarea";
-import type { Submission } from "@prisma/client";
+import { toast } from "~/hooks/use-toast";
+
 // import { Prisma } from "@prisma/client";
 
 type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{

@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -6,15 +7,16 @@ import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 import remarkEmoji from "remark-emoji";
 import remarkGfm from "remark-gfm";
-import { Typography } from "./ui/Typography";
+
+import { Callout } from "~/components/ui/Callout";
 import { cn } from "~/lib/utils";
+import { Typography } from "./ui/Typography";
 
 interface ComponentTypes {
   className?: string;
   href?: string;
   // [key: string]: any;
 }
-import { Callout } from "~/components/ui/Callout";
 
 function Markdown({ content }: { content: string }) {
   const components = {
@@ -23,7 +25,7 @@ function Markdown({ content }: { content: string }) {
       <h2
         className={cn(
           "mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
-          className
+          className,
         )}
         {...props}
       />
@@ -32,7 +34,7 @@ function Markdown({ content }: { content: string }) {
       <h3
         className={cn(
           "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
-          className
+          className,
         )}
         {...props}
       />
@@ -41,7 +43,7 @@ function Markdown({ content }: { content: string }) {
       <h4
         className={cn(
           "mt-8 scroll-m-20 text-xl font-semibold tracking-tight",
-          className
+          className,
         )}
         {...props}
       />
@@ -50,7 +52,7 @@ function Markdown({ content }: { content: string }) {
       <h5
         className={cn(
           "mt-8 scroll-m-20 text-lg font-semibold tracking-tight",
-          className
+          className,
         )}
         {...props}
       />
@@ -59,7 +61,7 @@ function Markdown({ content }: { content: string }) {
       <h6
         className={cn(
           "mt-8 scroll-m-20 text-base font-semibold tracking-tight",
-          className
+          className,
         )}
         {...props}
       />
@@ -89,7 +91,7 @@ function Markdown({ content }: { content: string }) {
       <blockquote
         className={cn(
           "mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground",
-          className
+          className,
         )}
         {...props}
       />
@@ -128,7 +130,7 @@ function Markdown({ content }: { content: string }) {
       <th
         className={cn(
           "border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
-          className
+          className,
         )}
         {...props}
       />
@@ -137,7 +139,7 @@ function Markdown({ content }: { content: string }) {
       <td
         className={cn(
           "border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
-          className
+          className,
         )}
         {...props}
       />
@@ -146,7 +148,7 @@ function Markdown({ content }: { content: string }) {
       <pre
         className={cn(
           "mb-4 mt-6 overflow-x-auto rounded-lg border bg-black py-4",
-          className
+          className,
         )}
         {...props}
       />
@@ -155,7 +157,7 @@ function Markdown({ content }: { content: string }) {
       <code
         className={cn(
           "relative rounded border px-[0.3rem] py-[0.2rem] font-mono text-sm",
-          className
+          className,
         )}
         {...props}
       />

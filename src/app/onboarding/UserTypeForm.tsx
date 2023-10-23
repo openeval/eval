@@ -1,4 +1,12 @@
 "use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserType } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { Button } from "~/components/ui/Button";
 import {
   Card,
@@ -8,14 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/Card";
-import { Label } from "~/components/ui/Label";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import * as React from "react";
-import { toast } from "~/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -23,7 +23,9 @@ import {
   FormItem,
   FormMessage,
 } from "~/components/ui/Form";
-import { UserType } from "@prisma/client";
+import { Label } from "~/components/ui/Label";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
+import { toast } from "~/hooks/use-toast";
 
 const userTypeSchema = z.object({
   type: z.string(),

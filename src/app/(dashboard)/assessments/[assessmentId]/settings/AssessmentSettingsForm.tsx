@@ -1,22 +1,12 @@
 "use client";
 
-import * as React from "react";
-import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type Assessment, type Prisma } from "@prisma/client";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { cn } from "~/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/Select";
 import { Button } from "~/components/ui/Button";
-
-import { type Assessment } from "@prisma/client";
 import {
   Card,
   CardContent,
@@ -24,8 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/Card";
-import { Switch } from "~/components/ui/Switch";
-
 import {
   Form,
   FormControl,
@@ -34,7 +22,16 @@ import {
   FormItem,
   FormLabel,
 } from "~/components/ui/Form";
-import type { Prisma } from "@prisma/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/Select";
+import { Switch } from "~/components/ui/Switch";
+import { toast } from "~/hooks/use-toast";
+import { cn } from "~/lib/utils";
 
 interface AssessmentSettingsFormProps
   extends React.HTMLAttributes<HTMLDivElement> {

@@ -1,6 +1,8 @@
+import type { Prisma } from "@prisma/client";
+
 import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
-import type { Prisma } from "@prisma/client";
+
 export async function findOneById(id) {
   return await prisma.submission.findFirst(id);
 }
@@ -47,12 +49,24 @@ export async function findByIdFull(
       const plotData = await getDetailScore(
         data.review.evaluationCriterias.map((value) => value.id),
       );
-      const series = plotData.map((item) => item.score);
-      const labels = plotData.map((item) => item.name);
+
+      const plot = plotData.reduce(
+        (plot, item) => {
+          if (item.score > 0) {
+            return {
+              ...plot,
+              series: [...plot.series, Math.round(item.score * 100) / 100],
+              labels: [...plot.labels, item.name],
+            };
+          }
+          return plot;
+        },
+        { series: [], labels: [] },
+      );
 
       data.review = {
         ...data.review,
-        plot: { series: series, labels: labels },
+        plot,
       };
     }
   }

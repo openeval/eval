@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { type AssessmentSession, type Candidate } from "@prisma/client";
+import Link from "next/link";
 
-import { formatDate } from "~/lib/utils";
 import { CandidateOperations } from "~/components/CandidateOperations";
 import { Skeleton } from "~/components/ui/Skeleton";
+import { formatDate } from "~/lib/utils";
 
 interface CandidateItemProps {
   candidate: Pick<

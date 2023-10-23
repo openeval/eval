@@ -70,7 +70,6 @@
   }
 }
 
-
 :root {
   --code-highlight-comment-color: #008000;
   --code-highlight-prolog-color: #008000;
@@ -108,6 +107,8 @@
 @layer base {
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
 }

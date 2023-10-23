@@ -1,14 +1,13 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-
-import { Badge } from "~/components/ui/Badge";
-import { formatDate } from "~/lib/utils";
 import Link from "next/link";
 
+import { Badge } from "~/components/ui/Badge";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
-import { DataTableRowActions } from "./data-table-row-actions";
+import { formatDate } from "~/lib/utils";
 import { type CandidatesListData } from "~/server/repositories/Candidates";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 export type Item = CandidatesListData[0];
 

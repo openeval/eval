@@ -1,11 +1,12 @@
-import { notFound } from "next/navigation";
-import { Typography } from "~/components/ui/Typography";
 import { ChevronRight } from "lucide-react";
-import { AssessmentNav } from "~/components/AssessmentNav";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+
+import { AssessmentNav } from "~/components/AssessmentNav";
+import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById } from "~/server/repositories/Assessments";
+
 type AssessmentDetailPageProps = {
   children: React.ReactNode;
   params: { assessmentId: string };

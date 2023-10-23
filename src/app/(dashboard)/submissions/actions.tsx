@@ -1,10 +1,12 @@
 "use server";
-import { authOptions } from "~/server/auth";
+
 import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+
+import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { getTotalScore } from "~/server/repositories/EvaluationCriteria";
-import { z } from "zod";
-import { redirect } from "next/navigation";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session

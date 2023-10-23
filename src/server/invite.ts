@@ -1,15 +1,16 @@
-import EmailProvider, { type EmailConfig } from "next-auth/providers/email";
-import type { Provider } from "next-auth/providers";
-import { env } from "~/env.mjs";
-import { createTransport } from "nodemailer";
-import { authOptions } from "~/server/auth";
-import { type Theme } from "next-auth";
-import { absoluteUrl } from "~/lib/utils";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "~/server/db";
 import type { Assessment } from "@prisma/client";
+import { type Theme } from "next-auth";
+import type { Provider } from "next-auth/providers";
+import EmailProvider, { type EmailConfig } from "next-auth/providers/email";
+import { createTransport } from "nodemailer";
 import slugify from "slugify";
-import { isObject } from "~/lib/utils";
+
+import { env } from "~/env.mjs";
+import { absoluteUrl, isObject } from "~/lib/utils";
+import { authOptions } from "~/server/auth";
+import { prisma } from "~/server/db";
+
 /** Web compatible method to create a hash, using SHA256 */
 export async function createHash(message: string) {
   const data = new TextEncoder().encode(message);

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { type Assessment } from "@prisma/client";
+import Link from "next/link";
 
+import { Skeleton } from "~/components/ui/Skeleton";
 import { formatDate } from "~/lib/utils";
 import { AssessmentOperations } from "./AssessmentOperations";
-import { Skeleton } from "~/components/ui/Skeleton";
 
 interface AssessmentItemProps {
   assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt">;

@@ -1,20 +1,16 @@
 "use client";
 
-import * as React from "react";
-import { X, CircleIcon, StarIcon, CircleDotIcon } from "lucide-react";
-import { searchRepos } from "~/server/github";
-import { Badge } from "~/components/ui/Badge";
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-} from "~/components/ui/Command";
-import { Command as CommandPrimitive } from "cmdk";
-import { useDebounce } from "use-debounce";
 import { useQuery } from "@tanstack/react-query";
-import { Typography } from "./Typography";
+import { Command as CommandPrimitive } from "cmdk";
+import { CircleDotIcon, CircleIcon, StarIcon, X } from "lucide-react";
+import * as React from "react";
+import { useDebounce } from "use-debounce";
 
+import { Badge } from "~/components/ui/Badge";
+import { Command, CommandGroup, CommandItem } from "~/components/ui/Command";
 import { kIntFormat } from "~/lib/utils";
+import { searchRepos } from "~/server/github";
+import { Typography } from "./Typography";
 
 type Framework = Record<"value" | "name", string>;
 
@@ -38,11 +34,11 @@ export function Multiselect() {
   const [selected, setSelected] = React.useState([]);
   const [inputValue, setInputValue] = React.useState("");
 
-  const handleSelectResult = (repo: Repo) => {
-    // onSelectResult(repo);
-    // OPTIONAL: reset the search query upon selection
-    // setSearchQuery('');
-  };
+  // const handleSelectResult = (repo: Repo) => {
+  //   // onSelectResult(repo);
+  //   // OPTIONAL: reset the search query upon selection
+  //   // setSearchQuery('');
+  // };
 
   const handleUnselect = React.useCallback((framework: Framework) => {
     setSelected((prev) => prev.filter((s) => s.value !== framework.value));

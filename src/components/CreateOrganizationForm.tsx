@@ -1,17 +1,17 @@
 "use client";
 
-import * as React from "react";
-import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { type Prisma } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { cn } from "~/lib/utils";
+import { OrganizationCreateInputSchema } from "prisma/zod";
+import * as React from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
-import { OrganizationCreateInputSchema } from "prisma/zod";
-import { type Prisma } from "@prisma/client";
+import { toast } from "~/hooks/use-toast";
+import { cn } from "~/lib/utils";
 
 type CreateOrganizationFormProps = React.HTMLAttributes<HTMLDivElement>;
 

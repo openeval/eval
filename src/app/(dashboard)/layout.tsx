@@ -1,10 +1,12 @@
 import "~/styles/globals.css";
+
+import { UserType } from "@prisma/client";
+import { redirect } from "next/navigation";
+
 import Header from "~/components/Header";
 import { SideNav } from "~/components/SideNav";
 import { siteConfig } from "~/config/site";
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "~/server/auth";
-import { UserType } from "@prisma/client";
 
 export default async function Layout({
   children,

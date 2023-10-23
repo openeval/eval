@@ -1,14 +1,14 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { authOptions } from "~/server/auth";
-import { getServerSession } from "next-auth/next";
-import { prisma } from "~/server/db";
 import { Prisma } from "@prisma/client";
-
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth/next";
 import { z } from "zod";
+
+import { authOptions } from "~/server/auth";
+import { prisma } from "~/server/db";
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   let response, data;
 

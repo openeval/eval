@@ -1,19 +1,19 @@
 "use client";
 
-import * as React from "react";
-import { useSearchParams } from "next/navigation";
-import { toast } from "~/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Github, Loader2 as SpinnerIcon } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { cn } from "~/lib/utils";
-import { userAuthSchema } from "~/lib/validations/auth";
-import { Github, Loader2 as SpinnerIcon } from "lucide-react";
 import { buttonVariants } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Label } from "~/components/ui/Label";
+import { toast } from "~/hooks/use-toast";
+import { cn } from "~/lib/utils";
+import { userAuthSchema } from "~/lib/validations/auth";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 

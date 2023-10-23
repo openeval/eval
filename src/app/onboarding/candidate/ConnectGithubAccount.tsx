@@ -1,4 +1,10 @@
 "use client";
+
+import { Github } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+
+import { Button } from "~/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -6,10 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/Card";
-import { Github } from "lucide-react";
-import { Button } from "~/components/ui/Button";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+
 export function ConnectGithubAccount() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get("callbackUrl");

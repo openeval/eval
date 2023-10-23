@@ -1,16 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
+import { Check } from "lucide-react";
 import * as React from "react";
 import { useDebounce } from "use-debounce";
-import { useQuery } from "@tanstack/react-query";
+
 import {
   Command,
   CommandInput,
   CommandItem,
   CommandList,
 } from "~/components/ui/Command";
+import { cn } from "~/lib/utils";
 // import type { Repo, SearchResponse } from '@/types';
 import { searchRepos } from "~/server/github";
-import { Check } from "lucide-react";
-import { cn } from "~/lib/utils";
 
 interface Repo {
   id: string;

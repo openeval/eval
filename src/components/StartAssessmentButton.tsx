@@ -1,12 +1,10 @@
 "use client";
+
+import type { AssessmentSession } from "@prisma/client";
 import { type User } from "next-auth";
 import { signIn } from "next-auth/react";
-import { Button } from "~/components/ui/Button";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "~/hooks/use-toast";
-import { absoluteUrl } from "~/lib/utils";
-import { usePathname } from "next/navigation";
 
 import {
   AlertDialog,
@@ -19,7 +17,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/AlertDialog";
-import type { AssessmentSession } from "@prisma/client";
+import { Button } from "~/components/ui/Button";
+import { toast } from "~/hooks/use-toast";
+import { absoluteUrl } from "~/lib/utils";
 
 interface StartAssessmentButtonProps {
   assessmentId: string;

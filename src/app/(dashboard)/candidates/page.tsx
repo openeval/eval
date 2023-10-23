@@ -1,15 +1,16 @@
-import { getCurrentUser } from "~/server/auth";
-import { redirect } from "next/navigation";
-import { Separator } from "~/components/ui/Separator";
 import { GitBranch } from "lucide-react";
-import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import Link from "next/link";
-import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/Button";
+import { redirect } from "next/navigation";
 import { cache } from "react";
-import { DataTable } from "./data-table";
-import { columns } from "./columns";
+
+import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
+import { buttonVariants } from "~/components/ui/Button";
+import { Separator } from "~/components/ui/Separator";
+import { cn } from "~/lib/utils";
+import { getCurrentUser } from "~/server/auth";
 import { findAllForList } from "~/server/repositories/Candidates";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
 export const metadata = {
   title: "Candidates",
@@ -36,12 +37,12 @@ export default async function CandidatesPage() {
             Candidates
           </h1>
         </div>
-        <Link
+        {/* <Link
           href={"/candidates/add"}
           className={cn(buttonVariants({ variant: "default" }))}
         >
-          Add Candidate
-        </Link>
+          Invite Candidate
+        </Link> */}
       </div>
 
       <Separator className="my-4" />
@@ -57,12 +58,6 @@ export default async function CandidatesPage() {
           <EmptyPlaceholder.Description>
             Get started by inviting a new one.
           </EmptyPlaceholder.Description>
-          <Link
-            href={"/candidates/add"}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            Add Candidate
-          </Link>
         </EmptyPlaceholder>
       )}
     </>

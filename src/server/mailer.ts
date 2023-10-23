@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+
 import { env } from "~/env.mjs";
 
 const transporter = nodemailer.createTransport(
@@ -12,7 +13,7 @@ const transporter = nodemailer.createTransport(
   },
   {
     from: env.SMTP_FROM,
-  }
+  },
 );
 
 export { transporter };

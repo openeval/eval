@@ -1,6 +1,8 @@
-import { cache } from "react";
-import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
+import { cache } from "react";
+
+import { prisma } from "~/server/db";
+
 interface PageProps {
   params: { sessionId: string };
 }

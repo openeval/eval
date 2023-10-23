@@ -1,11 +1,11 @@
 "use client";
 
+import { ArrowRight, FileBadge, ListTodo, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { type SidebarNavItem } from "~/types";
 import { cn } from "~/lib/utils";
-import { Settings, Users, FileBadge, ArrowRight, ListTodo } from "lucide-react";
+import { type SidebarNavItem } from "~/types";
 
 interface DashboardNavProps {
   items: SidebarNavItem[];

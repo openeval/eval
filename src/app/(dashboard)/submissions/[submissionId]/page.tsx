@@ -1,8 +1,9 @@
-import { SubmissionDetailPage } from "./SubmissionDetailPage";
-import * as submissionRepo from "~/server/repositories/Submissions";
 import { notFound } from "next/navigation";
+
 import { findAllWithChildren } from "~/server/repositories/EvaluationCriteria";
+import * as submissionRepo from "~/server/repositories/Submissions";
 import { submitReviewAction } from "../actions";
+import { SubmissionDetailPage } from "./SubmissionDetailPage";
 
 type SubmissionDetailPageProps = {
   params: {

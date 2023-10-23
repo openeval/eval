@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
+
 import { prisma } from "~/server/db";
-import { AssessmentSettingsForm } from "./AssessmentSettingsForm";
 import { updateAssessment } from "../../actions";
+import { AssessmentSettingsForm } from "./AssessmentSettingsForm";
 
 type AssessmentDetailPageProps = {
   params: { assessmentId: string };
 };
-
 
 async function fetchAssessment(id: string) {
   const assessment = await prisma.assessment.findFirst({ where: { id } });

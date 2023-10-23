@@ -1,12 +1,11 @@
+import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { cn } from "~/lib/utils";
-
-import { ChevronLeft } from "lucide-react";
 import { buttonVariants } from "~/components/ui/Button";
-import { UserAuthForm } from "~/components/user-auth-form";
 import { Logo } from "~/components/ui/Logo";
+import { UserAuthForm } from "~/components/user-auth-form";
+import { cn } from "~/lib/utils";
 
 export const metadata: Metadata = {
   title: "Login",

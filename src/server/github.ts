@@ -1,15 +1,17 @@
 import { Octokit } from "octokit";
-import { env } from "~/env.mjs";
+
 import { siteConfig } from "~/config/site";
+import { env } from "~/env.mjs";
+
 const octokit = new Octokit({
   auth: env.GITHUB_API_AUTH_TOKEN,
   request: { fetch: fetch },
 });
 
 // public client to use in auto completions
-const octokitPublic = new Octokit({
-  request: { fetch: fetch },
-});
+// const octokitPublic = new Octokit({
+//   request: { fetch: fetch },
+// });
 
 interface SearchIssuesParams {
   querySearch?: string[] | string | undefined;

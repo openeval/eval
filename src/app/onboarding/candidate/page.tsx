@@ -1,8 +1,9 @@
-import { getCurrentUser } from "~/server/auth";
 import { redirect } from "next/navigation";
 
-import { OnboardingCandidatePage } from "./OnboardingCandidatePage";
+import { getCurrentUser } from "~/server/auth";
 import { createCandidateAction } from "../actions";
+import { OnboardingCandidatePage } from "./OnboardingCandidatePage";
+
 //we get callback,  can we pass params ?
 export default async function Onboarding() {
   const user = await getCurrentUser();

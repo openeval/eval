@@ -162,7 +162,7 @@ model Candidate {
   createdBy               User?                     @relation("userCandidateCreated", fields: [createdById], references: [id])
   createdById             String?                   @map("created_by_id") @db.Uuid
   contributions           Contribution[]
-  submission              Submission[]
+  submissions             Submission[]
   candidatesOnAssessments CandidatesOnAssessments[]
 
   @@unique([id, email, organizationId])
@@ -243,7 +243,7 @@ model AssessmentSession {
   finishedAt   DateTime?               @map("finished_at")
   candidate    Candidate               @relation(fields: [candidateId], references: [id])
   candidateId  String                  @map("candidate_id") @db.Uuid
-  Submission   Submission[]
+  submission   Submission[]
 
   @@map("assessment_session")
 }

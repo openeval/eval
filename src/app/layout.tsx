@@ -1,6 +1,9 @@
 import clsx from "clsx";
+
 import "~/styles/globals.css";
+
 import { Work_Sans } from "next/font/google";
+
 import { Toaster } from "~/components/toaster";
 
 const fontWorkSans = Work_Sans({
@@ -20,7 +23,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen scroll-smooth bg-white font-sans text-slate-900 antialiased ",
-          fontWorkSans.variable
+          fontWorkSans.variable,
         )}
       >
         {children}

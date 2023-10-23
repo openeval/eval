@@ -1,14 +1,15 @@
-import { getCurrentUser } from "~/server/auth";
-import { redirect } from "next/navigation";
-import { Separator } from "~/components/ui/Separator";
 import { GitBranch } from "lucide-react";
-import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import Link from "next/link";
-import { cn } from "~/lib/utils";
+import { redirect } from "next/navigation";
+
+import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { buttonVariants } from "~/components/ui/Button";
-import { DataTable } from "./data-table";
-import { columns } from "./columns";
+import { Separator } from "~/components/ui/Separator";
+import { cn } from "~/lib/utils";
+import { getCurrentUser } from "~/server/auth";
 import { findAllForList } from "~/server/repositories/Submissions";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
 
 export const metadata = {
   title: "Submissions",

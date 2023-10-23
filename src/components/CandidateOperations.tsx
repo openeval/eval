@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
+import { type Candidate } from "@prisma/client";
+import { CircleEllipsis, Loader2 as SpinnerIcon, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "~/hooks/use-toast";
-import { type Candidate } from "@prisma/client";
-
-import { CircleEllipsis, Trash, Loader2 as SpinnerIcon } from "lucide-react";
+import * as React from "react";
 
 import {
   AlertDialog,
@@ -25,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
+import { toast } from "~/hooks/use-toast";
 
 async function deleteCandidate(candidateId: string) {
   const response = await fetch(`/api/candidates/${candidateId}`, {
@@ -64,9 +63,8 @@ export function CandidateOperations({ candidate }: CandidateOperationsProps) {
               Edit
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
-           onSelect={() => setShowDeleteAlert(true)}>
-              Invite
+          <DropdownMenuItem onSelect={() => setShowDeleteAlert(true)}>
+            Invite
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

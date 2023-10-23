@@ -1,6 +1,7 @@
-import { prisma } from "~/server/db";
 import { CandidateOnAssessmentStatus, type Prisma } from "@prisma/client";
 import type { User } from "next-auth";
+
+import { prisma } from "~/server/db";
 
 export async function findInvitedCandidate(
   user: User,
@@ -72,11 +73,23 @@ export async function findCandidateByUserId(userId) {
     },
   });
 }
+export async function findOneById(id, organizationId?) {
+  return await prisma.candidate.findFirst({
+    where: { id, organizationId },
+  });
+}
 
-export async function findById(id) {
+export type CandidateFullData = Prisma.PromiseReturnType<typeof findByIdFull>;
+export async function findByIdFull(id, organizationId?) {
   return await prisma.candidate.findFirst({
     where: {
       id,
+      organizationId,
+    },
+    include: {
+      submissions: {
+        include: { review: true, contribution: true, assessment: true },
+      },
     },
   });
 }
@@ -85,7 +98,7 @@ export async function findCandidatesByAssessment(assessmentId) {
   return await prisma.candidate.findMany({
     where: {
       candidatesOnAssessments: {
-        every: { assessmentId: assessmentId },
+        some: { assessmentId: assessmentId },
       },
     },
   });

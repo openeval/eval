@@ -1,19 +1,11 @@
 "use client";
+
 import ReactApexChart from "react-apexcharts";
 
 const Pie = ({ series, labels }) => {
   return (
     <ReactApexChart
       options={{
-        // labels: [
-        //   "Code Quality",
-        //   "Functionality and Purpose",
-        //   "Testing",
-        //   "Documentation",
-        //   "Consistency and Style",
-        //   "Dependencies and Compatibility",
-        //   "Security and Performance",
-        // ],
         labels,
         chart: {
           type: "donut",
@@ -21,7 +13,6 @@ const Pie = ({ series, labels }) => {
         },
         stroke: {
           width: 4,
-          //   show: false,
         },
         legend: {
           show: false,
@@ -42,9 +33,6 @@ const Pie = ({ series, labels }) => {
                 name: {
                   show: true,
                   fontSize: "0.5rem",
-                  formatter(val) {
-                    return val;
-                  },
                 },
                 value: {
                   show: true,
@@ -73,17 +61,7 @@ const Pie = ({ series, labels }) => {
           },
         ],
       }}
-      //   series={[44, 2]}
       series={series}
-      //   labels={[
-      //     "Code Quality",
-      //     "Functionality and Purpose",
-      //     "Testing",
-      //     "Documentation",
-      //     "Consistency and Style",
-      //     "Dependencies and Compatibility",
-      //     "Security and Performance",
-      //   ]}
       type="donut"
     />
   );

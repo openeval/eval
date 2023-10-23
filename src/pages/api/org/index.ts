@@ -1,13 +1,12 @@
+import { MembershipRole } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { authOptions } from "~/server/auth";
 import { getServerSession } from "next-auth/next";
-import prisma from "~/server/db";
-
+import { OrganizationCreateInputSchema, type Organization } from "prisma/zod";
+import slugify from "slugify";
 import { z } from "zod";
 
-import { type Organization, OrganizationCreateInputSchema } from "prisma/zod";
-import { MembershipRole } from "@prisma/client";
-import slugify from "slugify";
+import { authOptions } from "~/server/auth";
+import prisma from "~/server/db";
 
 interface Request extends NextApiRequest {
   body: Organization;

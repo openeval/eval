@@ -1,13 +1,14 @@
-import { Users } from "lucide-react";
-import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
-import prisma from "~/server/db";
 import { type Candidate } from "@prisma/client";
+import { Users } from "lucide-react";
+import { notFound } from "next/navigation";
+import slugify from "slugify";
+
 import { CandidateItem } from "~/components/CandidateItem";
+import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 import { CopyButton } from "~/components/ui/CopyButton";
 import { absoluteUrl } from "~/lib/utils";
-import slugify from "slugify";
-import { notFound } from "next/navigation";
+import prisma from "~/server/db";
 import { findCandidatesByAssessment } from "~/server/repositories/Candidates";
 
 const getCandidates = async (
@@ -29,6 +30,7 @@ export default async function AssessmentCandidatePage({
   params,
 }: AssessmentCandidatePageProps) {
   const candidates = await getCandidates(params.assessmentId);
+  console.log(candidates);
 
   const assessment = await fetchAssessment(params.assessmentId);
   if (!assessment) {

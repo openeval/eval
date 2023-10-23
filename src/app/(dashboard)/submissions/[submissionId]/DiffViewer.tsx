@@ -1,5 +1,7 @@
 "use client";
-import { parseDiff, Diff, Hunk, Decoration } from "react-diff-view";
+
+import { Decoration, Diff, Hunk, parseDiff } from "react-diff-view";
+
 import "react-diff-view/style/index.css";
 
 export const DiffViewer = ({ diffText }) => {
