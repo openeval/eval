@@ -12,7 +12,9 @@ import { formatDate } from "~/lib/utils";
 import { SubmissionOperations } from "./SubmissionOperation";
 
 interface SubmissionItemProps {
-  item: Prisma.SubmissionGetPayload<{ include: { review; contribution } }>;
+  item: Prisma.SubmissionGetPayload<{
+    include: { review; contribution; assessment };
+  }>;
 }
 
 export function SubmissionItem({ item }: SubmissionItemProps) {
