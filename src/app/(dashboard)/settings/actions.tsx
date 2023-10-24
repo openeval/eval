@@ -38,7 +38,7 @@ export const updateOrgAction: UpdateOrgAction = async (id, data) => {
   if (org?.createdById !== user.id) {
     return {
       success: false,
-      error: new Error("you must be the owner of the org to change it"),
+      error: createError("you must be the owner of the org to change it"),
     };
   }
 
