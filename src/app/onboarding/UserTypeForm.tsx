@@ -3,9 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserType } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { UserUpdateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -26,15 +27,14 @@ import {
 import { Label } from "~/components/ui/Label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
 import { toast } from "~/hooks/use-toast";
+import { type UpdateUserType } from "./actions";
 
-const userTypeSchema = z.object({
-  type: z.string(),
-});
+const userTypeSchema = UserUpdateInputSchema.pick({ type: true });
 
 type FormData = z.infer<typeof userTypeSchema>;
 
 type UserTypeFormProps = {
-  action: (data) => Promise<unknown>;
+  action: UpdateUserType;
 };
 
 export function UserTypeForm({ action }: UserTypeFormProps) {
@@ -45,25 +45,20 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
     defaultValues: {
       type: UserType.CANDIDATE,
     },
-    // values: { type: "candidate" },
   });
 
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
+      const res = await action(data);
+      if (res.success) {
         toast({
           title: "Success.",
           description: "account updated",
         });
-
-        await action(data);
         router.push(`/onboarding/${data.type.toLowerCase()}`);
-
-        // router go to next step "tasks", i need the id :)
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",

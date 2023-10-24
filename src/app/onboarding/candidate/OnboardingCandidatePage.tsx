@@ -2,12 +2,17 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
+import type { CreateCandidateAction } from "../actions";
 import { CandidateOnboardingForm } from "./CandidateOnboardingForm";
 import { ConnectGithubAccount } from "./ConnectGithubAccount";
 import { Success } from "./Success";
 
-//we get callback,  can we pass params ?
-export function OnboardingCandidatePage({ createCandidateAction }) {
+type OnboardingCandidatePageProps = {
+  createCandidateAction: CreateCandidateAction;
+};
+export function OnboardingCandidatePage({
+  createCandidateAction,
+}: OnboardingCandidatePageProps) {
   const router = useRouter();
   const params = useSearchParams();
   const step = params?.get("step");

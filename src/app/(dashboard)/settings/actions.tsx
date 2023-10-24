@@ -9,6 +9,7 @@ import slugify from "slugify";
 import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
+import { createError, ERROR_CODES } from "~/server/error";
 import * as orgRepo from "~/server/repositories/Organizations";
 import type { ActionResponse } from "~/types";
 
@@ -54,9 +55,16 @@ export const updateOrgAction: UpdateOrgAction = async (id, data) => {
     return { success: true, data: org };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: new Error(JSON.stringify(error.issues)) };
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
 
-    return { success: false, error: new Error("something went wrong") };
+    return { success: false, error: createError() };
   }
 };

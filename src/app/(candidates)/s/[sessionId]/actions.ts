@@ -51,7 +51,7 @@ export async function finishAssessmentSessionAction(
       data: {
         finishedAt: new Date(),
         status: AssessmentSessionStatus.FINISHED,
-        Submission: {
+        submission: {
           create: {
             candidateId: candidate.id,
             assessmentId: assessmentSession.assessment.id,

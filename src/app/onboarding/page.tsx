@@ -6,7 +6,6 @@ import { findCandidateByUserId } from "~/server/repositories/Candidates";
 import { updateUserType } from "./actions";
 import { UserTypeForm } from "./UserTypeForm";
 
-//we get callback,  can we pass params ?
 export default async function Onboarding({
   searchParams,
 }: {

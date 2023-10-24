@@ -1,21 +1,37 @@
 "use server";
 
-import { MembershipRole, type Prisma } from "@prisma/client";
+import type {
+  Candidate,
+  Organization,
+  Prisma,
+  User,
+  UserType,
+} from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
+import {
+  CandidateCreateInputSchema,
+  OrganizationCreateInputSchema,
+  UserUpdateInputSchema,
+} from "prisma/zod";
 import slugify from "slugify";
 import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
+import { createError, ERROR_CODES } from "~/server/error";
 import { create as createCandidate } from "~/server/repositories/Candidates";
+import * as orgRepo from "~/server/repositories/Organizations";
 import { update as updateUser } from "~/server/repositories/User";
+import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export async function updateUserType(data) {
+export type UpdateUserType = (data: UserType) => Promise<ActionResponse<User>>;
+
+export const updateUserType: UpdateUserType = async (data) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -26,20 +42,37 @@ export async function updateUserType(data) {
 
   const { user } = session;
 
+  if (user.completedOnboarding) {
+    return {
+      success: false,
+      error: createError("The user has completed onboarding"),
+    };
+  }
+
   try {
-    await updateUser({ id: user.id }, data);
-    return { message: "ok" };
+    data = UserUpdateInputSchema.pick({ type: true }).parse(data);
+    const upUser = await updateUser({ id: user.id }, data);
+    return { success: true, data: upUser };
   } catch (error) {
-    // TODO : how to capture errors in server actions (no documented)
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify(error.issues), { status: 422 });
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
 
-    throw new Error("something went wrong");
+    return { success: false, error: createError() };
   }
-}
+};
+export type CreateCandidateAction = (
+  data: Prisma.CandidateCreateInput,
+) => Promise<ActionResponse<Candidate>>;
 
-export async function createCandidateAction(data) {
+export const createCandidateAction: CreateCandidateAction = async (data) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -51,26 +84,41 @@ export async function createCandidateAction(data) {
   const { user } = session;
 
   try {
-    const candidate = { ...data, userId: user.id, email: user.email };
-    await createCandidate(candidate);
+    data = CandidateCreateInputSchema.parse({
+      ...data,
+      userId: user.id,
+      email: user.email,
+    });
+
+    const candidate = await createCandidate(data);
 
     await updateUser(
       { id: user.id },
       { name: `${data.name} ${data.lastName}`, completedOnboarding: true },
     );
 
-    return { message: "ok" };
+    return { success: true, data: candidate };
   } catch (error) {
-    // TODO : how to capture errors in server actions (no documented)
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify(error.issues), { status: 422 });
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
 
-    throw new Error("something went wrong");
+    return { success: false, error: { message: "something went wrong" } };
   }
-}
+};
 
-export async function createOrgAction(data: Prisma.OrganizationCreateInput) {
+export type CreateOrgAction = (
+  data: Pick<Prisma.OrganizationCreateInput, "name">,
+) => Promise<ActionResponse<Organization>>;
+
+export const createOrgAction: CreateOrgAction = async (data) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -81,22 +129,21 @@ export async function createOrgAction(data: Prisma.OrganizationCreateInput) {
 
   const { user } = session;
 
+  if (user.activeOrgId) {
+    return {
+      success: false,
+      error: createError("The user already has an organization"),
+    };
+  }
+
   try {
-    // TODO: add validations
-    const org = await prisma.organization.create({
-      data: {
-        ...data,
-        slug: slugify(data.name),
-        createdBy: { connect: { id: user.id } },
-        members: {
-          create: {
-            userId: user.id,
-            role: MembershipRole.OWNER,
-            accepted: true,
-          },
-        },
-      },
+    data = OrganizationCreateInputSchema.parse({
+      ...data,
+      slug: slugify(data.name),
+      createdBy: { connect: { id: user.id } },
     });
+
+    const org = await orgRepo.create(data, user);
 
     if (org) {
       // set active org to current created
@@ -106,14 +153,19 @@ export async function createOrgAction(data: Prisma.OrganizationCreateInput) {
       });
     }
 
-    return { message: "ok" };
+    return { success: true, data: org };
   } catch (error) {
-    console.log(error);
-    // TODO : how to capture errors in server actions (no documented)
     if (error instanceof z.ZodError) {
-      return new Response(JSON.stringify(error.issues), { status: 422 });
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
 
-    throw new Error("something went wrong");
+    return { success: false, error: createError() };
   }
-}
+};

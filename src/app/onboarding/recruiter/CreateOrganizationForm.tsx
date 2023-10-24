@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type Prisma from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { OrganizationCreateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -27,14 +27,13 @@ import {
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
 import { toast } from "~/hooks/use-toast";
+import { type CreateOrgAction } from "../actions";
 
 type CreateOrganizationFormProps = React.HTMLAttributes<HTMLDivElement> & {
-  action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
+  action: CreateOrgAction;
 };
 
-const orgSchema = z.object({
-  name: z.string(),
-});
+const orgSchema = OrganizationCreateInputSchema.pick({ name: true });
 
 type FormData = z.infer<typeof orgSchema>;
 
@@ -49,14 +48,18 @@ export function CreateOrganizationForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
-        await props.action(data);
+      const res = await props.action(data);
+      if (res.success) {
+        toast({
+          title: "Success!",
+          description: "Organization created",
+        });
         router.push("/");
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      } else {
+        console.log(res.error);
         toast({
           title: "Something went wrong.",
-          description: "Please try again.",
+          description: res.error.message,
           variant: "destructive",
         });
       }
