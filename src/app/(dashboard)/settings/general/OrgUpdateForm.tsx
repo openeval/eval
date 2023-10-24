@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type Prisma from "@prisma/client";
 import type { Organization } from "@prisma/client";
+import { OrganizationUpdateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -26,44 +26,26 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
-import { toast } from "~/hooks/use-toast";
 
-type OrgUpdateFormProps = React.HTMLAttributes<HTMLDivElement> & {
-  org: Partial<Organization>;
-  onSuccess?: () => void;
-  action: (id: string, data: Partial<Prisma.Candidate>) => Promise<unknown>;
+type OrgUpdateFormProps = React.HTMLAttributes<HTMLFormElement> & {
+  defaultValues: Organization;
+  onSubmit: (data: FormData) => void;
+  isLoading?: boolean;
 };
 
-const orgSchema = z.object({
-  name: z.string(),
-});
+const schema = OrganizationUpdateInputSchema;
 
-type FormData = z.infer<typeof orgSchema>;
+type FormData = z.infer<typeof schema>;
 
-export function OrgUpdateForm({ org, ...props }: OrgUpdateFormProps) {
+export function OrgUpdateForm({
+  defaultValues,
+  isLoading,
+  onSubmit,
+}: OrgUpdateFormProps) {
   const form = useForm<FormData>({
-    resolver: zodResolver(orgSchema),
-    defaultValues: org,
+    resolver: zodResolver(schema),
+    defaultValues: defaultValues,
   });
-  const [isLoading, startActionTransition] = React.useTransition();
-
-  async function onSubmit(data: FormData) {
-    startActionTransition(async () => {
-      try {
-        await props.action(org.id as string, data);
-        if (typeof props?.onSuccess === "function") {
-          props.onSuccess();
-        }
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
-        toast({
-          title: "Something went wrong.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
-      }
-    });
-  }
 
   return (
     <Form {...form}>

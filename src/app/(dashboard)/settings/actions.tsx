@@ -1,6 +1,7 @@
 "use server";
+"use only-server";
 
-import type { Prisma } from "@prisma/client";
+import type { Organization, Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { OrganizationUpdateInputSchema } from "prisma/zod";
@@ -9,11 +10,14 @@ import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
 import * as orgRepo from "~/server/repositories/Organizations";
+import type { ActionResponse } from "~/types";
 
-export async function updateOrgAction(
-  id: string,
+export type UpdateOrgAction = (
+  id: Organization["id"],
   data: Prisma.OrganizationUpdateInput,
-) {
+) => Promise<ActionResponse<Organization>>;
+
+export const updateOrgAction: UpdateOrgAction = async (id, data) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -31,7 +35,10 @@ export async function updateOrgAction(
   }
 
   if (org?.createdById !== user.id) {
-    return { error: "you must be the owner of the org to change it" };
+    return {
+      success: false,
+      error: new Error("you must be the owner of the org to change it"),
+    };
   }
 
   try {
@@ -44,13 +51,12 @@ export async function updateOrgAction(
       },
     );
 
-    return org;
+    return { success: true, data: org };
   } catch (error) {
-    // TODO : how to capture errors in server actions (no documented)
     if (error instanceof z.ZodError) {
-      return JSON.stringify(error.issues), { status: 422 };
+      return { success: false, error: new Error(JSON.stringify(error.issues)) };
     }
 
-    throw new Error("something went wrong");
+    return { success: false, error: new Error("something went wrong") };
   }
-}
+};

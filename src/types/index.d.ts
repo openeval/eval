@@ -14,3 +14,9 @@ export type SidebarNavItem = {
       items: NavLink[];
     }
 );
+
+export type ActionResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: Error;
+};
