@@ -1,12 +1,9 @@
 import { GitBranch } from "lucide-react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
-import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
-import { cn } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
 import { findAllForList } from "~/server/repositories/Candidates";
 import { columns } from "./columns";
@@ -37,12 +34,6 @@ export default async function CandidatesPage() {
             Candidates
           </h1>
         </div>
-        {/* <Link
-          href={"/candidates/add"}
-          className={cn(buttonVariants({ variant: "default" }))}
-        >
-          Invite Candidate
-        </Link> */}
       </div>
 
       <Separator className="my-4" />

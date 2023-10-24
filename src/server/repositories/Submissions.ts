@@ -4,7 +4,7 @@ import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
 
 export async function findOneById(id) {
-  return await prisma.submission.findFirst(id);
+  return await prisma.submission.findFirst({ where: id });
 }
 
 export async function findAll() {
