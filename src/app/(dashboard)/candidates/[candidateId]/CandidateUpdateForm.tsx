@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type Prisma from "@prisma/client";
-import { Candidate } from "@prisma/client";
+import type { Candidate } from "@prisma/client";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

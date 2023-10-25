@@ -1,5 +1,4 @@
 export const ERROR_CODES = {
-  PARSE_ERROR: 400,
   BAD_REQUEST: 400,
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500,
@@ -28,3 +27,17 @@ export class ApiError extends Error {
     this.statusCode = statusCode;
   }
 }
+
+type CreateError = (
+  message?: string,
+  errorCode?: API_ERROR_CODE_KEY,
+  extra?: unknown,
+) => { message; errorCode; extra: unknown };
+
+export const createError: CreateError = (
+  message = "Something went wrong",
+  errorCode = ERROR_CODES.BAD_REQUEST,
+  extra?,
+) => {
+  return { message, errorCode, extra };
+};

@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { OrganizationCreateInputSchema } from "prisma/zod";
+import type { Organization } from "@prisma/client";
+import { OrganizationUpdateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -26,45 +26,26 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
-import { toast } from "~/hooks/use-toast";
-import { type CreateOrgAction } from "../actions";
 
-type CreateOrganizationFormProps = React.HTMLAttributes<HTMLDivElement> & {
-  action: CreateOrgAction;
+type OrgUpdateFormProps = React.HTMLAttributes<HTMLFormElement> & {
+  defaultValues: Organization;
+  onSubmit: (data: FormData) => void;
+  isLoading?: boolean;
 };
 
-const orgSchema = OrganizationCreateInputSchema.pick({ name: true });
+const schema = OrganizationUpdateInputSchema;
 
-type FormData = z.infer<typeof orgSchema>;
+type FormData = z.infer<typeof schema>;
 
-export function CreateOrganizationForm({
-  ...props
-}: CreateOrganizationFormProps) {
+export function OrgUpdateForm({
+  defaultValues,
+  isLoading,
+  onSubmit,
+}: OrgUpdateFormProps) {
   const form = useForm<FormData>({
-    resolver: zodResolver(orgSchema),
+    resolver: zodResolver(schema),
+    defaultValues: defaultValues,
   });
-  const router = useRouter();
-  const [isLoading, startActionTransition] = React.useTransition();
-
-  async function onSubmit(data: FormData) {
-    startActionTransition(async () => {
-      const res = await props.action(data);
-      if (res.success) {
-        toast({
-          title: "Success!",
-          description: "Organization created",
-        });
-        router.push("/");
-      } else {
-        console.log(res.error);
-        toast({
-          title: "Something went wrong.",
-          description: res.error.message,
-          variant: "destructive",
-        });
-      }
-    });
-  }
 
   return (
     <Form {...form}>
@@ -92,10 +73,8 @@ export function CreateOrganizationForm({
               )}
             />
           </CardContent>
-          <CardFooter>
-            <Button className="w-full" disabled={isLoading}>
-              Continue
-            </Button>
+          <CardFooter className="justify-end">
+            <Button disabled={isLoading}>Save</Button>
           </CardFooter>
         </Card>
       </form>

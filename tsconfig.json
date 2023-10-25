@@ -19,8 +19,10 @@
       }
     ],
     "strictNullChecks": true,
+    "baseUrl": "./src",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./*"],
+      "prisma/*": ["../prisma/*"]
     }
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],

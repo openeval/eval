@@ -16,7 +16,6 @@ import {
 export function ConnectGithubAccount() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get("callbackUrl");
-  console.log(callbackUrl);
   return (
     <Card>
       <CardHeader>

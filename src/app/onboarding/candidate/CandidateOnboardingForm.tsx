@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type Prisma from "@prisma/client";
+import { CandidateCreateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -26,16 +26,14 @@ import {
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
 import { toast } from "~/hooks/use-toast";
+import type { CreateCandidateAction } from "../actions";
 
 type CandidateOnboardingFormProps = {
   onSuccess: () => void;
-  action: (data: Partial<Prisma.Candidate>) => Promise<unknown>;
+  action: CreateCandidateAction;
 };
 
-const candidateSchema = z.object({
-  name: z.string(),
-  lastName: z.string(),
-});
+const candidateSchema = CandidateCreateInputSchema;
 
 type FormData = z.infer<typeof candidateSchema>;
 

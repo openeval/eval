@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
+import { getCurrentUser } from "~/server/auth";
 import { findAllWithChildren } from "~/server/repositories/EvaluationCriteria";
 import * as submissionRepo from "~/server/repositories/Submissions";
 import { submitReviewAction } from "../actions";
@@ -13,6 +14,12 @@ type SubmissionDetailPageProps = {
 };
 
 export default async function Page({ params }: SubmissionDetailPageProps) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   // need to get this endpoint for changes
 
   const submission = await submissionRepo.findByIdFull(params.submissionId, {

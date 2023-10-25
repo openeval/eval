@@ -2,6 +2,7 @@ import { Users } from "lucide-react";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
+import { getCurrentUser } from "~/server/auth";
 import prisma from "~/server/db";
 import { CandidateItem } from "./CandidateItem";
 
@@ -27,6 +28,12 @@ type AssessmentCandidatePageProps = {
 export default async function AssessmentCandidatePage({
   params,
 }: AssessmentCandidatePageProps) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const candidates = await getCandidates(params.assessmentId);
   return (
     <>
