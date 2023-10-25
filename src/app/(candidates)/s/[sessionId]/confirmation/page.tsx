@@ -1,12 +1,12 @@
-import { notFound,redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
+import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
 
 interface PageProps {
   params: { sessionId: string };
 }
-import { getCurrentUser } from "~/server/auth";
 
 const getAssessmentSessionById = cache(async (id: string) => {
   return await prisma.assessmentSession.findFirst({
@@ -23,9 +23,9 @@ export default async function Page({ params }: PageProps) {
     redirect("/login");
   }
 
-  const session = await getAssessmentSessionById(params.sessionId);
+  const assessmentSession = await getAssessmentSessionById(params.sessionId);
 
-  if (!session) {
+  if (!assessmentSession) {
     notFound();
   }
 
