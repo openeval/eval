@@ -1,10 +1,11 @@
 "use client";
 
-import type { Organization } from "@prisma/client";
+import type { Organization, OrganizationUpdateInput } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import type { OrganizationUpdateInput } from "prisma/zod";
 import * as React from "react";
 
+import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { toast } from "~/hooks/use-toast";
 import type { UpdateOrgAction } from "../actions";
 import { OrgUpdateForm } from "./OrgUpdateForm";
@@ -42,12 +43,17 @@ export const GeneralSettingsPage = ({
   };
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <OrgUpdateForm
-        onSubmit={onSubmitOrgUpdateForm}
-        isLoading={isLoading}
-        defaultValues={data.org}
-      />
+    <div>
+      <Typography variant={"h1"}>General</Typography>
+      <Separator className="my-4" />
+
+      <div className=" mt-4">
+        <OrgUpdateForm
+          onSubmit={onSubmitOrgUpdateForm}
+          isLoading={isLoading}
+          defaultValues={data.org}
+        />
+      </div>
     </div>
   );
 };

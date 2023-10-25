@@ -8,7 +8,7 @@ const Header = async () => {
   const user = await getCurrentUser();
   return (
     <header className="fixed z-10 w-full border-b border-b-slate-200  backdrop-blur-md dark:border-b-slate-700 dark:bg-slate-900">
-      <div className="flex h-16 items-center px-8">
+      <div className="container flex h-16 items-center">
         <div className="flex">
           <Link href="/" className="h-12 w-32">
             <Image

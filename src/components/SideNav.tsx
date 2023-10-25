@@ -51,11 +51,12 @@ function NavItem({ item, isActive, isChild }: NavItemProps) {
             "group flex items-center rounded-md px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100",
             isActive ? "bg-slate-200" : "transparent",
             item.disabled && "cursor-not-allowed opacity-80",
-            isChild && "pl-8",
+            isChild && "ml-8",
           )}
         >
-          <Icon className="mr-2 h-4 w-4" />
-          <span>{item.title}</span>
+          {item.icon && <Icon className="h-4 w-4" />}
+
+          <span className="ml-4">{item.title}</span>
         </div>
       </Link>
       {item.children &&

@@ -109,7 +109,7 @@ export function InviteCandidateForm({
               )}
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="justify-end">
             <Button type="submit" disabled={isLoading}>
               Invite
             </Button>

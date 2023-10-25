@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
+import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { updateAssessment } from "../actions";
 import { AssessmentRoleForm } from "./AssessmentRoleForm";
@@ -16,6 +17,12 @@ async function fetchAssessment(id: string) {
 export default async function AssessmentDetailPage({
   params,
 }: AssessmentDetailPageProps) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const assessment = await fetchAssessment(params.assessmentId);
   if (!assessment) {
     notFound();
