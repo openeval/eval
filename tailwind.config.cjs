@@ -10,12 +10,21 @@ const config = {
   theme: {
     container: {
       center: true,
-      padding: "1.5rem",
-      screens: {
-        "2xl": "1360px",
+      padding: {
+        DEFAULT: "0.5rem",
+        xl: "5rem",
+        "2xl": "6rem",
       },
     },
     extend: {
+      container: (theme) => {
+        return {
+          screens: {
+            ...theme("screens"),
+            "2xl": "1360px",
+          },
+        };
+      },
       colors: {
         brandblue: colors.blue[500],
         brandred: colors.red[500],

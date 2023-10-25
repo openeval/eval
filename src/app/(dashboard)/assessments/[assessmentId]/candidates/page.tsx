@@ -2,6 +2,7 @@ import { Users } from "lucide-react";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
+import { getCurrentUser } from "~/server/auth";
 import prisma from "~/server/db";
 import { CandidateItem } from "./CandidateItem";
 
