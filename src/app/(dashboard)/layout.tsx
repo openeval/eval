@@ -37,7 +37,7 @@ export default async function Layout({
         </aside>
         <main
           id="main-content"
-          className="relative h-screen w-full overflow-x-hidden py-8 lg:ml-48"
+          className="relative h-full w-full overflow-x-hidden py-8 md:px-2 lg:ml-48"
         >
           {children}
         </main>

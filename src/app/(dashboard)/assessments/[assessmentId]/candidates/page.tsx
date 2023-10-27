@@ -1,4 +1,5 @@
 import { Users } from "lucide-react";
+import { redirect } from "next/navigation";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
@@ -39,7 +40,7 @@ export default async function AssessmentCandidatePage({
     <>
       <div className="mb-8 flex justify-between px-2">
         <div className="grid gap-1">
-          <p className="text-neutral-500">
+          <p className="text-slate-500">
             Invite and follow candidates progress
           </p>
         </div>
@@ -47,7 +48,7 @@ export default async function AssessmentCandidatePage({
       </div>
 
       {candidates && candidates.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+        <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
           {candidates.map((item) => (
             <CandidateItem
               key={item.candidate.id}

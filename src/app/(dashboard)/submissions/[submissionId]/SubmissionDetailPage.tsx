@@ -23,22 +23,19 @@ import Markdown from "~/components/Markdown";
 import { Badge } from "~/components/ui/Badge";
 import { Card, CardContent, CardHeader } from "~/components/ui/Card";
 import { Separator } from "~/components/ui/Separator";
+import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
+import type { SubmissionFullData } from "~/server/repositories/Submissions";
 import Pie from "./Pie";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
 
-type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
-  include: { children: true };
-}>;
-
 type SubmissionDetailPageProps = {
+  actions: { submitReviewAction };
+
   submitReviewAction: (
     data: Partial<Prisma.EvaluationCriteriaCreateInput>,
   ) => Promise<unknown>;
   data: {
-    submission: Submission & {
-      contribution: Contribution;
-      review: Review;
-    };
+    submission: NonNullable<SubmissionFullData>;
     evaluationCriterias: EvaluationCriteriaWithChildren;
   };
   diffText: string;

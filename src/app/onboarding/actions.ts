@@ -137,13 +137,13 @@ export const createOrgAction: CreateOrgAction = async (data) => {
   }
 
   try {
-    data = OrganizationCreateInputSchema.parse({
+    const createDto = OrganizationCreateInputSchema.parse({
       ...data,
       slug: slugify(data.name),
       createdBy: { connect: { id: user.id } },
     });
 
-    const org = await orgRepo.create(data, user);
+    const org = await orgRepo.create(createDto, user);
 
     if (org) {
       // set active org to current created

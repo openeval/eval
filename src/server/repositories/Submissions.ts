@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma, Submission } from "@prisma/client";
 
 import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
@@ -32,8 +32,9 @@ export async function findByAssessmentId(assessmentId: string) {
   });
 }
 
+export type SubmissionFullData = Prisma.PromiseReturnType<typeof findByIdFull>;
 export async function findByIdFull(
-  id,
+  id: Submission["id"],
   withOptions: { plotReviewsData?: boolean } = {},
 ) {
   const data = await prisma.submission.findFirst({

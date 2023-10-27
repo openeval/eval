@@ -24,7 +24,7 @@ export default function DashboardLoading() {
       </div>
 
       <Separator className="my-4" />
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+      <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
         <AssessmentItem.Skeleton />
         <AssessmentItem.Skeleton />
         <AssessmentItem.Skeleton />

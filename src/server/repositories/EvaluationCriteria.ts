@@ -1,8 +1,15 @@
+import { type Prisma } from "@prisma/client";
+
 import { prisma } from "~/server/db";
 
 // returns only one hierarchy level
 // only native queries support recursive fetching
 // https://github.com/prisma/prisma/issues/3725
+
+export type EvaluationCriteriaWithChildren = Prisma.PromiseReturnType<
+  typeof findAllWithChildren
+>;
+
 export async function findAllWithChildren() {
   return await prisma.evaluationCriteria.findMany({
     where: { parentId: null },
@@ -23,6 +30,10 @@ function calculateScore(criterion, review) {
 
 function calculateTotalScore(criteriaData, review: number[]) {
   let totalScore = 0;
+  if (review.length === 0) {
+    return totalScore;
+  }
+
   criteriaData.forEach((criterion) => {
     const criterionScore = calculateScore(criterion, review);
 

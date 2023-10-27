@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { prisma } from "~/server/db";
-import { updateAssessment } from "../../actions";
+import { updateAssessmentAction } from "../../actions";
 import { AssessmentRoleForm } from "./AssessmentRoleForm";
 
 type AssessmentDetailPageProps = {
@@ -23,7 +23,10 @@ export default async function AssessmentDetailPage({
 
   return (
     <div>
-      <AssessmentRoleForm assessment={assessment} action={updateAssessment} />
+      <AssessmentRoleForm
+        assessment={assessment}
+        action={updateAssessmentAction}
+      />
     </div>
   );
 }

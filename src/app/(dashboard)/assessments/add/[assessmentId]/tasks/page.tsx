@@ -6,7 +6,7 @@ import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { Separator } from "~/components/ui/Separator";
 import { getCurrentUser } from "~/server/auth";
 import { searchIssues } from "~/server/github";
-import { updateAssessment } from "../../../actions";
+import { updateAssessmentAction } from "../../../actions";
 import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
 
 const getIssues = cache(
@@ -27,18 +27,18 @@ export default async function TaskPage({
     redirect("/login");
   }
 
-  const issues = await getIssues(searchParams);
+  const { items: issues } = await getIssues(searchParams);
   return (
     <div>
       <div className="mb-8 flex justify-between px-2">
-        <p className="text-neutral-500">
+        <p className="text-slate-500">
           Open source issues candidates could solve in the assessment
         </p>{" "}
       </div>
       <SearchIssuesBar />
       <Separator className="my-4" />
 
-      <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+      <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
         {issues.map((item) => (
           <OpenTaskItem key={item.id} item={item} />
         ))}
@@ -46,7 +46,7 @@ export default async function TaskPage({
 
       <div className="mt-8 flex w-full">
         <SaveAssessmentIssuesButton
-          action={updateAssessment}
+          action={updateAssessmentAction}
           assessmentId={assessmentId}
         />
       </div>
