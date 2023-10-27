@@ -1,6 +1,6 @@
 "use server";
 
-import { AssessmentStatus, type Prisma } from "@prisma/client";
+import { Assessment, AssessmentStatus, type Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -13,12 +13,14 @@ import {
 import { UpdateAssessmentDto } from "~/dto/UpdateAssessmentDto";
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
+import { createError, ERROR_CODES } from "~/server/error";
+import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export async function createAssessment(data: CreateAssessmentDtoType) {
+export async function createAssessmentAction(data: CreateAssessmentDtoType) {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -43,21 +45,32 @@ export async function createAssessment(data: CreateAssessmentDtoType) {
       },
     });
 
-    return assessment;
-  } catch (e) {
-    console.log(e);
-    if (e instanceof z.ZodError) {
-      return JSON.stringify(e.issues);
+    return { success: true, data: assessment };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
 
-    throw new Error("something went wrong");
+    return { success: false, error: createError() };
   }
 }
 
-export async function updateAssessment(
+export type UpdateAssessmentAction = (
   where: Prisma.AssessmentWhereUniqueInput,
   data: Prisma.AssessmentUpdateInput,
-) {
+) => Promise<ActionResponse<Assessment>>;
+
+export const updateAssessmentAction: UpdateAssessmentAction = async (
+  where,
+  data,
+) => {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -69,7 +82,7 @@ export async function updateAssessment(
       ...data,
     });
 
-    await prisma.assessment.update({
+    const assessment = await prisma.assessment.update({
       where: { ...where },
       data,
     });
@@ -77,12 +90,19 @@ export async function updateAssessment(
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
     revalidatePath("/assessments/[assessmentId]");
-  } catch (e) {
-    console.log(e);
-    if (e instanceof z.ZodError) {
-      return JSON.stringify(e.issues);
+    return { success: true, data: assessment };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
-    // TODO : how to capture errors in server actions (no documented)
-    throw new Error("something went wrong");
+
+    return { success: false, error: createError() };
   }
-}
+};

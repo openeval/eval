@@ -41,9 +41,7 @@ export default async function AssessmentCandidatePage({
     <>
       <div className="mb-8 flex justify-between px-2">
         <div className="grid gap-1">
-          <p className="text-neutral-500">
-            Invite candidates to the assessment
-          </p>
+          <p className="text-slate-500">Invite candidates to the assessment</p>
 
           <div className="mt-4 flex items-center justify-between">
             <div className="mr-2">Public url</div>
@@ -64,7 +62,7 @@ export default async function AssessmentCandidatePage({
       </div>
 
       {candidates && candidates.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+        <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
           {candidates.map((candidate) => (
             <CandidateItem
               key={candidate.id}

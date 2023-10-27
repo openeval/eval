@@ -8,7 +8,7 @@ import { SubmissionDetailPage } from "./SubmissionDetailPage";
 
 type SubmissionDetailPageProps = {
   params: {
-    assessmentId: string;
+    assessmentId?: string;
     submissionId: string;
   };
 };
@@ -19,8 +19,6 @@ export default async function Page({ params }: SubmissionDetailPageProps) {
   if (!user) {
     redirect("/login");
   }
-
-  // need to get this endpoint for changes
 
   const submission = await submissionRepo.findByIdFull(params.submissionId, {
     plotReviewsData: true,

@@ -1,10 +1,10 @@
-import { createAssessment } from "../actions";
+import { createAssessmentAction } from "../actions";
 import { RoleStageForm } from "./RoleStageForm";
 
 export default function AddAssessmentPage() {
   return (
     <div>
-      <RoleStageForm action={createAssessment} />
+      <RoleStageForm action={createAssessmentAction} />
     </div>
   );
 }

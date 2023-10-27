@@ -46,7 +46,19 @@ export const columns: ColumnDef<Item>[] = [
       return value.includes(row.getValue(id));
     },
   },
-
+  {
+    accessorKey: "_count.submissions",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Submissions" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">
+          {row.original._count.submissions}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "createdAt",
     header: ({ column }) => (

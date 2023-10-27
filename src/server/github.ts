@@ -21,11 +21,15 @@ export async function searchIssues({ querySearch }: SearchIssuesParams) {
   const defaulQuery = `type:issue no:assignee ${
     siteConfig.github.searchQueryString
   } ${(querySearch as string) || ""}`;
-  const { data } = await octokit.rest.search.issuesAndPullRequests({
-    q: defaulQuery,
-  });
+  try {
+    const { data } = await octokit.rest.search.issuesAndPullRequests({
+      q: defaulQuery,
+    });
 
-  return data.items;
+    return data;
+  } catch (e) {
+    return { items: [], total_count: 0 };
+  }
 }
 
 export async function searchRepos(searchQueryString) {

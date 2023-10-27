@@ -45,6 +45,7 @@ export function OrgUpdateForm({
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
+    shouldUnregister: true,
   });
 
   return (

@@ -118,6 +118,7 @@ export async function findAllForList(where: Prisma.CandidateWhereInput) {
       lastName: true,
       email: true,
       createdAt: true,
+      _count: { select: { submissions: true } },
     },
     orderBy: {
       createdAt: "desc",

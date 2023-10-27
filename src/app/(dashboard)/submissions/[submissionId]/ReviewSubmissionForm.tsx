@@ -28,18 +28,14 @@ import {
 } from "~/components/ui/Form";
 import { Textarea } from "~/components/ui/Textarea";
 import { toast } from "~/hooks/use-toast";
-
-// import { Prisma } from "@prisma/client";
-
-type EvaluationCriteriaWithChildren = Prisma.EvaluationCriteriaGetPayload<{
-  include: { children: true };
-}>;
+import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
+import type { SubmitReviewAction } from "../actions";
 
 type ReviewSubmissionFormProps = {
-  submission: Partial<Submission>;
+  submission: Submission;
   onSuccess: () => void;
-  evaluationCriterias: EvaluationCriteriaWithChildren[];
-  action: (data: Partial<Prisma.EvaluationCriteria>) => Promise<unknown>;
+  evaluationCriterias: EvaluationCriteriaWithChildren;
+  action: SubmitReviewAction;
 };
 
 const formSchema = z.object({
@@ -61,7 +57,7 @@ export function ReviewSubmissionForm({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      evaluationCriterias: [], //TODO: set this correctly
+      evaluationCriterias: [],
     },
   });
 
@@ -69,10 +65,10 @@ export function ReviewSubmissionForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
-        await props.action(submission.id, data);
-        props.onSuccess();
-      } catch (e) {
+      const res = await props.action(submission.id, data);
+      if (res.success) {
+        typeof props.onSuccess === "function" && props.onSuccess();
+      } else {
         // TODO: how to handle errors in with server actions
         toast({
           title: "Something went wrong.",
