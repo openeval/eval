@@ -52,6 +52,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
       const res = await action(data);
+      console.log(res);
       if (res.success) {
         toast({
           title: "Success.",

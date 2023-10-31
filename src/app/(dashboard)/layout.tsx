@@ -14,12 +14,17 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+
   if (!user) {
     redirect("/login");
   }
 
   if (user.type !== UserType.RECRUITER) {
     redirect("/d");
+  }
+
+  if (!user.activeOrgId) {
+    redirect("/onboarding");
   }
 
   return (

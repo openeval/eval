@@ -11,7 +11,7 @@ export default async function Onboarding() {
     redirect("/login");
   }
 
-  if (user.completedOnboarding) {
+  if (user.completedOnboarding && user.activeOrgId) {
     redirect("/");
   }
 

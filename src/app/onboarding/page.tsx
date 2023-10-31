@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
 import { findCandidateByUserId } from "~/server/repositories/Candidates";
-import { updateUserType } from "./actions";
+import { updateUserTypeAction } from "./actions";
 import { UserTypeForm } from "./UserTypeForm";
 
 export default async function Onboarding({
@@ -17,7 +17,7 @@ export default async function Onboarding({
     redirect("/login");
   }
 
-  if (user.completedOnboarding) {
+  if (user.completedOnboarding && user.activeOrgId) {
     redirect("/");
   }
 
@@ -45,7 +45,7 @@ export default async function Onboarding({
 
   return (
     <div>
-      <UserTypeForm action={updateUserType} />
+      <UserTypeForm action={updateUserTypeAction} />
     </div>
   );
 }
