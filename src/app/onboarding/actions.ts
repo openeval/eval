@@ -29,9 +29,11 @@ import type { ActionResponse } from "~/types";
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export type UpdateUserType = (data: UserType) => Promise<ActionResponse<User>>;
+export type UpdateUserTypeAction = (
+  data: UserType,
+) => Promise<ActionResponse<User>>;
 
-export const updateUserType: UpdateUserType = async (data) => {
+export const updateUserTypeAction: UpdateUserTypeAction = async (data) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -42,15 +44,9 @@ export const updateUserType: UpdateUserType = async (data) => {
 
   const { user } = session;
 
-  if (user.completedOnboarding) {
-    return {
-      success: false,
-      error: createError("The user has completed onboarding"),
-    };
-  }
-
   try {
-    data = UserUpdateInputSchema.pick({ type: true }).parse(data);
+    UserUpdateInputSchema.pick({ type: true }).parse(data);
+
     const upUser = await updateUser({ id: user.id }, data);
     return { success: true, data: upUser };
   } catch (error) {

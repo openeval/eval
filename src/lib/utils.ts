@@ -101,3 +101,13 @@ export function truncateString(str: string, num) {
     return str;
   }
 }
+
+export function toStringUser(user, displayMode = "full") {
+  switch (displayMode) {
+    case "full":
+      return `${user.name || user.email}`;
+
+    case "short":
+      return `${user.name ? user.name.charAt(0) : user.email.charAt(0)}`;
+  }
+}

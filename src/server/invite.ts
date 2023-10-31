@@ -1,10 +1,8 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import type { Assessment } from "@prisma/client";
 import { type Theme } from "next-auth";
 import type { Provider } from "next-auth/providers";
 import EmailProvider, { type EmailConfig } from "next-auth/providers/email";
 import { createTransport } from "nodemailer";
-import slugify from "slugify";
 
 import { env } from "~/env.mjs";
 import { absoluteUrl, isObject } from "~/lib/utils";
@@ -86,14 +84,14 @@ export const inviteEmailProvider = EmailProvider({
 });
 
 async function sendVerificationRequest(params) {
-  const { identifier, url, provider, theme } = params;
+  const { identifier, url, provider, theme, subject } = params;
   const { host } = new URL(url);
-  // NOTE: You are not required to use `nodemailer`, use whatever you want.
   const transport = createTransport(provider.server);
+
   const result = await transport.sendMail({
     to: identifier,
     from: provider.from,
-    subject: `You have a new assessment invitation`,
+    subject: subject || `you have a new invitation`,
     text: text({ url, host }),
     html: html({ url, host, theme }),
   });
@@ -131,7 +129,7 @@ function html(params: { url: string; host: string; theme: Theme }) {
       <tr>
         <td align="center"
           style="padding: 10px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-          You have a new invitation to complete an assessment
+          You have a new invitation
         </td>
       </tr>
       <tr>
@@ -155,29 +153,35 @@ function text({ url, host }: { url: string; host: string }) {
   return `Sign in to ${host}\n${url}\n\n`;
 }
 
+type SendInvitationEmail = {
+  toEmail: string;
+  subject: string;
+  emailTemplate: string;
+  callbackUrl?: string;
+  urlSearchParams?: Record<string, string | null>;
+  emailVariables?: Record<string, string | null>;
+};
+
 /**
  * Starts an e-mail login flow, by generating a token,
  * and sending it to the user's e-mail (with the help of a DB adapter)
  */
-export default async function sendInvitationEmail(
-  identifier: string,
-  assessment: Assessment,
-  //   options
-): Promise<string> {
+export default async function sendInvitationEmail({
+  toEmail,
+  subject,
+  emailTemplate,
+  callbackUrl,
+  urlSearchParams,
+  emailVariables,
+}: SendInvitationEmail): Promise<string> {
   const { theme } = authOptions;
 
   const adapter = PrismaAdapter(prisma);
-
-  // users are redirected to public assessment
-  const callbackUrl = `/a/${assessment.id}/${slugify(assessment.title)}`;
-
   const url = absoluteUrl("/api/auth");
-
   const provider = parseProvider({
     provider: inviteEmailProvider,
     url,
   });
-
   const token =
     (await provider.generateVerificationToken?.()) ?? randomString(32);
 
@@ -188,10 +192,10 @@ export default async function sendInvitationEmail(
 
   // Generate a link with email, unhashed token and callback url
   const params = new URLSearchParams({
-    callbackUrl,
+    ...(callbackUrl && { callbackUrl }),
     token,
-    email: identifier,
-    assessmentId: assessment.id,
+    email: toEmail,
+    ...urlSearchParams,
   });
   const _url = `${url}/callback/${provider.id}?${params}`;
 
@@ -200,17 +204,20 @@ export default async function sendInvitationEmail(
   try {
     await Promise.all([
       provider.sendVerificationRequest({
-        identifier,
+        identifier: toEmail,
         token,
         expires,
         url: _url,
         provider,
         // @ts-expect-error we are setting theme
         theme,
+        subject,
+        emailTemplate,
+        emailVariables,
       }),
 
-      adapter?.createVerificationToken?.({
-        identifier,
+      adapter.createVerificationToken?.({
+        identifier: toEmail,
         token: await createHash(`${token}${secret}`),
         expires,
       }),
@@ -220,8 +227,6 @@ export default async function sendInvitationEmail(
     console.log("error sending mail");
   }
 
-  return `${url}/verify-request?${new URLSearchParams({
-    provider: provider.id,
-    type: provider.type,
-  })}`;
+  // return the email to authenticate user
+  return _url;
 }

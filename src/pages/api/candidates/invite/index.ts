@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
+import slugify from "slugify";
 import { z } from "zod";
 
+import { FlowTypes } from "~/config/flows";
 import { InviteCandidateSchema } from "~/dto/InviteCandidateDto";
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
@@ -74,8 +76,18 @@ export default async function handle(
         create: { candidateId: candidate.id, assessmentId: assessmentId },
       });
 
-      // TODO: create a better template
-      await sendInvitationEmail(data.email, assessment);
+      const emailSettings = {
+        toEmail: data.email,
+        subject: "You have a new assessment invitation",
+        emailTemplate: "ASSESSMENT_INVITATION",
+        callbackUrl: `/a/${assessment.id}/${slugify(assessment.title)}`,
+        urlSearchParams: {
+          flow: FlowTypes.CANDIDATE_INVITED,
+          assessmentId: assessment.id,
+        },
+      };
+
+      await sendInvitationEmail(emailSettings);
 
       return res.status(200).json(response);
     } catch (error) {

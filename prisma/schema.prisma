@@ -67,7 +67,7 @@ enum UserType {
 model User {
   id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                 String?
-  email                String?        @unique
+  email                String         @unique
   emailVerified        DateTime?      @map("email_verified")
   completedOnboarding  Boolean        @default(false) @map("onboarding_completed")
   image                String?
@@ -78,7 +78,7 @@ model User {
   memberships          Membership[]
   type                 UserType?      @map("type") //TODO: we are not discriminating by type yet
   candidate            Candidate?
-  activeOrgId          String?        @map("active_org_id") @db.Uuid
+  activeOrgId          String?        @map("active_org_id") @db.Uuid //TODO: this should be only in the sessions
   activeOrg            Organization?  @relation(fields: [activeOrgId], references: [id])
   createdCandidates    Candidate[]    @relation("userCandidateCreated")
   reviewingAssessments Assessment[]   @relation("userAssessmentReviewing")
@@ -120,22 +120,22 @@ model Organization {
 
 enum MembershipRole {
   MEMBER
-  HIRING_MANAGER
   REVIEWER
-  RECRUITER
   ADMIN
   OWNER
 }
 
 model Membership {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId         String         @map("user_id") @db.Uuid
   accepted       Boolean        @default(false)
   role           MembershipRole @map("role")
   organization   Organization   @relation(fields: [organizationId], references: [id])
   organizationId String         @map("organization_id") @db.Uuid
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now()) @map("created_at")
 
-  @@id([userId, organizationId])
+  @@unique([userId, organizationId])
   @@map("membership")
 }
 

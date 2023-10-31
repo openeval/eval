@@ -1,8 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { OrganizationCreateInputSchema } from "prisma/zod";
+import { CandidateCreateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -27,39 +26,36 @@ import {
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
 import { toast } from "~/hooks/use-toast";
-import { type CreateOrgAction } from "../actions";
+import type { CreateCandidateAction } from "../actions";
 
-type CreateOrganizationFormProps = React.HTMLAttributes<HTMLDivElement> & {
-  action: CreateOrgAction;
+type CandidateOnboardingFormProps = {
+  onSuccess: () => void;
+  action: CreateCandidateAction;
 };
 
-const orgSchema = OrganizationCreateInputSchema.pick({ name: true });
+const candidateSchema = CandidateCreateInputSchema;
 
-type FormData = z.infer<typeof orgSchema>;
+type FormData = z.infer<typeof candidateSchema>;
 
-export function CreateOrganizationForm({
+export function CandidateOnboardingForm({
   ...props
-}: CreateOrganizationFormProps) {
+}: CandidateOnboardingFormProps) {
   const form = useForm<FormData>({
-    resolver: zodResolver(orgSchema),
+    resolver: zodResolver(candidateSchema),
   });
-  const router = useRouter();
+
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      const res = await props.action(data);
-      if (res.success) {
-        toast({
-          title: "Success!",
-          description: "Organization created",
-        });
-        router.push("/");
-      } else {
-        console.log(res.error);
+      try {
+        await props.action(data);
+        props.onSuccess();
+      } catch (e) {
+        // TODO: how to handle errors in with server actions
         toast({
           title: "Something went wrong.",
-          description: res.error?.message,
+          description: "Please try again.",
           variant: "destructive",
         });
       }
@@ -71,8 +67,8 @@ export function CreateOrganizationForm({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
-            <CardTitle>My Organization</CardTitle>
-            <CardDescription></CardDescription>
+            <CardTitle>My profile</CardTitle>
+            <CardDescription>tell us about you</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
             <FormField
@@ -82,10 +78,26 @@ export function CreateOrganizationForm({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Acme Inc." {...field} />
+                    <Input placeholder="Jonh" {...field} />
                   </FormControl>
                   <FormDescription>
-                    The name of your organization.
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Doeh" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This is your public display name.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

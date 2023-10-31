@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import {
   CandidateStatus,
+  Membership,
   type User as BaseUser,
   type Candidate,
   type UserType,
@@ -28,6 +29,7 @@ import { inviteEmailProvider } from "./invite";
  */
 declare module "next-auth" {
   interface User extends BaseUser {
+    memberships: Membership;
     candidate?: Candidate;
   }
 
@@ -64,6 +66,7 @@ export const authOptions: NextAuthOptions = {
         },
         include: {
           candidate: true,
+          memberships: true,
         },
       });
 
@@ -84,6 +87,9 @@ export const authOptions: NextAuthOptions = {
           type: dbUser.type,
           completedOnboarding: dbUser.completedOnboarding,
           candidate: dbUser.candidate,
+          membership: dbUser.memberships.find(
+            (item) => item.organizationId === dbUser.activeOrgId,
+          ),
         },
       };
     },

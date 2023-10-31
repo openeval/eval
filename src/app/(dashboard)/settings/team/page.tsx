@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
+import { findAllMembershipsByOrgId } from "~/server/repositories/Membership";
 import { findOneById as findOrg } from "~/server/repositories/Organizations";
-import { updateOrgAction } from "../actions";
-import { GeneralSettingsPage } from "./GeneralSettingsPage";
+import { TeamSettingsPage } from "./TeamSettingsPage";
 
 export const metadata = {
   title: "Settings",
@@ -15,15 +15,13 @@ export default async function page() {
   if (!user) {
     redirect("/login");
   }
-  console.log(user);
 
   const org = await findOrg(user.activeOrgId);
 
   if (!org) {
     notFound();
   }
+  const memberships = await findAllMembershipsByOrgId(org.id);
 
-  return (
-    <GeneralSettingsPage data={{ org: org }} actions={{ updateOrgAction }} />
-  );
+  return <TeamSettingsPage data={{ memberships: memberships }} />;
 }
