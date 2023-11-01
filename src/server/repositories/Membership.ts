@@ -2,13 +2,13 @@ import type Prisma from "@prisma/client";
 
 import { prisma } from "~/server/db";
 
-export async function findOneById(id, organizationId?) {
+export async function findOneById(id: string, organizationId?) {
   return await prisma.membership.findFirst({
     where: { id, organizationId },
   });
 }
 
-export async function findAllMembershipsByOrgId(organizationId) {
+export async function findAllMembershipsByOrgId(organizationId: string) {
   return await prisma.membership.findMany({
     include: { user: true },
     where: { organizationId },
@@ -16,7 +16,7 @@ export async function findAllMembershipsByOrgId(organizationId) {
   });
 }
 
-export async function remove(id) {
+export async function remove(id: string) {
   return await prisma.membership.delete({
     where: { id },
   });

@@ -29,8 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/Select";
-import { roleList } from "~/config/security";
 import { toast } from "~/hooks/use-toast";
+import { roleList } from "~/lib/security";
 import { cn } from "~/lib/utils";
 import { inviteTeamMemberAction } from "./actions";
 

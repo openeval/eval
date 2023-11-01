@@ -29,7 +29,7 @@ import { inviteEmailProvider } from "./invite";
  */
 declare module "next-auth" {
   interface User extends BaseUser {
-    memberships: Membership;
+    memberships: Membership[];
     candidate?: Candidate;
   }
 
@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
     jwt: async ({ token, user }) => {
       const dbUser = await prisma.user.findFirst({
         where: {
-          email: token.email,
+          email: token.email as string,
         },
         include: {
           candidate: true,
@@ -87,9 +87,10 @@ export const authOptions: NextAuthOptions = {
           type: dbUser.type,
           completedOnboarding: dbUser.completedOnboarding,
           candidate: dbUser.candidate,
-          membership: dbUser.memberships.find(
-            (item) => item.organizationId === dbUser.activeOrgId,
-          ),
+          memberships: dbUser.memberships,
+          // membership: dbUser.memberships.find(
+          //   (item) => item.organizationId === dbUser.activeOrgId,
+          // ),
         },
       };
     },

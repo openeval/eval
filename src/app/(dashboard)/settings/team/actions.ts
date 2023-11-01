@@ -1,9 +1,9 @@
 "use server";
 
 import {
+  MembershipRole,
   UserType,
   type Membership,
-  type MembershipRole,
   type User,
 } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { FlowTypes } from "~/config/flows";
+import { isGranted } from "~/lib/security";
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
@@ -41,6 +42,10 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
   const { user } = session;
 
   try {
+    if (!isGranted(user, ["OWNER", "ADMIN"])) {
+      throw Error("forbidden");
+    }
+
     const org = await OrgRepo.findOneById(user.activeOrgId);
 
     if (!org) {
@@ -108,7 +113,9 @@ export type RemoveMembershipAction = (
   id: string,
 ) => Promise<ActionResponse<{ message: string }>>;
 
-export const removeMembershipAction: RemoveMembershipAction = async (id) => {
+export const removeMembershipAction: RemoveMembershipAction = async (
+  membershipId,
+) => {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -118,27 +125,24 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
-
-    if (!org) {
-      throw Error("organization not found");
+    if (!isGranted(user, ["OWNER", "ADMIN"])) {
+      throw Error("forbidden");
     }
 
-    const memership = await MembershipRepo.findOneById(id);
+    const memership = await MembershipRepo.findOneById(
+      membershipId,
+      user.activeOrgId,
+    );
 
     if (!memership) {
       throw Error("membership not found");
-    }
-
-    if (memership?.organizationId !== org.id) {
-      throw Error("forbidden");
     }
 
     if (memership.userId === user.id) {
       throw Error("You can't remove yourself from the org");
     }
 
-    await MembershipRepo.remove(id);
+    await MembershipRepo.remove(membershipId);
 
     // TODO: active orgs should be part of user sessions
     await UserRepo.update(
@@ -167,12 +171,12 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
 };
 
 export type UpdateMembershipRoleAction = (
-  id: string,
+  membershipId: string,
   role: MembershipRole,
 ) => Promise<ActionResponse<Membership>>;
 
 export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
-  id,
+  membershipId,
   role,
 ) => {
   const session = await getServerSession(authOptions);
@@ -184,27 +188,28 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
-
-    if (!org) {
-      throw Error("organization not found");
+    if (!isGranted(user, ["OWNER", "ADMIN"])) {
+      throw Error("forbidden");
     }
 
-    const memership = await MembershipRepo.findOneById(id);
+    const memership = await MembershipRepo.findOneById(
+      membershipId,
+      user.activeOrgId,
+    );
 
     if (!memership) {
       throw Error("membership not found");
     }
 
-    if (memership?.organizationId !== org.id) {
+    if (memership.userId === user.id) {
+      throw Error("You can't edit your own account");
+    }
+
+    if (memership.role === MembershipRole.OWNER) {
       throw Error("forbidden");
     }
 
-    if (memership.userId === user.id) {
-      throw Error("You can't remove yourself from the org");
-    }
-
-    const res = await MembershipRepo.update({ id }, { role });
+    const res = await MembershipRepo.update({ id: membershipId }, { role });
 
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form

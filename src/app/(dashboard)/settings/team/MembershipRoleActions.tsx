@@ -22,8 +22,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { roleList } from "~/config/security";
 import { toast } from "~/hooks/use-toast";
+import { roleList } from "~/lib/security";
 import { removeMembershipAction, updateMembershipRoleAction } from "./actions";
 
 export const MembershipRoleActions = ({ membership }) => {
@@ -42,6 +42,12 @@ export const MembershipRoleActions = ({ membership }) => {
           description: "Member removed",
         });
         router.refresh();
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: res.error?.message,
+          variant: "destructive",
+        });
       }
     });
   }
@@ -55,6 +61,12 @@ export const MembershipRoleActions = ({ membership }) => {
           description: "Role updated",
         });
         router.refresh();
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: res.error?.message,
+          variant: "destructive",
+        });
       }
     });
   }
