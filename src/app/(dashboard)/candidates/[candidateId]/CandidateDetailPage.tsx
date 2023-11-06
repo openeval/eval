@@ -1,4 +1,4 @@
-import { type Candidate } from "@prisma/client";
+import { CandidateStatus, type Candidate } from "@prisma/client";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
@@ -55,34 +55,37 @@ export default function CandidateDetailPage({
         </CardContent>
       </Card>
 
-      <div className="mb-8">
-        <Typography variant={"h2"}> Github stats</Typography>
-        <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-y-2">
-          <div className="flex grow">
-            {/* contributions */}
-            <img
-              src={`https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=${candidate.ghUsername}&theme=github`}
-              className="w-full"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {/* contributions */}
-            <img
-              src={`https://github-profile-summary-cards.vercel.app/api/cards/stats?username=${candidate.ghUsername}&theme=github`}
-              className="w-full"
-            />
-            <img
-              src={`https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=${candidate.ghUsername}&theme=github`}
-              className="w-full"
-            />
+      {candidate.status === CandidateStatus.VERIFIED && (
+        <div className="mb-8">
+          <Typography variant={"h2"}> Github stats</Typography>
+          <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-y-2">
+            <div className="flex grow">
+              {/* contributions */}
+              <img
+                src={`https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=${candidate.ghUsername}&theme=github`}
+                className="w-full"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {/* contributions */}
+              <img
+                src={`https://github-profile-summary-cards.vercel.app/api/cards/stats?username=${candidate.ghUsername}&theme=github`}
+                className="w-full"
+              />
+              <img
+                src={`https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=${candidate.ghUsername}&theme=github`}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
       <Typography variant={"h2"} className="mb-8">
         Submissions
       </Typography>
 
-      {candidate.submissions && candidate.submissions.length > 0 && (
+      {candidate.submissions?.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
           {candidate.submissions.map((submission) => (
             <SubmissionItem key={submission.id} item={submission} />
@@ -90,7 +93,7 @@ export default function CandidateDetailPage({
         </div>
       )}
 
-      {!candidate.submissions && (
+      {candidate.submissions?.length === 0 && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Title> No submissions yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>

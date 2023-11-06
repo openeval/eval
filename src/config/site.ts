@@ -24,7 +24,6 @@ export const siteConfig = {
       // href: "/settings",
       icon: "Settings",
       children: [{ title: "General", href: "/settings/general" }],
-      children: [{ title: "Team", href: "/settings/team" }],
     },
   ],
 };
