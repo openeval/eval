@@ -52,7 +52,7 @@ export function ViewScoreDetailsButton({
           <div className="space-y-4">
             {evaluationCriterias.map((item) => {
               return (
-                <div>
+                <div key={item.id}>
                   <div className="mb-4 flex">
                     <span className="text-base font-bold">{item.name}</span>
                   </div>

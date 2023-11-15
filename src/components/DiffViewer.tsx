@@ -15,26 +15,21 @@ export const DiffViewer = ({ diffText }) => {
     type,
     hunks,
   }) => (
-    <div className="mb-8 border">
+    <div key={oldRevision + "-" + newRevision} className="mb-8 border">
       <header className="diff-header border-b p-2 font-normal">
         {oldPath === newPath ? oldPath : `${oldPath} -> ${newPath}`}
       </header>
-      <Diff
-        key={oldRevision + "-" + newRevision}
-        viewType="split"
-        diffType={type}
-        hunks={hunks}
-      >
+      <Diff viewType="split" diffType={type} hunks={hunks}>
         {(hunks) =>
           hunks.map((hunk) => (
-            <>
+            <div key={"deco-" + hunk.content}>
               <Decoration key={"deco-" + hunk.content}>
                 <div className="hunk-header bg-cyan-100 px-6">
                   {hunk.content}
                 </div>
               </Decoration>
               <Hunk key={hunk.content} hunk={hunk} />
-            </>
+            </div>
           ))
         }
       </Diff>

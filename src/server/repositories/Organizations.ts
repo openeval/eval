@@ -32,3 +32,13 @@ export async function create(
 export async function findOneById(id) {
   return await prisma.organization.findFirst({ where: { id } });
 }
+
+// //metadata
+// // {billing:{
+// paymentId: z.string(),
+// subscriptionId: z.string().nullable(),
+// subscriptionItemId: z.string().nullable(),
+// stripeCustomerId
+//   customerId:adsad
+//   subscriptionId:asdasd
+// }}

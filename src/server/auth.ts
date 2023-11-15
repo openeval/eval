@@ -1,9 +1,9 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import {
   CandidateStatus,
-  Membership,
   type User as BaseUser,
   type Candidate,
+  type Membership,
   type UserType,
 } from "@prisma/client";
 import { type GetServerSidePropsContext } from "next";
@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
     jwt: async ({ token, user }) => {
       const dbUser = await prisma.user.findFirst({
         where: {
-          email: token.email,
+          email: token.email as string,
         },
         include: {
           candidate: true,
