@@ -23,7 +23,11 @@ export const siteConfig = {
       title: "Settings",
       // href: "/settings",
       icon: "Settings",
-      children: [{ title: "General", href: "/settings/general" }],
+      children: [
+        { title: "General", href: "/settings/general" },
+        { title: "Team", href: "/settings/team" },
+        { title: "Billing", href: "/billing/settings" },
+      ],
     },
   ],
 };

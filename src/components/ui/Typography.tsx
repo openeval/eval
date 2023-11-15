@@ -36,14 +36,25 @@ export interface TypographyProps
   as?: React.ElementType;
 }
 
+function isValidTag(input?: string | null) {
+  if (!input) {
+    return false;
+  }
+
+  try {
+    return (
+      document.createElement(input).constructor.name !== "HTMLUnknownElement"
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
 const Typography = React.forwardRef<HTMLElement, TypographyProps>(
   ({ className, as, size, variant, children, ...props }, ref) => {
     const classes = cn(typographyVariants({ variant, size, className }));
 
-    // @ts-expect-error we avoid a switch case by variant
-    const element = React.isValidElement(React.createElement(variant))
-      ? variant
-      : "span";
+    const element = isValidTag(variant) ? variant : "span";
 
     const template = React.createElement(
       // @ts-expect-error no error here

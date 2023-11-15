@@ -100,6 +100,7 @@ model VerificationToken {
 model Organization {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
+  email       String?
   slug        String?      @unique
   logo        String?
   bio         String?
@@ -111,9 +112,9 @@ model Organization {
   updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
   createdBy   User         @relation(name: "userOrganizationOwner", fields: [createdById], references: [id])
   createdById String       @map("created_by_id") @db.Uuid
-
-  user       User[]
-  Submission Submission[]
+  metadata    Json?
+  users       User[]
+  submissions Submission[]
 
   @@map("organization")
 }

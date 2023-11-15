@@ -26,10 +26,13 @@ export const env = createEnv({
     SMTP_FROM: z.string().min(1),
     GITHUB_API_AUTH_TOKEN: z.string().min(1),
     GITHUB_APP_CLIENT_SECRET: z.string().min(1),
+    IS_EE: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
     NEXT_PUBLIC_GITHUB_APP_CLIENT_ID: z.string().min(1),
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1),
+    NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID: z.string().min(1),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -48,5 +51,10 @@ export const env = createEnv({
     NEXT_PUBLIC_GITHUB_APP_CLIENT_ID:
       process.env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
     GITHUB_APP_CLIENT_SECRET: process.env.GITHUB_APP_CLIENT_SECRET,
+    IS_EE: process.env.IS_EE,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID:
+      process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID,
   },
 });

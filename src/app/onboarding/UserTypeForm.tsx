@@ -27,14 +27,14 @@ import {
 import { Label } from "~/components/ui/Label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
 import { toast } from "~/hooks/use-toast";
-import { type UpdateUserType } from "./actions";
+import { type UpdateUserTypeAction } from "./actions";
 
 const userTypeSchema = UserUpdateInputSchema.pick({ type: true });
 
 type FormData = z.infer<typeof userTypeSchema>;
 
 type UserTypeFormProps = {
-  action: UpdateUserType;
+  action: UpdateUserTypeAction;
 };
 
 export function UserTypeForm({ action }: UserTypeFormProps) {
@@ -52,7 +52,6 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
       const res = await action(data);
-      console.log(res);
       if (res.success) {
         toast({
           title: "Success.",
