@@ -8,6 +8,7 @@ import { z } from "zod";
 import { authOptions } from "~/server/auth";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
 
+// TODO: update types
 export async function updateCandidateAction(
   candidateId,
   data,

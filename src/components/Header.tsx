@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { FeedbackButton } from "~/components/FeedbackButton";
 import { getCurrentUser } from "~/server/auth";
 import { UserAccountNav } from "./UserNav";
 
@@ -23,7 +24,8 @@ const Header = async () => {
 
         {user && (
           <div className="flex flex-1 items-center justify-end space-x-2 sm:space-x-4">
-            <div className="w-auto ">
+            <FeedbackButton />
+            <div className="w-auto">
               <UserAccountNav user={user} />
             </div>
           </div>
