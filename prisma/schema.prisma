@@ -84,6 +84,7 @@ model User {
   reviewingAssessments Assessment[]   @relation("userAssessmentReviewing")
   organizations        Organization[] @relation("userOrganizationOwner")
   reviews              Review[]
+  feedback             Feedback[]
 
   @@map("user")
 }
@@ -339,4 +340,21 @@ model EvaluationCriteria {
   reviews  Review[]
 
   @@map("evaluation_criteria")
+}
+
+enum FeedbackType {
+  FEATURE
+  ISSUE
+}
+
+model Feedback {
+  id          Int           @id @default(autoincrement())
+  message     String
+  type        FeedbackType?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+  createdBy   User          @relation(fields: [createdById], references: [id])
+  createdById String        @map("created_by_id") @db.Uuid
+
+  @@map("feedback")
 }
