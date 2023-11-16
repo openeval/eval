@@ -46,7 +46,7 @@ export default function SaveAssessmentIssuesButton({
 
   return (
     <Button onClick={() => onSubmit()} disabled={isLoading}>
-      Next
+      Save
     </Button>
   );
 }
