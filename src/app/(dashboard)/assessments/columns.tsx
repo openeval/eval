@@ -6,11 +6,26 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/Badge";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { Switch } from "~/components/ui/Switch";
+import { toast } from "~/hooks/use-toast";
 import { formatDate } from "~/lib/utils";
 import { type AssessmentsListData } from "~/server/repositories/Assessments";
+import { updateAssessmentAction } from "./actions";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export type Item = AssessmentsListData[0];
+
+async function onPublishChange(id: string, published: boolean) {
+  const res = await updateAssessmentAction({ id }, { published: !published });
+  if (res.success) {
+    toast({ title: "Success" });
+  } else {
+    toast({
+      title: "Something went wrong.",
+      description: "Please try again.",
+      variant: "destructive",
+    });
+  }
+}
 
 export const columns: ColumnDef<Item>[] = [
   {
@@ -84,8 +99,12 @@ export const columns: ColumnDef<Item>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center">
-          {/* TODO: handle action on change */}
-          <Switch checked={row.getValue("published")}></Switch>
+          <Switch
+            onCheckedChange={async () => {
+              await onPublishChange(row.original.id, row.getValue("published"));
+            }}
+            checked={row.getValue("published")}
+          ></Switch>
         </div>
       );
     },

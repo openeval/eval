@@ -10,7 +10,7 @@ type StepItem = {
   name: string;
   title: string;
   description: string;
-  icon: React.FC<{ className: string }>;
+  icon: React.FC<{ className?: string }>;
   href: string;
 };
 

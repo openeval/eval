@@ -27,7 +27,7 @@ export async function findAllForList(where: Prisma.AssessmentWhereInput) {
       createdAt: true,
     },
     orderBy: {
-      updatedAt: "desc",
+      createdAt: "desc",
     },
   });
 }
