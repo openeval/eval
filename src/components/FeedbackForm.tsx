@@ -9,6 +9,7 @@ import { sendFeedbackAction } from "~/actions/feedback";
 import { Button } from "~/components/ui/Button";
 import {
   Form,
+  FormControl,
   FormDescription,
   FormField,
   FormItem,
@@ -59,7 +60,9 @@ export function FeedbackForm({ onSuccess }) {
             name="message"
             render={({ field }) => (
               <FormItem>
-                <Textarea placeholder="I would like..." {...field} />
+                <FormControl>
+                  <Textarea placeholder="I would like..." {...field} />
+                </FormControl>
                 <FormDescription>
                   Any new idea of suggestion to improve
                 </FormDescription>
