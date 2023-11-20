@@ -4,6 +4,10 @@ import { getCurrentUser } from "~/server/auth";
 import { createOrgAction } from "../actions";
 import { CreateOrganizationForm } from "./CreateOrganizationForm";
 
+export const metadata = {
+  title: "My organization",
+};
+
 //we get callback,  can we pass params ?
 export default async function Onboarding() {
   const user = await getCurrentUser();

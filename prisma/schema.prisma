@@ -65,26 +65,27 @@ enum UserType {
 }
 
 model User {
-  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                 String?
-  email                String         @unique
-  emailVerified        DateTime?      @map("email_verified")
-  completedOnboarding  Boolean        @default(false) @map("onboarding_completed")
+  email                String        @unique
+  emailVerified        DateTime?     @map("email_verified")
+  password             String?
+  completedOnboarding  Boolean       @default(false) @map("onboarding_completed")
   image                String?
-  ghUsername           String?        @unique
+  ghUsername           String?       @unique
   accounts             Account[]
   sessions             Session[]
   createdAssessments   Assessment[]
   memberships          Membership[]
-  type                 UserType?      @map("type") //TODO: we are not discriminating by type yet
+  type                 UserType?     @map("type") //TODO: we are not discriminating by type yet
   candidate            Candidate?
-  activeOrgId          String?        @map("active_org_id") @db.Uuid //TODO: this should be only in the sessions
-  activeOrg            Organization?  @relation(fields: [activeOrgId], references: [id])
-  createdCandidates    Candidate[]    @relation("userCandidateCreated")
-  reviewingAssessments Assessment[]   @relation("userAssessmentReviewing")
-  organizations        Organization[] @relation("userOrganizationOwner")
+  activeOrgId          String?       @map("active_org_id") @db.Uuid //TODO: this should be only in the sessions
+  activeOrg            Organization? @relation(fields: [activeOrgId], references: [id])
+  createdCandidates    Candidate[]   @relation("userCandidateCreated")
+  reviewingAssessments Assessment[]  @relation("userAssessmentReviewing")
   reviews              Review[]
   feedback             Feedback[]
+  createdAt            DateTime      @default(now()) @map("created_at")
 
   @@map("user")
 }
@@ -111,8 +112,6 @@ model Organization {
   candidates  Candidate[]
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
-  createdBy   User         @relation(name: "userOrganizationOwner", fields: [createdById], references: [id])
-  createdById String       @map("created_by_id") @db.Uuid
   metadata    Json?
   users       User[]
   submissions Submission[]
@@ -132,7 +131,7 @@ model Membership {
   userId         String         @map("user_id") @db.Uuid
   accepted       Boolean        @default(false)
   role           MembershipRole @map("role")
-  organization   Organization   @relation(fields: [organizationId], references: [id])
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String         @map("organization_id") @db.Uuid
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt      DateTime       @default(now()) @map("created_at")
@@ -353,7 +352,7 @@ model Feedback {
   type        FeedbackType?
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
-  createdBy   User          @relation(fields: [createdById], references: [id])
+  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById String        @map("created_by_id") @db.Uuid
 
   @@map("feedback")

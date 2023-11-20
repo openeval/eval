@@ -15,7 +15,6 @@ export default async function page() {
   if (!user) {
     redirect("/login");
   }
-  console.log(user);
 
   const org = await findOrg(user.activeOrgId);
 

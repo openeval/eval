@@ -4,6 +4,10 @@ import { getCurrentUser } from "~/server/auth";
 import { createCandidateAction } from "../actions";
 import { OnboardingCandidatePage } from "./OnboardingCandidatePage";
 
+export const metadata = {
+  title: "Onboarding",
+};
+
 //we get callback,  can we pass params ?
 export default async function Onboarding() {
   const user = await getCurrentUser();
@@ -11,7 +15,7 @@ export default async function Onboarding() {
     redirect("/login");
   }
 
-  if (user.completedOnboarding) {
+  if (user.completedOnboarding && user.candidate?.status === "VERIFIED") {
     redirect("/");
   }
 

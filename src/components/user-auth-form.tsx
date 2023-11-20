@@ -80,7 +80,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               </p>
             )}
           </div>
-          <button className={cn(buttonVariants())} disabled={isLoading}>
+          <button
+            className={cn(buttonVariants())}
+            data-testid="singIn-email-button"
+            disabled={isLoading}
+          >
             {isLoading && <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />}
             Sign In with Email
           </button>

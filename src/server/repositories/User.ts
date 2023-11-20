@@ -2,7 +2,7 @@ import type { Prisma, User } from "@prisma/client";
 
 import { prisma } from "~/server/db";
 
-export async function create(data) {
+export async function create(data: Prisma.UserCreateInput) {
   return await prisma.user.create({ data });
 }
 

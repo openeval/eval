@@ -15,7 +15,9 @@ export const FeedbackButton = () => {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline">Feedback</Button>
+        <Button variant="outline" data-testid="open-feedback-form-button">
+          Feedback
+        </Button>
       </PopoverTrigger>
       <PopoverContent>
         <FeedbackForm onSuccess={() => setIsOpen(false)} />
