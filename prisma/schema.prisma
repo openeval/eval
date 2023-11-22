@@ -150,9 +150,9 @@ model Candidate {
   id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user                    User?                     @relation(fields: [userId], references: [id])
   userId                  String?                   @unique @map("user_id") @db.Uuid
+  organization            Organization?             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId          String?                   @map("organization_id") @db.Uuid
   assessmentSessions      AssessmentSession[]
-  organization            Organization?             @relation(fields: [organizationId], references: [id])
   name                    String
   ghUsername              String?                   @map("gh_username")
   status                  CandidateStatus           @default(PENDING) @map("status")
@@ -160,7 +160,7 @@ model Candidate {
   email                   String                    @unique
   createdAt               DateTime                  @default(now()) @map("created_at")
   updatedAt               DateTime                  @default(now()) @updatedAt @map("updated_at")
-  createdBy               User?                     @relation("userCandidateCreated", fields: [createdById], references: [id])
+  createdBy               User?                     @relation("userCandidateCreated", fields: [createdById], references: [id], onDelete: SetNull)
   createdById             String?                   @map("created_by_id") @db.Uuid
   contributions           Contribution[]
   submissions             Submission[]
@@ -210,7 +210,7 @@ model Assessment {
   status                  AssessmentStatus          @default(ACTIVE) @map("status")
   createdBy               User                      @relation(fields: [createdById], references: [id])
   createdById             String                    @map("created_by_id") @db.Uuid
-  organization            Organization              @relation(fields: [organizationId], references: [id])
+  organization            Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId          String                    @map("organization_id") @db.Uuid
   applicantSessions       AssessmentSession[]
   repositories            Repo[]
@@ -269,7 +269,7 @@ model Submission {
   assessmentId        String            @map("assessment_id") @db.Uuid
   review              Review?
   contribution        Contribution?
-  organization        Organization?     @relation(fields: [organizationId], references: [id])
+  organization        Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId      String            @map("organization_id") @db.Uuid
 
   @@map("submission")

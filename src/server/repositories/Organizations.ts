@@ -1,5 +1,3 @@
-import "server-only";
-
 import { MembershipRole, type Prisma } from "@prisma/client";
 import type { User } from "next-auth";
 import slugify from "slugify";

@@ -5,7 +5,7 @@ import { test } from "./fixtures";
 test.describe.configure({ mode: "parallel" });
 
 test.afterEach(async ({ users }) => {
-  // await users.deleteAll();
+  await users.deleteAll();
 });
 
 test.describe("Onboarding", () => {
@@ -25,6 +25,7 @@ test.describe("Onboarding", () => {
     // user type form
     await page.getByTestId("recruiter").click();
     await page.getByTestId("confirmation-button").click();
+
     await expect(page).toHaveTitle("My organization");
 
     // organization form
@@ -34,9 +35,7 @@ test.describe("Onboarding", () => {
     await expect(page).toHaveTitle("Assessments");
   });
 
-  test("should complete onboarding as candidate", async ({ page, users }) => {
-    const [user] = users.get();
-
+  test("should complete onboarding as candidate", async ({ page }) => {
     await page.goto("/onboarding");
     await expect(page).toHaveTitle(/Onboarding/);
 
@@ -51,7 +50,5 @@ test.describe("Onboarding", () => {
     await page.getByTestId("confirmation-button").click();
 
     await expect(page.getByTestId("step-github-connect")).toBeVisible();
-
-    // await expect(page).toHaveTitle("Assessments");
   });
 });

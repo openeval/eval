@@ -15,6 +15,10 @@ const getIssues = cache(
   },
 );
 
+export const metadata = {
+  title: "New Assessments - tasks",
+};
+
 export default async function TaskPage({
   params: { assessmentId },
   searchParams,

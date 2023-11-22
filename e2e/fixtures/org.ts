@@ -1,23 +1,26 @@
 import { type Page } from "@playwright/test";
-import type { Organization } from "@prisma/client";
+import type { Organization, Prisma, User } from "@prisma/client";
 
 import { prisma } from "~/server/db";
+import * as OrgRepo from "~/server/repositories/Organizations";
 
 const getRandomSlug = () => `org-${Math.random().toString(36).substring(7)}`;
 
+type CreateOrgProps = Partial<Prisma.OrganizationCreateInput> & {
+  owner: User;
+};
 // creates a user fixture instance and stores the collection
 export const createOrgsFixture = (page: Page) => {
   const store: { orgs: Organization[]; page: Page } = { orgs: [], page };
   return {
-    create: async (opts: {
-      name: string;
-      slug?: string;
-      requestedSlug?: string;
-    }) => {
-      const org = await createOrgInDb({
-        name: opts.name,
-        slug: opts.slug || getRandomSlug(),
-      });
+    create: async (opts: CreateOrgProps) => {
+      const org = await createOrgInDb(
+        {
+          name: opts.name || getRandomSlug(),
+          slug: opts.slug || getRandomSlug(),
+        },
+        opts.owner,
+      );
       store.orgs.push(org);
       return org;
     },
@@ -35,18 +38,6 @@ export const createOrgsFixture = (page: Page) => {
   };
 };
 
-async function createOrgInDb({
-  name,
-  slug,
-}: {
-  name: string;
-  slug: string | null;
-}) {
-  return await prisma.organization.create({
-    data: {
-      name: name,
-      slug: slug,
-      metadata: {},
-    },
-  });
+async function createOrgInDb(data, owner) {
+  return await OrgRepo.create(data, owner);
 }

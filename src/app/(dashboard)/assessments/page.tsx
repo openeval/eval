@@ -43,6 +43,7 @@ export default async function AssessmentPage() {
         <Link
           href={"/assessments/add"}
           className={cn(buttonVariants({ variant: "default" }))}
+          data-testid="add-assessment-button"
         >
           New Assessment
         </Link>

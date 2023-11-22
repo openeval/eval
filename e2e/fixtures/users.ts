@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import type { Prisma, User } from "@prisma/client";
+import { UserType, type Prisma, type User } from "@prisma/client";
 import { hashSync as hash } from "bcryptjs";
 import { load as cheerioLoad } from "cheerio";
 import smtpTester from "smtp-tester";
@@ -13,15 +13,21 @@ export const createUsersFixture = (page: Page) => {
   const store: { users: User[]; page: Page } = { users: [], page };
   return {
     create: async (
-      opts?: Prisma.UserCreateInput,
-      scenario?: { hasTeam?: true },
+      opts?: Partial<Prisma.UserCreateInput>,
+      scenario?: { isRecruiter?: true },
     ) => {
+      if (scenario?.isRecruiter) {
+        opts = { ...opts, completedOnboarding: true, type: UserType.RECRUITER };
+      }
+
       const userDb = await createUserInDb(opts);
 
       const user = {
         ...userDb,
         login: async () => login({ email: userDb.email }, store.page),
         apiLogin: async () => apiLogin(userDb, store.page),
+        update: async (data: Prisma.UserUpdateInput) =>
+          await prisma.user.update({ data, where: { id: userDb.id } }),
       };
       store.users.push(user);
       return user;
