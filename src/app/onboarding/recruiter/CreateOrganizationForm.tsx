@@ -56,7 +56,6 @@ export function CreateOrganizationForm({
         });
         router.push("/");
       } else {
-        console.log(res.error);
         toast({
           title: "Something went wrong.",
           description: res.error?.message,
@@ -93,7 +92,11 @@ export function CreateOrganizationForm({
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full" disabled={isLoading}>
+            <Button
+              className="w-full"
+              data-testid="confirmation-button"
+              disabled={isLoading}
+            >
               Continue
             </Button>
           </CardFooter>

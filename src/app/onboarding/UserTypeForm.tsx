@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserType } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { UserUpdateInputSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -38,8 +38,6 @@ type UserTypeFormProps = {
 };
 
 export function UserTypeForm({ action }: UserTypeFormProps) {
-  const router = useRouter();
-
   const form = useForm<FormData>({
     resolver: zodResolver(userTypeSchema),
     defaultValues: {
@@ -57,7 +55,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
           title: "Success.",
           description: "account updated",
         });
-        router.push(`/onboarding/${data.type.toLowerCase()}`);
+        redirect(`/onboarding/${data.type.toLowerCase()}`);
       } else {
         toast({
           title: "Something went wrong.",
@@ -92,6 +90,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                         <Label
                           htmlFor="candidate"
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
+                          data-testid="candidate"
                         >
                           <RadioGroupItem
                             value={UserType.CANDIDATE}
@@ -101,6 +100,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                           I&apos;m a Candidate
                         </Label>
                         <Label
+                          data-testid="recruiter"
                           htmlFor="recruiter"
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                         >
@@ -120,7 +120,11 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full" disabled={isLoading}>
+            <Button
+              className="w-full"
+              data-testid="confirmation-button"
+              disabled={isLoading}
+            >
               Continue
             </Button>
           </CardFooter>

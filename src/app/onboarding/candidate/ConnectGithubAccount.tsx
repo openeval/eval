@@ -19,7 +19,9 @@ export function ConnectGithubAccount() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Connect your Github account</CardTitle>
+        <CardTitle data-testid="step-github-connect">
+          Connect your Github account
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {" "}

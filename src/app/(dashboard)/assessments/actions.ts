@@ -20,7 +20,11 @@ import type { ActionResponse } from "~/types";
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export async function createAssessmentAction(data: CreateAssessmentDtoType) {
+export type CreateAssessmentAction = (
+  data: CreateAssessmentDtoType,
+) => Promise<ActionResponse<Assessment>>;
+
+export const createAssessmentAction: CreateAssessmentAction = async (data) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -60,7 +64,7 @@ export async function createAssessmentAction(data: CreateAssessmentDtoType) {
 
     return { success: false, error: createError() };
   }
-}
+};
 
 export type UpdateAssessmentAction = (
   where: Prisma.AssessmentWhereUniqueInput,

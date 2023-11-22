@@ -52,16 +52,20 @@ export function FeedbackForm({ onSuccess }) {
   }
 
   return (
-    <div className={cn("")}>
+    <div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="feedback-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="message"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea placeholder="I would like..." {...field} />
+                  <Textarea
+                    data-testid="feedback-message-input"
+                    placeholder="I would like..."
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
                   Any new idea of suggestion to improve
@@ -72,7 +76,12 @@ export function FeedbackForm({ onSuccess }) {
           />
           <Separator className="my-4" />
           <div className="flex">
-            <Button type="submit" disabled={isLoading} className="ml-auto">
+            <Button
+              type="submit"
+              data-testid="confirmation-button"
+              disabled={isLoading}
+              className="ml-auto"
+            >
               Send
             </Button>
           </div>

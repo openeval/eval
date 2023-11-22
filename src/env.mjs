@@ -27,6 +27,7 @@ export const env = createEnv({
     GITHUB_API_AUTH_TOKEN: z.string().min(1),
     GITHUB_APP_CLIENT_SECRET: z.string().min(1),
     IS_EE: z.string().min(1),
+    CI: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -56,5 +57,6 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID:
       process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID,
+    CI: process.env.CI,
   },
 });

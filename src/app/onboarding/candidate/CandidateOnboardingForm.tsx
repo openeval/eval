@@ -33,7 +33,10 @@ type CandidateOnboardingFormProps = {
   action: CreateCandidateAction;
 };
 
-const candidateSchema = CandidateCreateInputSchema;
+const candidateSchema = CandidateCreateInputSchema.pick({
+  name: true,
+  lastName: true,
+});
 
 type FormData = z.infer<typeof candidateSchema>;
 
@@ -48,11 +51,15 @@ export function CandidateOnboardingForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
-        await props.action(data);
+      const res = await props.action(data);
+
+      if (res.success) {
+        toast({
+          title: "Success.",
+          description: "account updated",
+        });
         props.onSuccess();
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",
@@ -105,7 +112,11 @@ export function CandidateOnboardingForm({
             />
           </CardContent>
           <CardFooter>
-            <Button className="w-full" disabled={isLoading}>
+            <Button
+              className="w-full"
+              data-testid="confirmation-button"
+              disabled={isLoading}
+            >
               Continue
             </Button>
           </CardFooter>

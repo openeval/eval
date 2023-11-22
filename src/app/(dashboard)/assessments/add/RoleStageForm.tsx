@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Assessment } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -21,6 +20,7 @@ import {
 import { Input } from "~/components/ui/Input";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import type { CreateAssessmentAction } from "../actions";
 
 const assessmentSchema = z.object({
   title: z.string(),
@@ -28,7 +28,7 @@ const assessmentSchema = z.object({
 });
 
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  action: (data: FormData) => Promise<unknown>;
+  action: CreateAssessmentAction;
 }
 
 type FormData = z.infer<typeof assessmentSchema>;
@@ -46,19 +46,16 @@ export function RoleStageForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
-        const assessment: Assessment = (await props.action(data)) as Assessment;
+      const res = await props.action(data);
+      if (res.success) {
         toast({
           title: "Success.",
           description: "Assessment created",
         });
 
         // router.refresh();
-        router.push(`/assessments/add/${assessment.id}/tasks`);
-
-        // router go to next step "tasks", i need the id :)
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+        router.push(`/assessments/add/${res.data?.id}/tasks`);
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",
@@ -72,7 +69,7 @@ export function RoleStageForm({
     <div className={cn("grid gap-6", className)} {...props}>
       {/* https://github.com/react-hook-form/react-hook-form/issues/10391 */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="assessment-form" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-4">
             <FormField
               control={form.control}
@@ -116,7 +113,11 @@ export function RoleStageForm({
             />
 
             <div className="flex ">
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                data-testid="confirmation-button"
+                disabled={isLoading}
+              >
                 Next step
               </Button>
             </div>

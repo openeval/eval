@@ -82,7 +82,7 @@ export const createCandidateAction: CreateCandidateAction = async (data) => {
   try {
     data = CandidateCreateInputSchema.parse({
       ...data,
-      userId: user.id,
+      user: { connect: { id: user.id } },
       email: user.email,
     });
 
@@ -136,7 +136,6 @@ export const createOrgAction: CreateOrgAction = async (data) => {
     const createDto = OrganizationCreateInputSchema.parse({
       ...data,
       slug: slugify(data.name),
-      createdBy: { connect: { id: user.id } },
     });
 
     const org = await orgRepo.create(createDto, user);

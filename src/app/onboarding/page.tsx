@@ -6,6 +6,10 @@ import { findCandidateByUserId } from "~/server/repositories/Candidates";
 import { updateUserTypeAction } from "./actions";
 import { UserTypeForm } from "./UserTypeForm";
 
+export const metadata = {
+  title: "Onboarding",
+};
+
 export default async function Onboarding({
   searchParams,
 }: {
