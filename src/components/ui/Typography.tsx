@@ -37,17 +37,11 @@ export interface TypographyProps
 }
 
 function isValidTag(input?: string | null) {
+  const validTags = ["h1", "h2", "h3", "h4", "p", "blockquote", "ul"];
   if (!input) {
     return false;
   }
-
-  try {
-    return (
-      document.createElement(input).constructor.name !== "HTMLUnknownElement"
-    );
-  } catch (e) {
-    return false;
-  }
+  return validTags.includes(input);
 }
 
 const Typography = React.forwardRef<HTMLElement, TypographyProps>(

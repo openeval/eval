@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { inviteCandidateAction } from "~/actions/candidates";
 import { InviteCandidateForm } from "~/components/InviteCandidateForm";
 import { Button } from "~/components/ui/Button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/Sheet";
@@ -33,6 +34,7 @@ export function InviteCandidateButton({
       <SheetContent side="right">
         <InviteCandidateForm
           onSuccess={onSuccess}
+          action={inviteCandidateAction}
           assessmentId={assessmentId}
         />
       </SheetContent>

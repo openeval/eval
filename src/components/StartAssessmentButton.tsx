@@ -56,7 +56,6 @@ export default function StartAssessmentButton({
         // router.refresh();
         router.push(`/s/${res.id}`);
       } catch (e) {
-        console.log(e);
         // TODO: how to handle errors in with server actions
         toast({
           title: "Something went wrong.",

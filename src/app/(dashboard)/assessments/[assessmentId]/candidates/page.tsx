@@ -1,25 +1,18 @@
 import { Users } from "lucide-react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import slugify from "slugify";
 
+import { CandidateItem } from "~/components/CandidateItem";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
+import { CopyButton } from "~/components/ui/CopyButton";
+import { absoluteUrl } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
-import prisma from "~/server/db";
-import { CandidateItem } from "./CandidateItem";
+import { findOneById } from "~/server/repositories/Assessments";
+import { findCandidatesByAssessment } from "~/server/repositories/Candidates";
 
 const getCandidates = async (assessmentId: string) => {
-  return await prisma.candidatesOnAssessments.findMany({
-    select: {
-      candidate: {
-        include: {
-          assessmentSessions: { where: { assessmentId } },
-        },
-      },
-    },
-    where: {
-      assessmentId: assessmentId,
-    },
-  });
+  return await findCandidatesByAssessment(assessmentId);
 };
 
 type AssessmentCandidatePageProps = {
@@ -27,33 +20,49 @@ type AssessmentCandidatePageProps = {
 };
 
 export default async function AssessmentCandidatePage({
-  params,
+  params: { assessmentId },
 }: AssessmentCandidatePageProps) {
   const user = await getCurrentUser();
-
   if (!user) {
     redirect("/login");
   }
+  const assessment = await findOneById(assessmentId, user.activeOrgId);
+  if (!assessment) {
+    notFound();
+  }
 
-  const candidates = await getCandidates(params.assessmentId);
+  const candidates = await getCandidates(assessmentId);
+
   return (
     <>
       <div className="mb-8 flex justify-between px-2">
         <div className="grid gap-1">
-          <p className="text-slate-500">
-            Invite and follow candidates progress
-          </p>
+          <p className="text-slate-500">Invite candidates to the assessment</p>
+
+          <div className="mt-4 flex items-center justify-between">
+            <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 px-2 dark:border-slate-700 dark:bg-black">
+              <code className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-50">
+                {absoluteUrl("/").toString()}a/{assessment.id}/
+                {slugify(assessment.title)}
+              </code>
+              <CopyButton
+                value={`${absoluteUrl("/")}a/${assessment.id}/
+              ${slugify(assessment.title)}`}
+                className="border-none text-slate-900 hover:bg-transparent dark:text-slate-50"
+              />
+            </pre>
+          </div>
         </div>
-        <InviteCandidateButton assessmentId={params.assessmentId} />
+        <InviteCandidateButton assessmentId={assessmentId} />
       </div>
 
       {candidates && candidates.length > 0 && (
         <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
-          {candidates.map((item) => (
+          {candidates.map((candidate) => (
             <CandidateItem
-              key={item.candidate.id}
-              candidate={item.candidate}
-              assessmentId={params.assessmentId}
+              key={candidate.id}
+              candidate={candidate}
+              assessmentId={assessmentId}
             />
           ))}
         </div>
@@ -62,11 +71,11 @@ export default async function AssessmentCandidatePage({
       {candidates && candidates?.length <= 0 && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={Users} />
-          <EmptyPlaceholder.Title> No candidates yet</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title> No Candidates yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
             Get started by inviting candidates to the assessment.
           </EmptyPlaceholder.Description>
-          <InviteCandidateButton assessmentId={params.assessmentId} />
+          <InviteCandidateButton assessmentId={assessmentId} />
         </EmptyPlaceholder>
       )}
     </>

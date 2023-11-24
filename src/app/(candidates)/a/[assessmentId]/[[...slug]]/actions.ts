@@ -64,7 +64,6 @@ export async function startAssessmentSessionAction(assessmentId) {
 
     return response;
   } catch (error) {
-    console.log(error);
     if (error instanceof z.ZodError) {
       return { error: error.issues };
     }

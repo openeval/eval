@@ -20,6 +20,7 @@ interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
   assessmentId: string;
   onSuccess: () => void;
+  action: () => Promise<any>;
 }
 
 const invitationSchema = z.object({
@@ -34,6 +35,7 @@ export function InviteCandidateForm({
   assessmentId,
   className,
   onSuccess,
+  action,
 }: InviteCandidateFormProps) {
   const {
     register,
@@ -42,30 +44,23 @@ export function InviteCandidateForm({
   } = useForm<FormData>({
     resolver: zodResolver(invitationSchema),
   });
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
+  const [isLoading, startActionTransition] = React.useTransition();
 
   async function onHandleSubmit(data: FormData) {
-    setIsLoading(true);
-    // TODO: move to server actions
-    const response = await fetch(`/api/candidates/invite`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ assessmentId, ...data }),
+    startActionTransition(async () => {
+      const res = await action({ assessmentId, ...data });
+
+      if (res.success) {
+        onSuccess && onSuccess();
+      } else {
+        return toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
     });
-
-    setIsLoading(false);
-
-    if (response.ok) {
-      onSuccess && onSuccess();
-    } else {
-      return toast({
-        title: "Something went wrong.",
-        description: "Please try again.",
-        variant: "destructive",
-      });
-    }
   }
   return (
     <div className={cn("mt-8 grid gap-6", className)}>

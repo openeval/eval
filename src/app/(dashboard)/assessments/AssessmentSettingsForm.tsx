@@ -1,8 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AssessmentStatus, type Assessment, type Prisma } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import { type Assessment } from "@prisma/client";
+import { AssessmentSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -33,20 +33,19 @@ import {
 import { Switch } from "~/components/ui/Switch";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import type { UpdateAssessmentAction } from "./actions";
 
 interface AssessmentSettingsFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   assessment: Partial<Assessment>;
-  action: (
-    where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput,
-  ) => Promise<unknown>;
+  action: UpdateAssessmentAction;
+  onSuccess?: () => void;
 }
 
-const assessmentSchema = z.object({
-  evaluationPeriodDays: z.string(),
-  published: z.boolean(),
+const assessmentSchema = AssessmentSchema.pick({
+  published: true,
+  evaluationPeriodDays: true,
 });
 
 type FormData = z.infer<typeof assessmentSchema>;
@@ -57,26 +56,22 @@ export function AssessmentSettingsForm({
 }: AssessmentSettingsFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(assessmentSchema),
-    // @ts-expect-error react-hook-form issue
+    // @ts-expect-error prisma
     values: props.assessment,
   });
-  const router = useRouter();
 
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
-    const payload = { ...data, status: AssessmentStatus.ACTIVE };
-
     startActionTransition(async () => {
-      try {
-        await props.action({ id: props.assessment.id }, payload);
+      const res = await props.action({ id: props.assessment.id }, data);
+      if (res.success) {
         toast({
           title: "Success.",
           description: "Assessment updated",
         });
-        router.push(`/assessments/add/${props.assessment.id}/invite`);
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+        props.onSuccess && props.onSuccess();
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",
@@ -126,15 +121,15 @@ export function AssessmentSettingsForm({
 
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={field.value as string | undefined}
                     >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select a period" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 day</SelectItem>
-                        <SelectItem value="7">1 week</SelectItem>
-                        <SelectItem value="14">2 weeks</SelectItem>
+                        <SelectItem value={"1"}>1 day</SelectItem>
+                        <SelectItem value={"7"}>1 week</SelectItem>
+                        <SelectItem value={"14"}>2 weeks</SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -146,12 +141,8 @@ export function AssessmentSettingsForm({
               />
             </CardContent>
             <CardFooter>
-              <Button
-                type="submit"
-                data-testid="confirmation-button"
-                disabled={isLoading}
-              >
-                Next Step
+              <Button type="submit" disabled={isLoading}>
+                Save
               </Button>
             </CardFooter>
           </Card>

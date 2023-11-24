@@ -118,7 +118,7 @@ export function RoleStageForm({
                 data-testid="confirmation-button"
                 disabled={isLoading}
               >
-                Next step
+                Save
               </Button>
             </div>
           </div>
