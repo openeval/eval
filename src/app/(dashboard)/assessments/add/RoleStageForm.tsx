@@ -2,10 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { AssessmentSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import TextareaAutosize from "react-textarea-autosize";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -22,9 +23,9 @@ import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import type { CreateAssessmentAction } from "../actions";
 
-const assessmentSchema = z.object({
-  title: z.string(),
-  description: z.string(),
+const assessmentSchema = AssessmentSchema.pick({
+  title: true,
+  description: true,
 });
 
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {

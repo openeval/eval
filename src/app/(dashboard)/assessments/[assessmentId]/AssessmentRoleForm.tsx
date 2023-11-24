@@ -1,11 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Assessment, type Prisma } from "@prisma/client";
+import { type Assessment } from "@prisma/client";
+import { AssessmentSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import TextareaAutosize from "react-textarea-autosize";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -20,18 +21,16 @@ import {
 import { Input } from "~/components/ui/Input";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import type { UpdateAssessmentAction } from "../actions";
 
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
   assessment: Partial<Assessment>;
-  action: (
-    where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput,
-  ) => Promise<unknown>;
+  action: UpdateAssessmentAction;
 }
 
-const assessmentSchema = z.object({
-  title: z.string(),
-  description: z.string(),
+const assessmentSchema = AssessmentSchema.pick({
+  title: true,
+  description: true,
 });
 
 type FormData = z.infer<typeof assessmentSchema>;
