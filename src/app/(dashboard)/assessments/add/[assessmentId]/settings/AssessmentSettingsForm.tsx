@@ -146,7 +146,11 @@ export function AssessmentSettingsForm({
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                data-testid="confirmation-button"
+                disabled={isLoading}
+              >
                 Next Step
               </Button>
             </CardFooter>

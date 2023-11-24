@@ -49,7 +49,11 @@ export default function SaveAssessmentIssuesButton({
   }
 
   return (
-    <Button onClick={() => onSubmit()} disabled={isLoading}>
+    <Button
+      onClick={() => onSubmit()}
+      disabled={isLoading}
+      data-testid="confirmation-button"
+    >
       Next
     </Button>
   );

@@ -12,11 +12,11 @@ import { searchIssues } from "~/server/github";
 import { updateAssessmentAction } from "../../actions";
 import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
 
-const getIssues = cache(
-  async (querySearch?: { [key: string]: string | string[] | undefined }) => {
-    return await searchIssues({ querySearch: querySearch?.q });
-  },
-);
+const getIssues = async (querySearch?: {
+  [key: string]: string | string[] | undefined;
+}) => {
+  return await searchIssues({ querySearch: querySearch?.q });
+};
 
 export const metadata = {
   title: "Assessments - tasks",

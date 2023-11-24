@@ -1,6 +1,6 @@
 "use client";
 
-import { Enter, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import * as React from "react";
