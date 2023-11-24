@@ -33,7 +33,7 @@ export default async function TaskPage({
 
   const { items: issues } = await getIssues(searchParams);
   return (
-    <div>
+    <div data-testid="tasks-page">
       <div className="mb-8 flex justify-between px-2">
         <p className="text-slate-500">
           Open source issues candidates could solve in the assessment

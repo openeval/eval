@@ -6,6 +6,7 @@ import { env } from "~/env.mjs";
 const octokit = new Octokit({
   auth: env.GITHUB_API_AUTH_TOKEN,
   request: { fetch: fetch },
+  log: env.NODE_ENV !== "production" ? console : undefined,
 });
 
 // public client to use in auto completions

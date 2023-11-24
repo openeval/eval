@@ -22,8 +22,10 @@ test.describe("Assessments", () => {
 
   test("Create a new assessment", async ({ page }) => {
     await page.getByTestId("add-assessment-button").click();
+    await page.waitForLoadState("networkidle");
     await expect(page).toHaveTitle("New Assessments");
 
+    //role step
     const form = page.locator("#assessment-form");
     await expect(form).toBeVisible();
     await form.locator('input[name="title"]').fill(faker.lorem.text());
@@ -32,8 +34,27 @@ test.describe("Assessments", () => {
       .fill(faker.lorem.paragraphs(Math.floor(Math.random() * 11)));
     await form.getByTestId("confirmation-button").click();
 
-    const toast = await page.waitForSelector('[data-testid="toast-default"]');
-    expect(toast).toBeTruthy();
-    // await expect(page).toHaveTitle("New Assessments - tasks");
+    const roleToast = await page.waitForSelector(
+      '[data-testid="toast-default"]',
+    );
+    expect(roleToast).toBeTruthy();
+
+    await expect(page).toHaveTitle("New Assessments - tasks");
+    await form.getByTestId("confirmation-button").click();
+
+    const taskToast = await page.waitForSelector(
+      '[data-testid="toast-default"]',
+    );
+    expect(taskToast).toBeTruthy();
+
+    //settings step
+    await expect(page).toHaveTitle("New Assessments - settings");
+
+    await page.getByLabel("Published").check();
+    await page.getByTestId("confirmation-button").click();
+    const settingsToast = await page.waitForSelector(
+      '[data-testid="toast-default"]',
+    );
+    expect(settingsToast).toBeTruthy();
   });
 });

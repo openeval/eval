@@ -56,7 +56,6 @@ export function AssessmentSettingsForm({
 }: AssessmentSettingsFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(assessmentSchema),
-    // @ts-expect-error react-hook-form issue
     values: props.assessment,
   });
 
