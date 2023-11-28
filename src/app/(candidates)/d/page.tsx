@@ -24,7 +24,13 @@ export default async function AssessmentsPage() {
     redirect("/login");
   }
 
-  const rows = await getAssessments(user.candidate.id);
+  const { candidate } = user;
+
+  if (!candidate) {
+    redirect("/onboarding/candidate");
+  }
+
+  const rows = await getAssessments(candidate.id);
 
   return (
     <>
@@ -33,7 +39,6 @@ export default async function AssessmentsPage() {
           <h1 className="text-2xl font-bold tracking-wide text-slate-900">
             Assessments
           </h1>
-          {/* <p className="text-neutral-500">list of users</p> */}
         </div>
       </div>
 

@@ -15,13 +15,11 @@ const octokit = new Octokit({
 // });
 
 interface SearchIssuesParams {
-  querySearch?: string[] | string | undefined;
+  querySearch?: string[] | string | null;
 }
 
-export async function searchIssues({ querySearch }: SearchIssuesParams) {
-  const defaulQuery = `type:issue no:assignee ${
-    siteConfig.github.searchQueryString
-  } ${(querySearch as string) || ""}`;
+export async function searchIssues({ querySearch = "" }: SearchIssuesParams) {
+  const defaulQuery = `type:issue no:assignee ${siteConfig.github.searchQueryString} ${querySearch}`;
   try {
     const { data } = await octokit.rest.search.issuesAndPullRequests({
       q: defaulQuery,

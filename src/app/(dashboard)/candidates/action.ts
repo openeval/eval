@@ -1,18 +1,23 @@
 "use server";
 
-import { type Candidate } from "@prisma/client";
+import { type Candidate, type Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
+import { createError, ERROR_CODES } from "~/server/error";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
+import type { ActionResponse } from "~/types";
 
-// TODO: update types
-export async function updateCandidateAction(
+export type UpdateCandidateAction = (
+  candidateId: string,
+  data: Prisma.CandidateUpdateInput,
+) => Promise<ActionResponse<Candidate>>;
+export const updateCandidateAction: UpdateCandidateAction = async (
   candidateId,
   data,
-): Promise<Candidate | null> {
+) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -29,13 +34,19 @@ export async function updateCandidateAction(
       data,
     );
 
-    return candidate;
+    return { success: true, data: candidate };
   } catch (error) {
-    // TODO : how to capture errors in server actions (no documented)
     if (error instanceof z.ZodError) {
-      //   return new Response(JSON.stringify(error.issues), { status: 422 });
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
 
-    throw new Error("something went wrong");
+    return { success: false, error: createError() };
   }
-}
+};

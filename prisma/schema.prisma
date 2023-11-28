@@ -234,8 +234,6 @@ enum AssessmentSessionStatus {
 
 model AssessmentSession {
   id           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  // TODO: handle sessions expiration
-  sessionToken String                  @unique @map("session_token")
   expiresAt    DateTime                @map("expires_at")
   status       AssessmentSessionStatus @default(STARTED) @map("status")
   assessment   Assessment              @relation(fields: [assessmentId], references: [id])

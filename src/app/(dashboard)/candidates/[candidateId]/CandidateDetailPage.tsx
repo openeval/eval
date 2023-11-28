@@ -1,4 +1,4 @@
-import { CandidateStatus, type Candidate } from "@prisma/client";
+import { CandidateStatus } from "@prisma/client";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
@@ -7,12 +7,13 @@ import { Card, CardContent } from "~/components/ui/Card";
 import { Typography } from "~/components/ui/Typography";
 import { formatDate } from "~/lib/utils";
 import type { CandidateFullData } from "~/server/repositories/Candidates";
+import type { UpdateCandidateAction } from "../action";
 import { CandidateProfileOps } from "./CandidateProfileOps";
 import { SubmissionItem } from "./SubmissionItem";
 
 type CandidateDetailPageProps = {
   data: { candidate: NonNullable<CandidateFullData> };
-  actions: { updateCandidateAction: (id, data) => Promise<Candidate | null> };
+  actions: { updateCandidateAction: UpdateCandidateAction };
 };
 
 export default function CandidateDetailPage({

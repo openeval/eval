@@ -42,7 +42,7 @@ export const createAssessmentAction: CreateAssessmentAction = async (data) => {
     const assessment = await prisma.assessment.create({
       data: {
         ...data,
-        status: AssessmentStatus.DRAFT,
+        status: AssessmentStatus.ACTIVE,
         published: false,
         organization: { connect: { id: user.activeOrgId as string } },
         createdBy: { connect: { id: user.id } },

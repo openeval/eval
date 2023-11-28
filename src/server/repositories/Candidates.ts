@@ -58,11 +58,14 @@ export async function linkInvitedUser(
   });
 }
 
-export async function update(where, data) {
+export async function update(
+  where: Prisma.CandidateWhereUniqueInput,
+  data: Prisma.CandidateUpdateInput,
+) {
   return await prisma.candidate.update({ where, data });
 }
 
-export async function create(data) {
+export async function create(data: Prisma.CandidateCreateInput) {
   return await prisma.candidate.create({ data });
 }
 

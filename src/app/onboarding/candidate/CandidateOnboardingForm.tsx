@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CandidateCreateInputSchema } from "prisma/zod";
+import { CandidateSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -33,7 +33,7 @@ type CandidateOnboardingFormProps = {
   action: CreateCandidateAction;
 };
 
-const candidateSchema = CandidateCreateInputSchema.pick({
+const candidateSchema = CandidateSchema.pick({
   name: true,
   lastName: true,
 });

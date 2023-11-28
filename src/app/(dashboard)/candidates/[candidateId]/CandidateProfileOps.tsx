@@ -29,11 +29,12 @@ import {
   SheetTitle,
 } from "~/components/ui/Sheet";
 import { toast } from "~/hooks/use-toast";
+import type { UpdateCandidateAction } from "../action";
 import { CandidateUpdateForm } from "./CandidateUpdateForm";
 
 interface CandidateProfileOpsProps {
   candidate: Candidate;
-  updateCandidateAction: (id, data) => Promise<Candidate | null>;
+  updateCandidateAction: UpdateCandidateAction;
 }
 
 export function CandidateProfileOps({
@@ -47,19 +48,20 @@ export function CandidateProfileOps({
 
   async function archiveCandidate(candidateId: string) {
     startActionTransition(async () => {
-      try {
-        await updateCandidateAction(candidateId, {
-          status: CandidateStatus.ARCHIVED,
-        });
+      // unlink the user to the candidate in order we can onboarding them again
+      const res = await updateCandidateAction(candidateId, {
+        status: CandidateStatus.ARCHIVED,
+        user: { disconnect: true, update: { completedOnboarding: false } },
+      });
 
+      if (res.success) {
         setShowDeleteAlert(false);
         router.refresh();
         toast({
           title: "Success.",
           description: "Candidate updated",
         });
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",

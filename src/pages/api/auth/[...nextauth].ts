@@ -40,7 +40,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           await updateUser(
             { id: user.id },
             {
-              activeOrgId: organizationId,
+              activeOrg: { connect: { id: organizationId as string } },
               completedOnboarding: true,
               memberships: {
                 update: {

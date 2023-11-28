@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { components } from "@octokit/openapi-types";
-import { type AssessmentSession } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -36,6 +35,7 @@ import {
   SelectValue,
 } from "~/components/ui/Select";
 import { toast } from "~/hooks/use-toast";
+import type { FinishAssessmentSessionAction } from "./actions";
 
 const formSchema = z.object({
   contributionId: z
@@ -50,14 +50,11 @@ type FormValues = z.infer<typeof formSchema>;
 interface FinishAssessmentSessionButtonProps {
   sessionId: string;
   contributions: components["schemas"]["issue-search-result-item"][];
-  finishAssessmentSessionAction: (
-    sessionId: string,
-    contribution: components["schemas"]["issue-search-result-item"],
-  ) => Promise<AssessmentSession>;
+  finishAssessmentSessionAction: FinishAssessmentSessionAction;
 }
 
 // add alert to start
-export default function FinishAssessmentSessionButton({
+export function FinishAssessmentSessionButton({
   sessionId,
   contributions,
   finishAssessmentSessionAction,
@@ -74,21 +71,19 @@ export default function FinishAssessmentSessionButton({
     //given the current user
     // create an assessment session
     startActionTransition(async () => {
-      try {
-        const contribution = contributions.find(
-          (item) => item.id === data.contributionId,
-        );
+      const contribution = contributions.find(
+        (item) => item.id === data.contributionId,
+      );
 
-        if (!contribution) {
-          throw Error("contribution not found");
-        }
+      if (!contribution) {
+        throw Error("contribution not found");
+      }
 
-        await finishAssessmentSessionAction(sessionId, contribution);
-
+      const res = await finishAssessmentSessionAction(sessionId, contribution);
+      if (res.success) {
         // router.refresh();
         router.push(`/s/${sessionId}/confirmation`);
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",

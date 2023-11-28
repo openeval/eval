@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
-import FinishAssessmentSessionButton from "~/components/FinishAssessmentSessionButton";
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
@@ -15,6 +14,7 @@ import {
 } from "~/server/github";
 import { findOneByCandidate } from "~/server/repositories/AssessmentSessions";
 import { finishAssessmentSessionAction } from "./actions";
+import { FinishAssessmentSessionButton } from "./FinishAssessmentSessionButton";
 
 interface PageProps {
   params: { sessionId: string };
@@ -24,17 +24,18 @@ const getAssessmentSession = cache(async (id: string, candidateId?: string) => {
   return await findOneByCandidate(id, candidateId);
 });
 
-const getIssues = cache(
-  async (querySearch?: { [key: string]: string | string[] | undefined }) => {
-    const issuees = await searchIssues({ querySearch });
-    return issuees;
-  },
-);
+const getIssues = cache(async (querySearch?: string[] | string | null) => {
+  const issuees = await searchIssues({ querySearch });
+  return issuees;
+});
 
 const getPullRequests = cache(async (user, assessment) => {
   const account = await prisma.account.findFirst({
     where: { userId: user.id, provider: "github" },
   });
+  if (!account) {
+    return [];
+  }
   const ghProfile = await getProfile(account.providerAccountId);
   const pr = await searchPullRequestContributions(
     ghProfile.login,
@@ -96,7 +97,7 @@ export default async function Page({ params }: PageProps) {
         Issues
       </Typography>
       <div className="mb-8 divide-y divide-neutral-200 rounded-md border border-slate-200">
-        {issues.map((item) => (
+        {issues.items.map((item) => (
           <OpenTaskItem key={item.id} item={item} />
         ))}
       </div>
