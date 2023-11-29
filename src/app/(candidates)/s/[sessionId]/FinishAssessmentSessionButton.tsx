@@ -53,7 +53,6 @@ interface FinishAssessmentSessionButtonProps {
   finishAssessmentSessionAction: FinishAssessmentSessionAction;
 }
 
-// add alert to start
 export function FinishAssessmentSessionButton({
   sessionId,
   contributions,
@@ -68,8 +67,6 @@ export function FinishAssessmentSessionButton({
   });
 
   const onFinishSession = async (data) => {
-    //given the current user
-    // create an assessment session
     startActionTransition(async () => {
       const contribution = contributions.find(
         (item) => item.id === data.contributionId,
@@ -81,7 +78,6 @@ export function FinishAssessmentSessionButton({
 
       const res = await finishAssessmentSessionAction(sessionId, contribution);
       if (res.success) {
-        // router.refresh();
         router.push(`/s/${sessionId}/confirmation`);
       } else {
         toast({
@@ -96,7 +92,7 @@ export function FinishAssessmentSessionButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button>Submit assessment</Button>
+        <Button className="ml-auto">Submit assessment</Button>
       </AlertDialogTrigger>
       <Form {...form}>
         <form
