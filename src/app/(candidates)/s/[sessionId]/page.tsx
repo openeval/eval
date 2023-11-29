@@ -1,8 +1,11 @@
+import { GitBranch } from "lucide-react";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
-import FinishAssessmentSessionButton from "~/components/FinishAssessmentSessionButton";
+import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { OpenTaskItem } from "~/components/OpenTaskItem";
+import { Button } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { formatDateWithTime } from "~/lib/utils";
@@ -15,6 +18,7 @@ import {
 } from "~/server/github";
 import { findOneByCandidate } from "~/server/repositories/AssessmentSessions";
 import { finishAssessmentSessionAction } from "./actions";
+import { FinishAssessmentSessionButton } from "./FinishAssessmentSessionButton";
 
 interface PageProps {
   params: { sessionId: string };
@@ -24,21 +28,24 @@ const getAssessmentSession = cache(async (id: string, candidateId?: string) => {
   return await findOneByCandidate(id, candidateId);
 });
 
-const getIssues = cache(
-  async (querySearch?: { [key: string]: string | string[] | undefined }) => {
-    const issuees = await searchIssues({ querySearch });
-    return issuees;
-  },
-);
+const getIssues = cache(async (querySearch?: string[] | string | null) => {
+  const issuees = await searchIssues({ querySearch });
+  return issuees;
+});
 
-const getPullRequests = cache(async (user, assessment) => {
+const getPullRequests = cache(async (user, session) => {
   const account = await prisma.account.findFirst({
     where: { userId: user.id, provider: "github" },
   });
+  if (!account) {
+    return [];
+  }
   const ghProfile = await getProfile(account.providerAccountId);
+  const fromDate = new Date(session.startedAt).toISOString();
+
   const pr = await searchPullRequestContributions(
     ghProfile.login,
-    assessment.ghIssuesQuerySeach,
+    session.assessment.ghIssuesQuerySeach + ` created:>=${fromDate}`,
   );
   return pr;
 });
@@ -61,22 +68,25 @@ export default async function Page({ params }: PageProps) {
 
   const issues = await getIssues(session.assessment?.ghIssuesQuerySeach);
 
-  const contributions = await getPullRequests(user, session.assessment);
+  const contributions = await getPullRequests(user, session);
 
   return (
     <div>
       <div className="flex justify-between">
         <div className="grid gap-1">
           <Typography variant="h1">{session.assessment.title}</Typography>
-          <Typography variant="small">
+          <Typography variant="muted">
             closes at {formatDateWithTime(session.expiresAt.toString())}
           </Typography>
         </div>
-        <FinishAssessmentSessionButton
-          finishAssessmentSessionAction={finishAssessmentSessionAction}
-          sessionId={params.sessionId}
-          contributions={contributions}
-        />
+
+        {contributions.length > 0 && (
+          <FinishAssessmentSessionButton
+            finishAssessmentSessionAction={finishAssessmentSessionAction}
+            sessionId={params.sessionId}
+            contributions={contributions}
+          />
+        )}
       </div>
 
       <Typography variant="p" className="mb-8 max-w-2xl">
@@ -95,22 +105,46 @@ export default async function Page({ params }: PageProps) {
       <Typography variant={"h3"} className="mb-4">
         Issues
       </Typography>
-      <div className="mb-8 divide-y divide-neutral-200 rounded-md border border-slate-200">
-        {issues.map((item) => (
-          <OpenTaskItem key={item.id} item={item} />
-        ))}
-      </div>
+      <div className="mb-8">
+        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+          {issues.items.map((item) => (
+            <OpenTaskItem key={item.id} item={item} />
+          ))}
+        </div>
 
+        <Button asChild variant={"link"} className="block text-center">
+          {/* TODO: remove external links */}
+          <Link
+            target="_blank"
+            href={`https://github.com/search?q=type:issue no:assignee state:open ${session.assessment?.ghIssuesQuerySeach}`}
+          >
+            view full list
+          </Link>
+        </Button>
+      </div>
       <Typography variant={"h3"}>Contributions</Typography>
-      <Typography variant={"p"}>
+      <Typography variant={"p"} className="mb-4">
         Here is the list of open contribution. We only track pull requests for
         the related repositories{" "}
       </Typography>
-      <div className="mt-8 divide-y divide-neutral-200 rounded-md border border-slate-200">
-        {contributions.map((item) => (
-          <OpenTaskItem key={item.id} item={item} />
-        ))}
-      </div>
+
+      {contributions.length > 0 && (
+        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+          {contributions.map((item) => (
+            <OpenTaskItem key={item.id} item={item} />
+          ))}
+        </div>
+      )}
+
+      {!contributions.length && (
+        <EmptyPlaceholder>
+          <EmptyPlaceholder.Icon icon={GitBranch} />
+          <EmptyPlaceholder.Title> No contributions yet</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Description>
+            Get started by creating a new pull request.
+          </EmptyPlaceholder.Description>
+        </EmptyPlaceholder>
+      )}
     </div>
   );
 }

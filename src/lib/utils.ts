@@ -9,6 +9,7 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
+// November 27, 2023
 export function formatDate(input: string | number | Date): string {
   const date = new Date(input);
   return date.toLocaleDateString("en-US", {

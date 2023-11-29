@@ -1,23 +1,32 @@
 "use server";
 
 import type { components } from "@octokit/openapi-types";
-import { AssessmentSessionStatus } from "@prisma/client";
+import {
+  AssessmentSessionStatus,
+  type AssessmentSession,
+} from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
+import { createError, ERROR_CODES } from "~/server/error";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
+import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
+export type FinishAssessmentSessionAction = (
+  sessionId: string,
+  contribution: components["schemas"]["issue-search-result-item"],
+) => Promise<ActionResponse<AssessmentSession>>;
 
 export async function finishAssessmentSessionAction(
   sessionId: string,
   contribution: components["schemas"]["issue-search-result-item"],
-) {
+): Promise<ActionResponse<AssessmentSession>> {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -71,11 +80,19 @@ export async function finishAssessmentSessionAction(
         },
       },
     });
-    return response;
+    return { success: true, data: response };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { error: error.issues };
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
     }
-    return { error: "something went wrong" };
+
+    return { success: false, error: createError() };
   }
 }

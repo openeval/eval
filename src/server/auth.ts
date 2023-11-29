@@ -190,7 +190,6 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async linkAccount({ account, user, profile }) {
-      // TODO:add extra validations
       if (account.provider === "github") {
         // candidates need to link their github account to verify their profiles
         // this happens when a candidate is invited (created by organization) and

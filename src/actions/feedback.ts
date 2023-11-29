@@ -2,7 +2,7 @@
 
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { FeedbackCreateInputSchema } from "prisma/zod";
+import { FeedbackSchema } from "prisma/zod";
 import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
@@ -21,7 +21,7 @@ export const sendFeedbackAction = async (data: { message: string }) => {
   const { user } = session;
 
   try {
-    FeedbackCreateInputSchema.pick({ message: true }).parse(data);
+    FeedbackSchema.pick({ message: true }).parse(data);
 
     const feedback = await prisma.feedback.create({
       data: { message: data.message, createdById: user.id },

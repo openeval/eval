@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 import {
   CandidateCreateInputSchema,
   OrganizationCreateInputSchema,
-  UserUpdateInputSchema,
+  UserSchema,
 } from "prisma/zod";
 import slugify from "slugify";
 import { z } from "zod";
@@ -29,9 +29,9 @@ import type { ActionResponse } from "~/types";
 // to have access to the current user session
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
-export type UpdateUserTypeAction = (
-  data: UserType,
-) => Promise<ActionResponse<User>>;
+export type UpdateUserTypeAction = (data: {
+  type: UserType;
+}) => Promise<ActionResponse<User>>;
 
 export const updateUserTypeAction: UpdateUserTypeAction = async (data) => {
   const session = await getServerSession(authOptions);
@@ -45,10 +45,10 @@ export const updateUserTypeAction: UpdateUserTypeAction = async (data) => {
   const { user } = session;
 
   try {
-    UserUpdateInputSchema.pick({ type: true }).parse(data);
+    UserSchema.pick({ type: true }).parse(data);
 
-    const upUser = await updateUser({ id: user.id }, data);
-    return { success: true, data: upUser };
+    const dbUser = await updateUser({ id: user.id }, data);
+    return { success: true, data: dbUser };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {

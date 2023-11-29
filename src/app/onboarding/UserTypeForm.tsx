@@ -2,11 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserType } from "@prisma/client";
-import { redirect, useRouter } from "next/navigation";
-import { UserUpdateInputSchema } from "prisma/zod";
+import { redirect } from "next/navigation";
+import { UserSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -29,9 +28,11 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/RadioGroup";
 import { toast } from "~/hooks/use-toast";
 import { type UpdateUserTypeAction } from "./actions";
 
-const userTypeSchema = UserUpdateInputSchema.pick({ type: true });
+const userTypeSchema = UserSchema.pick({ type: true });
 
-type FormData = z.infer<typeof userTypeSchema>;
+type FormData = {
+  type: UserType;
+};
 
 type UserTypeFormProps = {
   action: UpdateUserTypeAction;

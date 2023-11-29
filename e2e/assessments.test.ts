@@ -34,12 +34,15 @@ test.describe("Assessments", () => {
       .fill(faker.lorem.paragraphs(Math.floor(Math.random() * 11)));
     await form.getByTestId("confirmation-button").click();
 
+    await page.waitForLoadState("networkidle");
     const roleToast = await page.waitForSelector(
       '[data-testid="toast-default"]',
     );
     expect(roleToast).toBeTruthy();
 
-    await expect(page).toHaveTitle("New Assessments - tasks");
+    await page.waitForLoadState("networkidle");
+
+    await expect(page).toHaveTitle("Assessments - tasks");
     await form.getByTestId("confirmation-button").click();
 
     const taskToast = await page.waitForSelector(

@@ -1,44 +1,44 @@
 "use client";
 
-import { type Prisma } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { Button } from "~/components/ui/Button";
 import { siteConfig } from "~/config/site";
 import { toast } from "~/hooks/use-toast";
+import type { UpdateAssessmentAction } from "./actions";
 
 interface SaveAssessmentIssuesButton {
   assessmentId?: string;
-  action: (
-    where: Prisma.AssessmentWhereUniqueInput,
-    data: Prisma.AssessmentUpdateInput,
-  ) => Promise<unknown>;
+  action: UpdateAssessmentAction;
+  flow: "create" | "update";
 }
 
 export default function SaveAssessmentIssuesButton({
+  flow = "create",
   assessmentId,
   action,
 }: SaveAssessmentIssuesButton) {
   const [isLoading, startActionTransition] = React.useTransition();
-
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const q = searchParams?.get("q") || siteConfig.github.searchQueryString;
 
-  const router = useRouter();
   async function onSubmit() {
     startActionTransition(async () => {
-      try {
-        await action({ id: assessmentId }, { ghIssuesQuerySeach: q });
+      const res = await action({ id: assessmentId }, { ghIssuesQuerySeach: q });
+      if (res.success) {
         toast({
           title: "Success.",
           description: "Assessment updated",
         });
-
-        router.push(`/assessments/add/${assessmentId}/settings`);
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+        if (flow === "create") {
+          router.push(`/assessments/add/${assessmentId}/settings`);
+        } else {
+          router.refresh();
+        }
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",
@@ -49,12 +49,8 @@ export default function SaveAssessmentIssuesButton({
   }
 
   return (
-    <Button
-      onClick={() => onSubmit()}
-      disabled={isLoading}
-      data-testid="confirmation-button"
-    >
-      Next
+    <Button onClick={() => onSubmit()} disabled={isLoading}>
+      Save
     </Button>
   );
 }

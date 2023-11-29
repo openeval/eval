@@ -19,7 +19,7 @@ export default function DashboardLoading() {
           href={"/assessments/add"}
           className={cn(buttonVariants({ variant: "default" }))}
         >
-          Add Assessment
+          New Assessment
         </Link>
       </div>
 

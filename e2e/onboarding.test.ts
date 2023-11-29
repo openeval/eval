@@ -26,6 +26,7 @@ test.describe("Onboarding", () => {
     await page.getByTestId("recruiter").click();
     await page.getByTestId("confirmation-button").click();
 
+    await page.waitForLoadState("networkidle");
     await expect(page).toHaveTitle("My organization");
 
     // organization form

@@ -3,6 +3,7 @@
 import type { AssessmentSession } from "@prisma/client";
 import { type User } from "next-auth";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -20,19 +21,22 @@ import {
 import { Button } from "~/components/ui/Button";
 import { toast } from "~/hooks/use-toast";
 import { absoluteUrl } from "~/lib/utils";
+import type { StartAssessmentSessionAction } from "./actions";
 
 interface StartAssessmentButtonProps {
   assessmentId: string;
   user?: User;
   className?: string;
-  action: (data) => Promise<AssessmentSession>;
+  action: StartAssessmentSessionAction;
+  applicantSession?: Pick<AssessmentSession, "id">;
 }
 // add alert to start
-export default function StartAssessmentButton({
+export function StartAssessmentButton({
   user,
   assessmentId,
   className,
   action,
+  applicantSession,
 }: StartAssessmentButtonProps) {
   const router = useRouter();
   const [isLoading, startActionTransition] = React.useTransition();
@@ -48,16 +52,11 @@ export default function StartAssessmentButton({
     //given the current user
     // create an assessment session
     startActionTransition(async () => {
-      try {
-        const res = await action(assessmentId);
-        if (res.error) {
-          throw new Error();
-        }
+      const res = await action(assessmentId);
+      if (res.success) {
         // router.refresh();
-        router.push(`/s/${res.id}`);
-      } catch (e) {
-        console.log(e);
-        // TODO: how to handle errors in with server actions
+        router.push(`/s/${res.data?.id}`);
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",
@@ -78,14 +77,22 @@ export default function StartAssessmentButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline">Start</Button>
+        <>
+          {applicantSession && (
+            <Button variant="outline">
+              <Link href={`/s/${applicantSession.id}`}>Continue</Link>
+            </Button>
+          )}
+
+          {!applicantSession && <Button variant="outline">Start</Button>}
+        </>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            Once you start your session you will have 24 hours to submit your
-            open source contribution. Good luck!
+            Once you start your session you will not be able to stop it. Good
+            luck!
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
