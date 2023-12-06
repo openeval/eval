@@ -5,7 +5,7 @@ import { cache } from "react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Separator } from "~/components/ui/Separator";
 import { getCurrentUser } from "~/server/auth";
-import { findByCandidate } from "~/server/repositories/Assessments";
+import { findAllForForCandidateList } from "~/server/repositories/Assessments";
 import { AssessmentItem } from "./AssessmentItem";
 
 export const metadata = {
@@ -13,7 +13,7 @@ export const metadata = {
 };
 
 const getAssessments = cache(async (candidateId: string) => {
-  return await findByCandidate(candidateId);
+  return await findAllForForCandidateList(candidateId);
 });
 
 // Candidates assessesment dashboard
@@ -47,10 +47,7 @@ export default async function AssessmentsPage() {
       {rows.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
           {rows.map((row) => (
-            <AssessmentItem
-              key={row.assessment.id}
-              assessment={row.assessment}
-            />
+            <AssessmentItem key={row.id} data={row} />
           ))}
         </div>
       )}

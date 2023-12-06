@@ -1,15 +1,19 @@
-import { type Assessment } from "@prisma/client";
+import { CandidateOnAssessmentStatus } from "@prisma/client";
 import Link from "next/link";
 
+import { Badge } from "~/components/ui/Badge";
 import { Skeleton } from "~/components/ui/Skeleton";
-import { formatDate } from "~/lib/utils";
-import { AssessmentOperations } from "./AssessmentOperations";
+import { Typography } from "~/components/ui/Typography";
+import { formatDate, formatDateWithTime } from "~/lib/utils";
+import type { CandidateAssessmentsFullData } from "~/server/repositories/Assessments";
 
 interface AssessmentItemProps {
-  assessment: Pick<Assessment, "id" | "title" | "published" | "createdAt">;
+  data: CandidateAssessmentsFullData;
 }
 
-export function AssessmentItem({ assessment }: AssessmentItemProps) {
+export function AssessmentItem({ data }: AssessmentItemProps) {
+  const { assessment } = data;
+
   return (
     <div className="flex items-center justify-between p-4">
       <div className="grid gap-1">
@@ -25,9 +29,17 @@ export function AssessmentItem({ assessment }: AssessmentItemProps) {
           </p>
         </div>
       </div>
-      <AssessmentOperations
-        assessment={{ id: assessment.id, title: assessment.title }}
-      />
+      <div className="flex flex-col gap-1">
+        <Badge className="ml-auto w-20 flex-none">{data.status}</Badge>
+        {data.status === CandidateOnAssessmentStatus.STARTED && (
+          <Typography variant={"muted"}>
+            Ends at:{" "}
+            {formatDateWithTime(
+              assessment.applicantSessions[0].expiresAt.toString(),
+            )}
+          </Typography>
+        )}
+      </div>
     </div>
   );
 }

@@ -54,7 +54,6 @@ export function RoleStageForm({
           description: "Assessment created",
         });
 
-        // router.refresh();
         router.push(`/assessments/add/${res.data?.id}/tasks`);
       } else {
         toast({

@@ -110,7 +110,7 @@ export const CandidateStatusSchema = z.enum(['PENDING','VERIFIED','ARCHIVED']);
 
 export type CandidateStatusType = `${z.infer<typeof CandidateStatusSchema>}`
 
-export const CandidateOnAssessmentStatusSchema = z.enum(['PENDING','ACCEPTED','REJECTED']);
+export const CandidateOnAssessmentStatusSchema = z.enum(['PENDING','ACCEPTED','STARTED','FINISHED','REJECTED','APPROVED']);
 
 export type CandidateOnAssessmentStatusType = `${z.infer<typeof CandidateOnAssessmentStatusSchema>}`
 

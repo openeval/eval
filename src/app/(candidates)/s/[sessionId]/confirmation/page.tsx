@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
+import { Button } from "~/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/Card";
 import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
 
@@ -18,8 +21,8 @@ const getAssessmentSessionById = cache(async (id: string) => {
 });
 
 export default async function Page({ params }: PageProps) {
-  const session = await getCurrentUser(authOptions);
-  if (!session) {
+  const user = await getCurrentUser();
+  if (!user) {
     redirect("/login");
   }
 
@@ -31,7 +34,18 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div>
-      <h1>congratulation you for your submission!</h1>
+      <Card className="mx-auto max-w-md">
+        <CardHeader>
+          <CardTitle>Congratulations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <h1>Your submission has been sent.</h1>
+
+          <Button className="mt-8" asChild>
+            <Link href="/d">Continue</Link>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "Eval",
   github: {
-    searchQueryString: "is:public is:open archived:false",
+    searchQueryString: "is:public is:open",
   },
   sidebarNav: [
     {

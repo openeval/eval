@@ -2,6 +2,7 @@
 
 import {
   AssessmentStatus,
+  CandidateOnAssessmentStatus,
   CandidateStatus,
   type AssessmentSession,
 } from "@prisma/client";
@@ -85,6 +86,12 @@ export async function startAssessmentSessionAction(
         connect: { id: candidate?.id },
       },
     });
+
+    await assessmentsRepo.updateCandidateAssessmentStatus(
+      assessmentId,
+      candidate.id,
+      CandidateOnAssessmentStatus.STARTED,
+    );
 
     return { success: true, data: response };
   } catch (error) {

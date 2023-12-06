@@ -3,6 +3,7 @@
 import type { components } from "@octokit/openapi-types";
 import {
   AssessmentSessionStatus,
+  CandidateOnAssessmentStatus,
   type AssessmentSession,
 } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
@@ -12,6 +13,7 @@ import { z } from "zod";
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
+import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
 import type { ActionResponse } from "~/types";
 
@@ -80,6 +82,13 @@ export async function finishAssessmentSessionAction(
         },
       },
     });
+
+    await assessmentsRepo.updateCandidateAssessmentStatus(
+      assessmentSession.assessment.id,
+      candidate.id,
+      CandidateOnAssessmentStatus.FINISHED,
+    );
+
     return { success: true, data: response };
   } catch (error) {
     if (error instanceof z.ZodError) {

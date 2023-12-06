@@ -44,7 +44,35 @@ export async function update(where, data) {
 
 export async function findByCandidate(candidateId) {
   return await prisma.candidatesOnAssessments.findMany({
-    select: { assessment: true },
+    include: { assessment: true },
     where: { candidateId: candidateId },
+  });
+}
+
+export type CandidateAssessmentsFullData = Prisma.PromiseReturnType<
+  typeof findAllForForCandidateList
+>;
+
+export async function findAllForForCandidateList(candidateId: string) {
+  return await prisma.candidatesOnAssessments.findMany({
+    include: {
+      assessment: {
+        include: { applicantSessions: { where: { candidateId } } },
+      },
+    },
+    where: { candidateId: candidateId },
+  });
+}
+
+export async function updateCandidateAssessmentStatus(
+  assessmentId,
+  candidateId,
+  status,
+) {
+  return await prisma.candidatesOnAssessments.update({
+    data: { status: status },
+    where: {
+      candidateId_assessmentId: { candidateId: candidateId, assessmentId },
+    },
   });
 }
