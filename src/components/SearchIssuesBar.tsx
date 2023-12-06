@@ -64,7 +64,7 @@ export default function SearchIssuesBar() {
     setSearchQuery(value);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       // avoid adding the selected Badge from the list of items by default
       event.preventDefault();

@@ -8,7 +8,7 @@ import { formatDate, formatDateWithTime } from "~/lib/utils";
 import type { CandidateAssessmentsFullData } from "~/server/repositories/Assessments";
 
 interface AssessmentItemProps {
-  data: CandidateAssessmentsFullData;
+  data: CandidateAssessmentsFullData[0];
 }
 
 export function AssessmentItem({ data }: AssessmentItemProps) {

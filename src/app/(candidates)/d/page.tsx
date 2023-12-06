@@ -46,8 +46,8 @@ export default async function AssessmentsPage() {
 
       {rows.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
-          {rows.map((row) => (
-            <AssessmentItem key={row.id} data={row} />
+          {rows.map((row, key) => (
+            <AssessmentItem key={key} data={row} />
           ))}
         </div>
       )}

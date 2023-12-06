@@ -17,7 +17,7 @@ export default async function Home() {
     redirect("/d");
   }
 
-  if (user.type !== UserType.RECRUITER) {
+  if (user.type === UserType.RECRUITER) {
     redirect("/assessments");
   }
 

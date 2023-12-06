@@ -42,11 +42,13 @@ const getPullRequests = cache(async (user, session) => {
   }
   const ghProfile = await getProfile(account.providerAccountId);
   const fromDate = new Date(session.startedAt).toISOString();
+  const toDate = new Date(session.expiresAt).toISOString();
 
   const pr = await searchPullRequestContributions(
     ghProfile.login,
-    session.assessment.ghIssuesQuerySeach + ` is:closed created:>=${fromDate}`,
+    session.assessment.ghIssuesQuerySeach + ` created:${fromDate}..${toDate}`,
   );
+
   return pr;
 });
 
