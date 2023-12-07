@@ -41,7 +41,6 @@ export function StartAssessmentButton({
   const router = useRouter();
   const [isLoading, startActionTransition] = React.useTransition();
   const pathname = usePathname();
-
   const handleStart = async () => {
     await signIn("github", {
       callbackUrl: absoluteUrl(pathname).toString(),
@@ -74,37 +73,37 @@ export function StartAssessmentButton({
     );
   }
 
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <>
-          {applicantSession && (
-            <Button variant="outline">
-              <Link href={`/s/${applicantSession.id}`}>Continue</Link>
-            </Button>
-          )}
-
-          {!applicantSession && <Button variant="outline">Start</Button>}
-        </>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Once you start your session you will not be able to stop it. Good
-            luck!
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            disabled={isLoading}
-            onClick={() => onStartSession()}
-          >
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
+  if (applicantSession) {
+    return (
+      <Button variant="outline">
+        <Link href={`/s/${applicantSession.id}`}>Continue</Link>
+      </Button>
+    );
+  } else {
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline">Start</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Once you start your session you will not be able to stop it. Good
+              luck!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isLoading}
+              onClick={() => onStartSession()}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  }
 }

@@ -47,10 +47,11 @@ export async function linkInvitedUser(
   });
 
   await prisma.candidatesOnAssessments.update({
-    // @ts-expect-error check the candidate on assessment mtm
     where: {
-      assessmentId: assessmentId,
-      candidateId: candidate.id,
+      candidateId_assessmentId: {
+        assessmentId: assessmentId,
+        candidateId: candidate.id,
+      },
     },
     data: {
       status: CandidateOnAssessmentStatus.ACCEPTED,

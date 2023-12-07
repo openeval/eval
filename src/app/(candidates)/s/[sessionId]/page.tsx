@@ -42,11 +42,13 @@ const getPullRequests = cache(async (user, session) => {
   }
   const ghProfile = await getProfile(account.providerAccountId);
   const fromDate = new Date(session.startedAt).toISOString();
+  const toDate = new Date(session.expiresAt).toISOString();
 
   const pr = await searchPullRequestContributions(
     ghProfile.login,
-    session.assessment.ghIssuesQuerySeach + ` created:>=${fromDate}`,
+    session.assessment.ghIssuesQuerySeach + ` created:${fromDate}..${toDate}`,
   );
+
   return pr;
 });
 
@@ -66,9 +68,10 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  const issues = await getIssues(session.assessment?.ghIssuesQuerySeach);
-
-  const contributions = await getPullRequests(user, session);
+  const [issues, contributions] = await Promise.all([
+    getIssues(session.assessment?.ghIssuesQuerySeach),
+    getPullRequests(user, session),
+  ]);
 
   return (
     <div>
@@ -116,7 +119,7 @@ export default async function Page({ params }: PageProps) {
           {/* TODO: remove external links */}
           <Link
             target="_blank"
-            href={`https://github.com/search?q=type:issue no:assignee state:open ${session.assessment?.ghIssuesQuerySeach}`}
+            href={`https://github.com/search?q=no:assignee state:open ${session.assessment?.ghIssuesQuerySeach} &type=issues`}
           >
             view full list
           </Link>
@@ -131,7 +134,7 @@ export default async function Page({ params }: PageProps) {
       {contributions.length > 0 && (
         <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
           {contributions.map((item) => (
-            <OpenTaskItem key={item.id} item={item} />
+            <OpenTaskItem key={item.id} item={item} type="pull-request" />
           ))}
         </div>
       )}

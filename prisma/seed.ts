@@ -87,18 +87,8 @@ const criteriaData = [
     ],
   },
   {
-    name: "Dependencies and Compatibility",
-    weight: 5,
-    children: [
-      { name: "Any new dependencies are justified and documented." },
-      {
-        name: "Compatibility with supported platforms and versions is ensured.",
-      },
-    ],
-  },
-  {
     name: "Security and Performance",
-    weight: 5,
+    weight: 10,
     children: [
       {
         name: "The code changes do not introduce security vulnerabilities.",

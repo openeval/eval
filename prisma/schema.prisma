@@ -173,7 +173,10 @@ model Candidate {
 enum CandidateOnAssessmentStatus {
   PENDING
   ACCEPTED
-  REJECTED
+  STARTED
+  FINISHED
+  REJECTED //private
+  APPROVED //private
 }
 
 model CandidatesOnAssessments {

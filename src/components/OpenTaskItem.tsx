@@ -1,7 +1,7 @@
 "use client";
 
 import type { components } from "@octokit/openapi-types";
-import { CircleDot, MessagesSquare } from "lucide-react";
+import { CircleDot, GitBranch, MessagesSquare } from "lucide-react";
 import * as React from "react";
 
 import { Skeleton } from "~/components/ui/Skeleton";
@@ -13,9 +13,15 @@ interface OpenTaskItemProps {
   item: components["schemas"]["issue-search-result-item"];
   active?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
+  type?: "issue" | "pull-request";
 }
 
-export function OpenTaskItem({ item, active, ...props }: OpenTaskItemProps) {
+export function OpenTaskItem({
+  item,
+  active,
+  type = "issue",
+  ...props
+}: OpenTaskItemProps) {
   return (
     <div
       {...props}
@@ -25,14 +31,26 @@ export function OpenTaskItem({ item, active, ...props }: OpenTaskItemProps) {
     >
       <a
         className="text-md mb-2 text-slate-400 hover:text-sky-500"
-        href={item.repository_url}
+        href={item.repository_url.replace("api.github.com/repos", "github.com")}
       >
         {item.repository_url.split("/").slice(-2).join("/")}
       </a>
       <div className="">
         <div className="text-md items-center font-medium sm:flex">
           <span className="flex items-center">
-            <CircleDot className="mr-2 h-5 w-5 flex-none text-green-600" />
+            {type === "issue" && (
+              <CircleDot className="mr-2 h-5 w-5 flex-none text-green-600" />
+            )}
+            {type === "pull-request" && (
+              <GitBranch
+                className={cn(
+                  "flex-non mr-2 h-5 w-5",
+                  item.state === "open" && "text-green-600",
+                  item.state === "closed" && "text-purple-600",
+                )}
+              />
+            )}
+
             <a
               className="text-truncate overflow-hidden  hover:text-sky-500"
               href={item.html_url}
@@ -72,7 +90,7 @@ export function OpenTaskItem({ item, active, ...props }: OpenTaskItemProps) {
       </div>
 
       <div className="">
-        <span className="mt-2 flex cursor-pointer hover:text-sky-500">
+        <span className="mt-2 flex hover:text-sky-500">
           {item.comments ? (
             <>
               <MessagesSquare className="mr-2 h-5 w-5" />
