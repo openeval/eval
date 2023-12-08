@@ -10,12 +10,6 @@ import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 
 import "react-diff-view/style/index.css";
 
-import {
-  type Contribution,
-  type Prisma,
-  type Review,
-  type Submission,
-} from "@prisma/client";
 import { GitPullRequest, Loader } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
@@ -25,15 +19,12 @@ import { Card, CardContent, CardHeader } from "~/components/ui/Card";
 import { Separator } from "~/components/ui/Separator";
 import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
 import type { SubmissionFullData } from "~/server/repositories/Submissions";
+import type { SubmitReviewAction } from "../actions";
 import Pie from "./Pie";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
 
 type SubmissionDetailPageProps = {
-  actions: { submitReviewAction };
-
-  submitReviewAction: (
-    data: Partial<Prisma.EvaluationCriteriaCreateInput>,
-  ) => Promise<unknown>;
+  submitReviewAction: SubmitReviewAction;
   data: {
     submission: NonNullable<SubmissionFullData>;
     evaluationCriterias: EvaluationCriteriaWithChildren;

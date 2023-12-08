@@ -1,14 +1,20 @@
 "use server";
 
-import type { Prisma, Review, Submission } from "@prisma/client";
+import {
+  SubmissionStatus,
+  type Prisma,
+  type Review,
+  type Submission,
+} from "@prisma/client";
 import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { getTotalScore } from "~/server/repositories/EvaluationCriteria";
+import * as submissionsRepo from "~/server/repositories/Submissions";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -17,7 +23,7 @@ import type { ActionResponse } from "~/types";
 
 export type SubmitReviewAction = (
   id: Submission["id"],
-  data: Prisma.ReviewCreateInput,
+  data: Prisma.ReviewCreateInput & { evaluationCriterias: number[] },
 ) => Promise<ActionResponse<Review>>;
 
 export const submitReviewAction: SubmitReviewAction = async (
@@ -33,7 +39,18 @@ export const submitReviewAction: SubmitReviewAction = async (
   }
 
   const { user } = session;
+
+  const submission = await submissionsRepo.findByIdFull(submissionId);
+
+  if (!submission) {
+    notFound();
+  }
+
   try {
+    if (submission.status === SubmissionStatus.REJECTED) {
+      throw Error("Invalid submission status");
+    }
+
     const totalScore = await getTotalScore(data.evaluationCriterias);
 
     const { evaluationCriterias, ...payload } = data;
@@ -52,6 +69,11 @@ export const submitReviewAction: SubmitReviewAction = async (
         },
         totalScore,
       },
+    });
+
+    //update the submission status
+    await submissionsRepo.update(submissionId, {
+      status: SubmissionStatus.REVIEWED,
     });
 
     return { success: true, data: review };

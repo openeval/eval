@@ -74,3 +74,7 @@ export async function findByIdFull(
 
   return data;
 }
+
+export async function update(id: string, data: Prisma.SubmissionUpdateInput) {
+  return await prisma.submission.update({ where: { id }, data });
+}
