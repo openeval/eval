@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type Prisma from "@prisma/client";
 import type { Submission } from "@prisma/client";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -69,7 +68,6 @@ export function ReviewSubmissionForm({
       if (res.success) {
         typeof props.onSuccess === "function" && props.onSuccess();
       } else {
-        // TODO: how to handle errors in with server actions
         toast({
           title: "Something went wrong.",
           description: "Please try again.",
