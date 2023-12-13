@@ -71,10 +71,17 @@ export async function POST(req: Request) {
           data = event.data.object as Stripe.PaymentIntent;
           console.log(`💰 PaymentIntent status: ${data.status}`);
           break;
-        case "customer.subscription.created":
-        case "customer.subscription.updated":
         case "customer.subscription.deleted":
           const subscription = event.data.object as Stripe.Subscription;
+          // TODO: 500 error
+          await OrgRepo.update(
+            { metadata: { path: ["subscriptionId"], equals: subscription.id } },
+            {
+              metadata: {
+                subscriptionId: null,
+              },
+            },
+          );
 
           console.log(`💰 subscription status: ${subscription.id}`);
 

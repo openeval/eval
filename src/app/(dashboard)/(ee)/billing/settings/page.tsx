@@ -50,6 +50,7 @@ export default async function page() {
     name: productPlan.name,
     interval: plan.interval,
     status: subscription.status,
+    quantity: subscription.items.data[0]?.quantity || 0,
   };
 
   return (

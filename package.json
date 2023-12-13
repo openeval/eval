@@ -59,6 +59,7 @@
     "cmdk": "^0.2.0",
     "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
+    "lodash.merge": "^4.6.2",
     "lucide-react": "^0.286.0",
     "next": "14.0.3",
     "next-auth": "^4.23.2",

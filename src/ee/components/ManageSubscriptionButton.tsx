@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { Button } from "~/components/ui/Button";
-import { createStripeBillingPortalSessionAction } from "../actions";
+import { createStripeBillingPortalSessionAction } from "../actions/billing";
 
-export default function ManageSubscriptionButton() {
+export function ManageSubscriptionButton({ ...props }) {
   const router = useRouter();
 
   const [isLoading, startActionTransition] = React.useTransition();
@@ -21,10 +21,10 @@ export default function ManageSubscriptionButton() {
   };
 
   return (
-    <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
-      <Button disabled={isLoading} onClick={redirectToCustomerPortal}>
-        Open customer portal
-      </Button>
-    </div>
+    <Button
+      {...props}
+      disabled={isLoading}
+      onClick={redirectToCustomerPortal}
+    />
   );
 }

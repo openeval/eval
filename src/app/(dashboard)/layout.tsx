@@ -29,10 +29,10 @@ export default async function Layout({
   return (
     <div>
       <Header />
-      <div className="container flex pt-16">
+      <div className="container relative flex">
         <aside
           id="sidebar"
-          className="transition-width fixed top-0 z-20 hidden h-full w-48 shrink-0 flex-col pt-16 font-normal duration-75 lg:flex"
+          className="transition-width sticky inset-12 z-20 hidden h-full w-48 shrink-0 flex-col  font-normal duration-75 lg:flex"
           aria-label="Sidebar"
         >
           <div className="mt-8 pr-8">
@@ -41,7 +41,7 @@ export default async function Layout({
         </aside>
         <main
           id="main-content"
-          className="relative h-full w-full overflow-x-hidden py-8 md:px-2 lg:ml-48"
+          className="relative mt-8 h-full w-full overflow-x-hidden md:px-2"
         >
           {children}
         </main>
