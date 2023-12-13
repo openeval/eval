@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import {
   CandidateStatus,
+  Organization,
   type User as BaseUser,
   type Candidate,
   type Membership,
@@ -33,6 +34,7 @@ declare module "next-auth" {
   interface User extends BaseUser {
     memberships: Membership;
     candidate?: Candidate;
+    activeOrg: Organization;
   }
 
   interface Session extends DefaultSession {
@@ -69,6 +71,7 @@ const credentialsProvider = CredentialsProvider({
       include: {
         candidate: true,
         memberships: true,
+        activeOrg: true,
       },
     });
 
@@ -143,6 +146,7 @@ export const authOptions: NextAuthOptions = {
         include: {
           candidate: true,
           memberships: true,
+          activeOrg: true,
         },
       });
 
@@ -160,6 +164,7 @@ export const authOptions: NextAuthOptions = {
           name: dbUser.name,
           email: dbUser.email,
           activeOrgId: dbUser.activeOrgId,
+          activeOrg: dbUser.activeOrg,
           type: dbUser.type,
           completedOnboarding: dbUser.completedOnboarding,
           candidate: dbUser.candidate,

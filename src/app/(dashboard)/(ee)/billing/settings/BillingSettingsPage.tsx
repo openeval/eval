@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/Card";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
-import ManageSubscriptionButton from "./ManageSubscriptionButton";
+import { ManageSubscriptionButton } from "~/ee/components/ManageSubscriptionButton";
 
 type BillingSettingsPageProps = {
   data: {
@@ -23,6 +23,7 @@ type BillingSettingsPageProps = {
       interval: string;
       name: string;
       status: string;
+      quantity: number;
     };
   };
 };
@@ -43,13 +44,18 @@ export const BillingSettingsPage = ({ data }: BillingSettingsPageProps) => {
           <CardContent className="grid gap-6">
             {data.currentPlan && (
               <div>
-                {data.currentPlan.price}/{data.currentPlan.interval}
+                {data.currentPlan.quantity} x {data.currentPlan.price}/
+                {data.currentPlan.interval}
               </div>
             )}
           </CardContent>
           <CardFooter className="justify-end">
             {data.currentPlan && data.currentPlan.status !== "canceled" && (
-              <ManageSubscriptionButton />
+              <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
+                <ManageSubscriptionButton>
+                  Open customer postal
+                </ManageSubscriptionButton>
+              </div>
             )}
             {!data.currentPlan ||
               (data.currentPlan.status === "canceled" && (

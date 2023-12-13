@@ -32,7 +32,12 @@ export async function findByAssessmentId(assessmentId: string) {
   });
 }
 
-export type SubmissionFullData = Prisma.PromiseReturnType<typeof findByIdFull>;
+export type SubmissionFullData = Prisma.PromiseReturnType<
+  typeof findByIdFull
+> & {
+  review: { plot: { series: number[]; labels: string[] } };
+};
+
 export async function findByIdFull(
   id: Submission["id"],
   withOptions: { plotReviewsData?: boolean } = {},

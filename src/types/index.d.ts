@@ -1,19 +1,21 @@
+import type { Icon } from "lucide-react";
+
+export type NavItem = {
+  title: string;
+  href: string;
+  disabled?: boolean;
+};
+
+export type MainNavItem = NavItem;
+
 export type SidebarNavItem = {
   title: string;
   disabled?: boolean;
   external?: boolean;
-  icon?: keyof typeof Icons;
-  children?: SidebarNavItem[];
-} & (
-  | {
-      href: string;
-      items?: never;
-    }
-  | {
-      href?: string;
-      items: NavLink[];
-    }
-);
+  icon?: keyof typeof Icon;
+  children?: NavItem[];
+  href?: string;
+};
 
 export type ActionResponse<T> = {
   success: boolean;

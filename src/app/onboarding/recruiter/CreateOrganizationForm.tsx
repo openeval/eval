@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { OrganizationCreateInputSchema } from "prisma/zod";
+import { OrganizationSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -33,7 +33,7 @@ type CreateOrganizationFormProps = React.HTMLAttributes<HTMLDivElement> & {
   action: CreateOrgAction;
 };
 
-const orgSchema = OrganizationCreateInputSchema.pick({ name: true });
+const orgSchema = OrganizationSchema.pick({ name: true });
 
 type FormData = z.infer<typeof orgSchema>;
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { MembershipRole } from "@prisma/client";
 import { ChevronDownIcon, Loader2 as SpinnerIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -55,6 +56,12 @@ export const MembershipRoleActions = ({ membership }) => {
           description: "Role updated",
         });
         router.refresh();
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: res.error?.message || "Please try again.",
+          variant: "destructive",
+        });
       }
     });
   }
@@ -79,15 +86,22 @@ export const MembershipRoleActions = ({ membership }) => {
               <p className="text-sm text-muted-foreground">{description}</p>
             </DropdownMenuItem>
           ))}
-          <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            onSelect={() => setShowDeleteAlert(true)}
-            className="flex flex-col items-start px-4 py-2 text-red-600 hover:text-red-600 aria-selected:text-red-600"
-          >
-            <p>Remove</p>
-            <p className="text-sm text-muted-foreground">Remove team member</p>
-          </DropdownMenuItem>
+          {membership.role !== MembershipRole.OWNER && (
+            <>
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onSelect={() => setShowDeleteAlert(true)}
+                className="flex flex-col items-start px-4 py-2 text-red-600 hover:text-red-600 aria-selected:text-red-600"
+              >
+                <p>Remove</p>
+                <p className="text-sm text-muted-foreground">
+                  Remove team member
+                </p>
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

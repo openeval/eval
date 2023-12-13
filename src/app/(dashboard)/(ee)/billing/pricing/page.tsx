@@ -1,10 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import Script from "next/script";
 
-import { env } from "~/env.mjs";
+import { env } from "~/ee/env.mjs";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById as findOrg } from "~/server/repositories/Organizations";
 
+// TODO: deprecated
 export default async function PricingTable() {
   const user = await getCurrentUser();
 

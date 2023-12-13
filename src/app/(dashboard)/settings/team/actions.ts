@@ -12,6 +12,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { FlowTypes } from "~/config/flows";
+import { updateSubscriptionSeats } from "~/ee/lib/core";
+import { env } from "~/env.mjs";
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
@@ -84,6 +86,10 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
       await sendInvitationEmail(emailSettings);
     }
 
+    if (env.IS_EE) {
+      await updateSubscriptionSeats(org);
+    }
+
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
     revalidatePath("/settings/team");
@@ -146,6 +152,10 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
       { activeOrg: { disconnect: true } },
     );
 
+    if (env.IS_EE) {
+      await updateSubscriptionSeats(org);
+    }
+
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
     revalidatePath("/settings/team");
@@ -206,7 +216,6 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
 
     const res = await MembershipRepo.update({ id }, { role });
 
-    //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
     revalidatePath("/settings/team");
     return { success: true, data: res };
