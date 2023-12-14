@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import Header from "~/components/Header";
 import { SideNav } from "~/components/SideNav";
 import { siteConfig } from "~/config/site";
+import { UpgradeBanner } from "~/ee/components/UpgradeBanner";
+import { checkSubscription } from "~/ee/lib/core";
+import { env } from "~/env.mjs";
 import { getCurrentUser } from "~/server/auth";
 
 export default async function Layout({
@@ -26,8 +29,13 @@ export default async function Layout({
     redirect("/d");
   }
 
+  if (env.IS_EE) {
+    await checkSubscription(user);
+  }
+
   return (
     <div>
+      <UpgradeBanner activeOrg={user.activeOrg} />
       <Header />
       <div className="container relative flex">
         <aside
