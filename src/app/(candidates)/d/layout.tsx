@@ -36,7 +36,7 @@ export default async function Layout({
 
   return (
     <div>
-      <Header />
+      <Header user={user} />
       <div className="container relative flex">
         <aside
           id="sidebar"

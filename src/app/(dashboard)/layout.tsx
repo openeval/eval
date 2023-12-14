@@ -36,11 +36,11 @@ export default async function Layout({
   return (
     <div>
       <UpgradeBanner activeOrg={user.activeOrg} />
-      <Header />
+      <Header user={user} />
       <div className="container relative flex">
         <aside
           id="sidebar"
-          className="transition-width sticky inset-12 z-20 hidden h-full w-48 shrink-0 flex-col  font-normal duration-75 lg:flex"
+          className="transition-width sticky inset-12 z-20 hidden h-full w-48 shrink-0 flex-col  font-normal duration-75 md:flex"
           aria-label="Sidebar"
         >
           <div className="mt-8 pr-8">

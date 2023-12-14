@@ -17,6 +17,14 @@ export const UpgradeBanner = async ({ activeOrg }) => {
     if (subscription && subscription.status === "trialing") {
       return (
         <div className="flex items-center justify-center bg-black py-1 text-center text-white">
+          <Popover>
+            <PopoverTrigger>
+              <HelpCircle className="mr-2 h-4 w-4" />
+            </PopoverTrigger>
+            <PopoverContent>
+              After your free trial ends this plan will continue automatically.
+            </PopoverContent>
+          </Popover>
           You are on a free trial.{" "}
           <ManageSubscriptionButton
             variant="link"
@@ -24,14 +32,6 @@ export const UpgradeBanner = async ({ activeOrg }) => {
           >
             Upgrade here
           </ManageSubscriptionButton>
-          <Popover>
-            <PopoverTrigger>
-              <HelpCircle className="h-4 w-4" />
-            </PopoverTrigger>
-            <PopoverContent>
-              After your free trial ends this plan will continue automatically.
-            </PopoverContent>
-          </Popover>
         </div>
       );
     }
