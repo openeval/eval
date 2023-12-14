@@ -9,11 +9,12 @@ import { type SidebarNavItem } from "~/types";
 
 interface DashboardNavProps {
   items: SidebarNavItem[];
+  onClickMenuItem?: () => void;
 }
 
 const Icons = { Settings, Users, FileBadge, Dot, ListTodo };
 
-export function SideNav({ items }: DashboardNavProps) {
+export function SideNav({ items, onClickMenuItem }: DashboardNavProps) {
   const path = usePathname();
 
   if (!items?.length) {
@@ -24,7 +25,16 @@ export function SideNav({ items }: DashboardNavProps) {
     <nav className={cn("grid gap-1")}>
       {items.map((item, index) => {
         return (
-          <NavItem key={index} item={item} isActive={path === item.href} />
+          <NavItem
+            key={index}
+            item={item}
+            isActive={path === item.href}
+            onClick={() => {
+              if (onClickMenuItem && typeof onClickMenuItem === "function") {
+                onClickMenuItem();
+              }
+            }}
+          />
         );
       })}
     </nav>
@@ -35,8 +45,9 @@ type NavItemProps = {
   item: SidebarNavItem;
   isActive?: boolean;
   isChild?: boolean;
+  onClick?: () => void;
 };
-function NavItem({ item, isActive, isChild }: NavItemProps) {
+function NavItem({ item, isActive, isChild, onClick }: NavItemProps) {
   const Icon = Icons[item.icon || "Dot"];
   const path = usePathname();
 
@@ -45,6 +56,11 @@ function NavItem({ item, isActive, isChild }: NavItemProps) {
       <Link
         aria-label={item.title}
         href={item.disabled || !item.href ? "#" : item.href}
+        onClick={() => {
+          if (onClick && typeof onClick === "function") {
+            onClick();
+          }
+        }}
       >
         <div
           className={cn(
@@ -65,6 +81,7 @@ function NavItem({ item, isActive, isChild }: NavItemProps) {
             key={key}
             item={child}
             isActive={path === child.href}
+            onClick={onClick}
             isChild
           />
         ))}

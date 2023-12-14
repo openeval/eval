@@ -1,12 +1,22 @@
+"use client";
+
+import { Menu } from "lucide-react";
+import type { User } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
+import React from "react";
 
 import { FeedbackButton } from "~/components/FeedbackButton";
-import { getCurrentUser } from "~/server/auth";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/Sheet";
+import { siteConfig } from "~/config/site";
+import { SideNav } from "./SideNav";
 import { UserAccountNav } from "./UserNav";
 
-const Header = async () => {
-  const user = await getCurrentUser();
+type HeaderProps = { user?: User };
+
+const Header = ({ user }: HeaderProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
   return (
     <header className="sticky top-0 z-10 w-full border-b border-b-slate-200  backdrop-blur-md dark:border-b-slate-700 dark:bg-slate-900">
       <div className="container flex h-16 items-center">
@@ -30,6 +40,17 @@ const Header = async () => {
             </div>
           </div>
         )}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger>
+            <Menu className="ml-2 cursor-pointer md:hidden" />
+          </SheetTrigger>
+          <SheetContent side={"right"}>
+            <SideNav
+              items={siteConfig.sidebarNav}
+              onClickMenuItem={() => setIsOpen(false)}
+            ></SideNav>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
