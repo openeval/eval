@@ -25,7 +25,6 @@ export async function POST(req: Request) {
     "checkout.session.completed",
     "payment_intent.succeeded",
     "payment_intent.payment_failed",
-    "checkout.session.completed",
     "customer.subscription.created",
     "customer.subscription.updated",
     "customer.subscription.deleted",
