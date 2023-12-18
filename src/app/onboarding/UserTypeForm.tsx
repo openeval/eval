@@ -73,7 +73,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
         <Card className="mx-auto max-w-md">
           <CardHeader>
             <CardTitle>User role</CardTitle>
-            <CardDescription>what is your main rol?</CardDescription>
+            <CardDescription>what is your main role?</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
             <FormField

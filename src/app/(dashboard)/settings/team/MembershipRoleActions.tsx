@@ -70,7 +70,7 @@ export const MembershipRoleActions = ({ membership }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="flex w-1/5 justify-between">
+          <Button variant="outline" className="flex justify-between md:w-1/5">
             {membership.role}
             <ChevronDownIcon className="ml-2 h-4 w-4 text-muted-foreground" />
           </Button>
@@ -80,7 +80,7 @@ export const MembershipRoleActions = ({ membership }) => {
             <DropdownMenuItem
               key={key}
               onSelect={() => onUpdateRoleMembership(membership.id, value)}
-              className="flex flex-col items-start px-4 py-2"
+              className="flex flex-col items-start "
             >
               <p>{name}</p>
               <p className="text-sm text-muted-foreground">{description}</p>

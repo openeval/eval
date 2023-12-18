@@ -1,11 +1,24 @@
 import "~/styles/globals.css";
 
-import Header from "~/components/Header";
+import { redirect } from "next/navigation";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+import Header from "~/components/Header";
+import { getCurrentUser } from "~/server/auth";
+
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <div>
-      <Header />
+      <Header user={user} withMenu={false} />
       <div className="flex overflow-hidden border-t border-transparent pt-16">
         <main
           id="main-content"

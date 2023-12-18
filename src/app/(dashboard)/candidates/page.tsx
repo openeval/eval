@@ -1,4 +1,5 @@
 import { GitBranch } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
@@ -47,7 +48,8 @@ export default async function CandidatesPage() {
           <EmptyPlaceholder.Icon icon={GitBranch} />
           <EmptyPlaceholder.Title> No Candidates yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
-            Get started by inviting a new one.
+            Get started by inviting Candidates to an{" "}
+            <Link href="/assessments">assessment</Link>.
           </EmptyPlaceholder.Description>
         </EmptyPlaceholder>
       )}

@@ -1,7 +1,6 @@
 "use server";
 
 import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
-import { Badge } from "~/components/ui/Badge";
 import {
   Card,
   CardContent,
@@ -9,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/Card";
-import { toStringUser } from "~/lib/utils";
+import { cn, toStringUser } from "~/lib/utils";
 import type { MembershipsByOrg } from "~/server/repositories/Membership";
 import { InviteTeamMemberButton } from "./InviteTeamMemberButton";
 import { MembershipRoleActions } from "./MembershipRoleActions";
@@ -35,28 +34,31 @@ export async function TeamSettingsPage({ data }: TeamSettingsPageProps) {
             return (
               <div
                 key={membership.id}
-                className="flex items-center justify-between space-x-4"
+                className="flex flex-col space-y-4  md:flex-row md:justify-between md:space-y-0 "
               >
                 <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarFallback>
+                  <Avatar className="overflow-visible">
+                    <AvatarFallback className="relative ">
+                      <span
+                        className={cn(
+                          "absolute bottom-0 right-0 flex h-3 w-3 rounded-full",
+                          { "bg-green-500": membership.accepted },
+                          { "bg-yellow-500": !membership.accepted },
+                        )}
+                      />
                       {toStringUser(membership.user, "short")}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium leading-none">
                       {toStringUser(membership.user)}
-                      {!membership.accepted && (
-                        <Badge variant="outline" className="ml-4">
-                          pending
-                        </Badge>
-                      )}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {membership.user.email}
                     </p>
                   </div>
                 </div>
+
                 <MembershipRoleActions membership={membership} />
               </div>
             );
