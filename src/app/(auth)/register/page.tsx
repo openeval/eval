@@ -3,6 +3,7 @@ import Link from "next/link";
 import { buttonVariants } from "~/components/ui/Button";
 import { Logo } from "~/components/ui/Logo";
 import { UserAuthForm } from "~/components/user-auth-form";
+import { siteConfig } from "~/config/site";
 import { cn } from "~/lib/utils";
 
 export const metadata = {
@@ -38,14 +39,14 @@ export default function RegisterPage() {
           <p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
             By clicking continue, you agree to our{" "}
             <Link
-              href="/"
+              href={siteConfig.termsUrl}
               className="hover:text-brand underline underline-offset-4"
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
-              href="/"
+              href={siteConfig.privacyUrl}
               className="hover:text-brand underline underline-offset-4"
             >
               Privacy Policy
