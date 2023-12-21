@@ -70,6 +70,11 @@ export async function POST(req: Request) {
           data = event.data.object as Stripe.PaymentIntent;
           console.log(`💰 PaymentIntent status: ${data.status}`);
           break;
+        case "customer.subscription.created":
+        case "customer.subscription.updated":
+          data = event.data.object as Stripe.Subscription;
+          console.log(`Subscription status: ${data.status}`);
+          break;
         case "customer.subscription.deleted":
           const subscription = event.data.object as Stripe.Subscription;
           // TODO: 500 error
@@ -83,7 +88,7 @@ export async function POST(req: Request) {
           );
 
           console.log(`💰 subscription status: ${subscription.id}`);
-
+          break;
         default:
           throw new Error(`Unhandled event: ${event.type}`);
       }

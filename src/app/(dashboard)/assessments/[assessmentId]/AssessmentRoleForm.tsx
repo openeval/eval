@@ -49,14 +49,13 @@ export function AssessmentRoleForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
-        await props.action({ id: props.assessment.id }, data);
+      const res = await props.action({ id: props.assessment.id }, data);
+      if (res.success) {
         toast({
           title: "Success.",
           description: "Assessment updated",
         });
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      } else {
         toast({
           title: "Something went wrong.",
           description: "Please try again.",

@@ -30,4 +30,6 @@ export const siteConfig = {
       ],
     },
   ],
+  termsUrl: "https://useeval.com/terms",
+  privacyUrl: "https://useeval.com/privacy",
 };

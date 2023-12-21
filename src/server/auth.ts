@@ -1,10 +1,10 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import {
   CandidateStatus,
-  Organization,
   type User as BaseUser,
   type Candidate,
   type Membership,
+  type Organization,
   type UserType,
 } from "@prisma/client";
 import { type GetServerSidePropsContext } from "next";
@@ -12,6 +12,7 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
+  type User,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
@@ -306,7 +307,7 @@ export async function getSession() {
   return await getServerSession(authOptions);
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<User | undefined> {
   const session = await getSession();
 
   return session?.user;

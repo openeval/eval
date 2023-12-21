@@ -12,9 +12,9 @@ import { siteConfig } from "~/config/site";
 import { SideNav } from "./SideNav";
 import { UserAccountNav } from "./UserNav";
 
-type HeaderProps = { user?: User };
+type HeaderProps = { user?: User; withMenu?: boolean };
 
-const Header = ({ user }: HeaderProps) => {
+const Header = ({ user, withMenu = true }: HeaderProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -40,17 +40,20 @@ const Header = ({ user }: HeaderProps) => {
             </div>
           </div>
         )}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger>
-            <Menu className="ml-2 cursor-pointer md:hidden" />
-          </SheetTrigger>
-          <SheetContent side={"right"}>
-            <SideNav
-              items={siteConfig.sidebarNav}
-              onClickMenuItem={() => setIsOpen(false)}
-            ></SideNav>
-          </SheetContent>
-        </Sheet>
+
+        {withMenu && (
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger>
+              <Menu className="ml-2 cursor-pointer md:hidden" />
+            </SheetTrigger>
+            <SheetContent side={"right"}>
+              <SideNav
+                items={siteConfig.sidebarNav}
+                onClickMenuItem={() => setIsOpen(false)}
+              ></SideNav>
+            </SheetContent>
+          </Sheet>
+        )}
       </div>
     </header>
   );

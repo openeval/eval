@@ -52,7 +52,7 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     const member = await prisma.user.upsert({
       where: { email: data.email },
       update: {},
-      create: { email: data.email, type: UserType.RECRUITER },
+      create: { name: data.name, email: data.email, type: UserType.RECRUITER },
     });
 
     if (member.type === UserType.CANDIDATE) {

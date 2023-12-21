@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import Markdown from "~/components/Markdown";
@@ -30,6 +30,10 @@ const getAssessmentById = cache(async (id: string, candidateId) => {
 
 export default async function Page({ params }: PageProps) {
   const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { candidate } = user;
 
