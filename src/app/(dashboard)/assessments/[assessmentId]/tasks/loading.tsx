@@ -1,6 +1,5 @@
 import { AssessmentItem } from "~/components/AssessmentItem";
 
-// careful loading is used everywhere here :)
 export default function IssuesLoading() {
   return (
     <>

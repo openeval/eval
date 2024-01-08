@@ -1,3 +1,4 @@
+import type { components } from "@octokit/openapi-types";
 import { EqualNot } from "lucide-react";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
@@ -8,7 +9,15 @@ import { kIntFormat } from "~/lib/utils";
 import { updateAssessmentAction } from "./actions";
 import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
 
-export const AssessmentTaskPage = ({ data, flow }) => {
+type AssessmentTaskPageProps = {
+  data: {
+    issues: components["schemas"]["issue-search-result-item"][];
+    total_count: number;
+    assessmentId: string;
+  };
+  flow: "update" | "create";
+};
+export const AssessmentTaskPage = ({ data, flow }: AssessmentTaskPageProps) => {
   const { total_count, issues, assessmentId } = data;
   return (
     <div>
