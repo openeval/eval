@@ -18,7 +18,7 @@ const Header = ({ user, withMenu = true }: HeaderProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-10 w-full border-b border-b-slate-200  backdrop-blur-md dark:border-b-slate-700 dark:bg-slate-900">
+    <header className="sticky top-0 z-10 w-full border-b border-border/40 bg-background/95">
       <div className="container flex h-16 items-center">
         <div className="flex">
           <Link href="/" className="h-12 w-32">

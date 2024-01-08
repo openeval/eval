@@ -37,7 +37,7 @@ EmptyPlaceholder.Icon = function EmptyPlaceHolderIcon({
   return (
     <div
       className={cn(
-        "flex h-20 w-20 items-center justify-center rounded-full bg-slate-100",
+        "flex h-20 w-20 items-center justify-center rounded-full bg-muted",
         className,
       )}
       {...props}
@@ -68,7 +68,7 @@ EmptyPlaceholder.Description = function EmptyPlaceholderDescription({
   return (
     <p
       className={cn(
-        "mb-8 mt-3 text-center text-sm font-normal leading-6 text-slate-700",
+        "mb-8 mt-3 text-center text-sm font-normal leading-6 text-muted-foreground",
         className,
       )}
       {...props}

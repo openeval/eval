@@ -5,6 +5,7 @@ import { cache } from "react";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
 import { findAllForList } from "~/server/repositories/Candidates";
 import { columns } from "./columns";
@@ -31,9 +32,7 @@ export default async function CandidatesPage() {
     <>
       <div className="flex justify-between px-2">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-bold tracking-wide text-slate-900">
-            Candidates
-          </h1>
+          <Typography variant={"h1"}>Candidates</Typography>
         </div>
       </div>
 

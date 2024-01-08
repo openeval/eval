@@ -32,7 +32,7 @@ export default function CandidateDetailPage({
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-xl font-bold leading-none">
+              <p className="mb-2 text-xl font-bold leading-none">
                 {candidate.name} {candidate.lastName}
               </p>
               <p className="text-sm text-muted-foreground">{candidate.email}</p>

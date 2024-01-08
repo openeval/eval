@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
 import { findAllForList } from "~/server/repositories/Submissions";
@@ -35,9 +36,7 @@ export default async function SubmissionsPage({ params }) {
     <>
       <div className="flex justify-between px-2">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-bold tracking-wide text-slate-900">
-            Submissions
-          </h1>
+          <Typography variant="h1">Submissions</Typography>
         </div>
       </div>
 

@@ -49,7 +49,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <div>
       <div className="pb-12">
-        <div className="prose prose-slate mx-auto lg:prose-lg">
+        <div className="prose prose-slate mx-auto dark:prose-invert lg:prose-lg">
           <Typography className="mx-auto mb-4" variant="h1">
             {assessment.title}
           </Typography>
@@ -57,7 +57,7 @@ export default async function Page({ params }: PageProps) {
         </div>
         <div
           tabIndex={-1}
-          className="fixed bottom-0 left-0 z-50 flex w-full  bg-gray-50 p-4 "
+          className="fixed bottom-0 left-0 z-50 flex w-full  bg-muted/30 p-4 "
         >
           <div className="container flex justify-end">
             <StartAssessmentButton

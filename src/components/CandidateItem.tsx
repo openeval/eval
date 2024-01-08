@@ -28,10 +28,10 @@ export function CandidateItem({ candidate, assessmentId }: CandidateItemProps) {
           {candidate.name} {candidate.lastName}
         </Link>
         <div>
-          <p className="text-sm text-slate-600">{candidate.email}</p>
+          <p className="text-sm text-muted-foreground">{candidate.email}</p>
         </div>
         <div>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             {formatDate(candidate.createdAt?.toDateString())}
           </p>
         </div>

@@ -5,6 +5,7 @@ import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { OpenTaskItem } from "~/components/OpenTaskItem";
 import SearchIssuesBar from "~/components/SearchIssuesBar";
 import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { kIntFormat } from "~/lib/utils";
 import { updateAssessmentAction } from "./actions";
 import SaveAssessmentIssuesButton from "./SaveAssessmentIssuesButton";
@@ -22,9 +23,9 @@ export const AssessmentTaskPage = ({ data, flow }: AssessmentTaskPageProps) => {
   return (
     <div>
       <div className="mb-8 flex justify-between">
-        <p className="text-slate-500">
+        <Typography variant={"muted"}>
           Open source issues candidates could solve in the assessment
-        </p>
+        </Typography>
       </div>
 
       <SearchIssuesBar />
@@ -39,7 +40,7 @@ export const AssessmentTaskPage = ({ data, flow }: AssessmentTaskPageProps) => {
         </div>
       </div>
       {issues && issues.length > 0 && (
-        <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
+        <div className="divide-y divide-muted rounded-md border border-muted">
           {issues.map((item) => (
             <OpenTaskItem key={item.id} item={item} />
           ))}

@@ -6,6 +6,7 @@ import { cache } from "react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
 import { findAllForList } from "~/server/repositories/Assessments";
@@ -35,10 +36,8 @@ export default async function AssessmentPage() {
     <>
       <div className="flex justify-between px-2">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-bold tracking-wide text-slate-900">
-            Assessments
-          </h1>
-          <p className="text-slate-500">tests for your candidates</p>
+          <Typography variant="h1">Assessments</Typography>
+          <Typography variant="muted">tests for your candidates</Typography>
         </div>
         <Link
           href={"/assessments/add"}
