@@ -83,7 +83,7 @@ export function StartAssessmentButton({
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="outline">Start</Button>
+          <Button variant="default">Start</Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>

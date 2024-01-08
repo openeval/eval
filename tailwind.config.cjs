@@ -6,7 +6,7 @@ const { fontFamily } = require("tailwindcss/defaultTheme");
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: ["class", '[data-theme="dark"]'],
+  darkMode: ["class"],
   theme: {
     container: {
       center: true,

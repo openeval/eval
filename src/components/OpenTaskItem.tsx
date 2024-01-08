@@ -25,12 +25,12 @@ export function OpenTaskItem({
   return (
     <div
       {...props}
-      className={cn("flex flex-col p-4 hover:bg-slate-100", {
-        "bg-cyan-50": active,
+      className={cn("flex flex-col p-4 hover:bg-muted", {
+        "bg-muted": active,
       })}
     >
       <a
-        className="text-md mb-2 text-slate-400 hover:text-sky-500"
+        className="text-md mb-2 text-muted-foreground hover:text-primary"
         href={item.repository_url.replace("api.github.com/repos", "github.com")}
       >
         {item.repository_url.split("/").slice(-2).join("/")}
@@ -52,7 +52,7 @@ export function OpenTaskItem({
             )}
 
             <a
-              className="text-truncate overflow-hidden  hover:text-sky-500"
+              className="text-truncate overflow-hidden  hover:text-primary"
               href={item.html_url}
             >
               {truncateString(item.title, 200)}
@@ -69,10 +69,10 @@ export function OpenTaskItem({
             </Badge>
           ))}
         </div>
-        <div className="mt-3 flex flex-row items-center gap-2 text-slate-400">
+        <div className="mt-3 flex flex-row items-center gap-2 text-muted-foreground">
           {item.user && (
             <a
-              className="flex flex-row items-center hover:text-sky-500"
+              className="flex flex-row items-center hover:text-primary"
               href={item.user.html_url}
             >
               <Avatar className="mr-2 h-4 w-4">
@@ -90,7 +90,7 @@ export function OpenTaskItem({
       </div>
 
       <div className="">
-        <span className="mt-2 flex hover:text-sky-500">
+        <span className="mt-2 flex hover:text-primary">
           {item.comments ? (
             <>
               <MessagesSquare className="mr-2 h-5 w-5" />

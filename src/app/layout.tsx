@@ -1,5 +1,7 @@
 import clsx from "clsx";
 
+import { ThemeProvider } from "~/components/ThemeProvider";
+
 import "~/styles/globals.css";
 
 import { Work_Sans } from "next/font/google";
@@ -19,15 +21,22 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html dir="ltr" lang="en">
+    <html dir="ltr" lang="en" suppressHydrationWarning>
       <body
         className={clsx(
-          "min-h-screen scroll-smooth bg-white font-sans text-slate-900 antialiased ",
+          "min-h-screen scroll-smooth bg-background font-sans antialiased",
           fontWorkSans.variable,
         )}
       >
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

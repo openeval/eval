@@ -6,6 +6,7 @@ import { CandidateItem } from "~/components/CandidateItem";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 import { CopyButton } from "~/components/ui/CopyButton";
+import { Typography } from "~/components/ui/Typography";
 import { absoluteUrl } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById } from "~/server/repositories/Assessments";
@@ -35,9 +36,11 @@ export default async function AssessmentCandidatePage({
 
   return (
     <>
-      <div className="mb-8 flex justify-between px-2">
+      <div className="mb-8 flex justify-between">
         <div className="grid gap-1">
-          <p className="text-slate-500">Invite candidates to the assessment</p>
+          <Typography variant={"muted"}>
+            Invite candidates to the assessment
+          </Typography>
 
           <div className="mt-4 flex items-center justify-between">
             <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 px-2 dark:border-slate-700 dark:bg-black">

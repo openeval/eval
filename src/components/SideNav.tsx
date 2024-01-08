@@ -64,8 +64,8 @@ function NavItem({ item, isActive, isChild, onClick }: NavItemProps) {
       >
         <div
           className={cn(
-            "group -ml-3 flex items-center rounded-md px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100",
-            isActive ? "bg-slate-200" : "transparent",
+            "group -ml-3 flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-primary/90 hover:text-primary-foreground",
+            isActive ? "bg-primary/20" : "transparent",
             item.disabled && "cursor-not-allowed opacity-80",
             isChild && "pl-10",
           )}

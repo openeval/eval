@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AssessmentItem } from "~/components/AssessmentItem";
 import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
 
 // careful loading is used everywhere here :)
@@ -11,9 +12,7 @@ export default function DashboardLoading() {
     <>
       <div className="flex justify-between px-2">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-bold tracking-wide text-slate-900">
-            Assessments
-          </h1>
+          <Typography variant={"h1"}>Assessments</Typography>
         </div>
         <Link
           href={"/assessments/add"}
@@ -24,7 +23,7 @@ export default function DashboardLoading() {
       </div>
 
       <Separator className="my-4" />
-      <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
+      <div className="divide-y divide-muted/20 rounded-md border border-muted">
         <AssessmentItem.Skeleton />
         <AssessmentItem.Skeleton />
         <AssessmentItem.Skeleton />
