@@ -21,10 +21,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html dir="ltr" lang="en" suppressHydrationWarning>
+    <html dir="ltr" lang="en">
       <body
         className={clsx(
-          "min-h-screen scroll-smooth bg-background font-sans antialiased",
+          "min-h-screen scroll-smooth border-t-2 border-primary bg-background font-sans antialiased",
           fontWorkSans.variable,
         )}
       >

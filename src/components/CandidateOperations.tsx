@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
+import { removeCandidateAction } from "~/actions/candidates";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,22 +26,6 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { toast } from "~/hooks/use-toast";
 
-async function deleteCandidate(candidateId: string) {
-  const response = await fetch(`/api/candidates/${candidateId}`, {
-    method: "DELETE",
-  });
-
-  if (!response?.ok) {
-    toast({
-      title: "Something went wrong.",
-      description: "Your Candidate was not deleted. Please try again.",
-      variant: "destructive",
-    });
-  }
-
-  return true;
-}
-
 interface CandidateOperationsProps {
   candidate: Pick<Candidate, "id" | "name">;
 }
@@ -49,6 +34,27 @@ export function CandidateOperations({ candidate }: CandidateOperationsProps) {
   const router = useRouter();
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
   const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false);
+
+  const [isArchivingLoading, startActionTransition] = React.useTransition();
+
+  async function onDeleteCandidate(candidateId: string) {
+    startActionTransition(async () => {
+      const res = await removeCandidateAction(candidateId);
+      if (res.success) {
+        toast({
+          title: "Success.",
+          description: "Candidate removed",
+        });
+        router.refresh();
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    });
+  }
 
   return (
     <>
@@ -63,12 +69,9 @@ export function CandidateOperations({ candidate }: CandidateOperationsProps) {
               Edit
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setShowDeleteAlert(true)}>
-            Invite
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="flex cursor-pointer items-center text-red-600 focus:bg-red-50"
+            className="flex cursor-pointer items-center text-destructive focus:bg-destructive/20 focus:text-destructive-foreground"
             onSelect={() => setShowDeleteAlert(true)}
           >
             Delete
@@ -90,17 +93,9 @@ export function CandidateOperations({ candidate }: CandidateOperationsProps) {
             <AlertDialogAction
               onClick={async (event) => {
                 event.preventDefault();
-                setIsDeleteLoading(true);
-
-                const deleted = await deleteCandidate(candidate.id);
-
-                if (deleted) {
-                  setIsDeleteLoading(false);
-                  setShowDeleteAlert(false);
-                  router.refresh();
-                }
+                await onDeleteCandidate(candidate.id);
               }}
-              className="bg-red-600 focus:ring-red-600"
+              variant={"destructive"}
             >
               {isDeleteLoading ? (
                 <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />

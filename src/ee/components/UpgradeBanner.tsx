@@ -16,7 +16,7 @@ export const UpgradeBanner = async ({ activeOrg }) => {
 
     if (subscription && subscription.status === "trialing") {
       return (
-        <div className="flex items-center justify-center bg-black py-1 text-center text-white">
+        <div className="flex items-center justify-center bg-primary py-1 text-center text-white">
           <Popover>
             <PopoverTrigger>
               <HelpCircle className="mr-2 h-4 w-4" />
