@@ -26,6 +26,7 @@ import {
 import { toast } from "~/hooks/use-toast";
 
 async function deleteAssessment(assessmentId: string) {
+  // deprecated
   const response = await fetch(`/api/assessments/${assessmentId}`, {
     method: "DELETE",
   });

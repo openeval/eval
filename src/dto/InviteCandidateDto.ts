@@ -7,4 +7,6 @@ const InviteCandidateSchema = z.object({
   email: z.string().email(),
 });
 
+export type InviteCandidateType = z.infer<typeof InviteCandidateSchema>;
+
 export { InviteCandidateSchema };

@@ -183,7 +183,7 @@ enum CandidateOnAssessmentStatus {
 model CandidatesOnAssessments {
   assessment   Assessment                  @relation(fields: [assessmentId], references: [id])
   assessmentId String                      @map("assessment_id") @db.Uuid
-  candidate    Candidate                   @relation(fields: [candidateId], references: [id])
+  candidate    Candidate                   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   candidateId  String                      @map("candidate_id") @db.Uuid
   status       CandidateOnAssessmentStatus @default(PENDING)
 

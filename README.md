@@ -26,9 +26,42 @@ cd eval
 pnpm i
 ```
 
-4. Set up your .env file
+4. Start Supabase local environment
 
-- Duplicate .env.example to .env
+https://supabase.com/docs/guides/cli/local-development
+
+```
+pnpm supabase start
+
+```
+
+5. Set up your .env file
+
+- Duplicate .env.example to .env and adjust to your new local environment
+
+```
+
+Started supabase local development setup.
+
+         API URL: http://localhost:54321
+          DB URL: postgresql://postgres:postgres@localhost:54322/postgres
+      Studio URL: http://localhost:54323
+    Inbucket URL: http://localhost:54324
+        anon key: eyJh......
+service_role key: eyJh......
+
+```
+
+6. Init & seed database
+
+```
+ pnpm prisma migrate dev --name init
+```
+
+```
+ pnpm run db:seed
+
+```
 
 ## Usage
 

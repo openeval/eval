@@ -123,7 +123,7 @@ export const MembershipRoleActions = ({ membership }) => {
                 event.preventDefault();
                 onRemoveMembership(membership.id);
               }}
-              className="bg-red-600 focus:ring-red-600"
+              variant={"destructive"}
             >
               {isArchivingLoading ? (
                 <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />

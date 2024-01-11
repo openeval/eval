@@ -129,3 +129,12 @@ export async function findAllForList(where: Prisma.CandidateWhereInput) {
     },
   });
 }
+
+
+export async function remove(id:string){
+  return await prisma.candidate.delete({
+    where:{
+      id: id
+    }
+  });
+}

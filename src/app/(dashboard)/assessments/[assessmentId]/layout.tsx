@@ -1,9 +1,12 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import slugify from "slugify";
 
 import { AssessmentNav } from "~/components/AssessmentNav";
+import { CopyButton } from "~/components/ui/CopyButton";
 import { Typography } from "~/components/ui/Typography";
+import { absoluteUrl } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById } from "~/server/repositories/Assessments";
 
@@ -47,11 +50,24 @@ export default async function Layout({
         </div>
       </div>
       <div className="mb-4">
-        <Typography variant={"h1"} className="mb-8">
-          {assessment.title}
-        </Typography>
+        <div className="mb-8 flex flex-row items-baseline">
+          <Link
+            href={`${absoluteUrl("/")}a/${assessment.id}/
+            ${slugify(assessment.title)}`}
+            className="flex flex-row items-baseline hover:text-primary"
+          >
+            <Typography variant={"h1"}>{assessment.title}</Typography>
+            <ExternalLink className="ml-2 h-4" />
+          </Link>
+          <CopyButton
+            value={`${absoluteUrl("/")}a/${assessment.id}/
+              ${slugify(assessment.title)}`}
+            className="border-none text-slate-900 hover:bg-transparent dark:text-slate-50"
+          />
+        </div>
         <AssessmentNav assessmentId={assessment.id} />
       </div>
+
       {children}
     </div>
   );

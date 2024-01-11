@@ -3,6 +3,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import type { InviteCandidateAction } from "~/actions/candidates";
 import { Button } from "~/components/ui/Button";
 import {
   Card,
@@ -20,7 +21,7 @@ interface InviteCandidateFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
   assessmentId: string;
   onSuccess: () => void;
-  action: () => Promise<any>;
+  action: InviteCandidateAction;
 }
 
 const invitationSchema = z.object({
@@ -54,7 +55,7 @@ export function InviteCandidateForm({
       if (res.success) {
         onSuccess && onSuccess();
       } else {
-        return toast({
+        toast({
           title: "Something went wrong.",
           description: "Please try again.",
           variant: "destructive",
