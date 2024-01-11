@@ -1,11 +1,9 @@
-import clsx from "clsx";
-
-import { ThemeProvider } from "~/components/ThemeProvider";
-
 import "~/styles/globals.css";
 
+import clsx from "clsx";
 import { Work_Sans } from "next/font/google";
 
+import { ThemeProvider } from "~/components/ThemeProvider";
 import { Toaster } from "~/components/toaster";
 
 const fontWorkSans = Work_Sans({
