@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
+import { siteConfig } from "~/config/site";
 import { prisma } from "~/server/db";
 
 export async function findAll() {
@@ -10,26 +11,42 @@ export type AssessmentsListData = Prisma.PromiseReturnType<
   typeof findAllForList
 >;
 
-export async function findAllForList(where: Prisma.AssessmentWhereInput) {
-  return await prisma.assessment.findMany({
-    where,
-    select: {
-      _count: {
-        select: {
-          candidatesOnAssessments: true,
-          submissions: true,
+export async function findAllForList(
+  where: Prisma.AssessmentWhereInput,
+  opts: { page: number } = { page: 0 },
+) {
+  const pageIndex =
+    typeof opts.page === "number" && opts.page > 0 ? opts.page - 1 : 0;
+
+  // prisma can't return count when adding pagination
+  const [data, count] = await prisma.$transaction([
+    prisma.assessment.findMany({
+      where,
+      select: {
+        _count: {
+          select: {
+            candidatesOnAssessments: true,
+            submissions: true,
+          },
         },
+        id: true,
+        title: true,
+        status: true,
+        published: true,
+        createdAt: true,
       },
-      id: true,
-      title: true,
-      status: true,
-      published: true,
-      createdAt: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+      // pagination
+      take: siteConfig.pageListLimit,
+      skip: pageIndex,
+    }),
+
+    prisma.assessment.count({ where }),
+  ]);
+
+  return { data, count };
 }
 
 export async function findOneById(id, organizationId?) {
@@ -38,7 +55,7 @@ export async function findOneById(id, organizationId?) {
   });
 }
 
-export async function update(where, data) {
+export async function update(where: Prisma.AssessmentWhereUniqueInput, data) {
   return await prisma.assessment.update({ where, data });
 }
 

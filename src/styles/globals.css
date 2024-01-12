@@ -25,10 +25,7 @@
     --ring: 240 5.03% 64.9%;
     --radius: 0.5rem;
   }
-
-  
 }
-
 
 .dark {
   --background: 240 10% 3.92%;
@@ -47,7 +44,7 @@
   --accent-foreground: 0 0% 98.04%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
-  --border: 240 3.7% 15.88%;
+  --border: 240 3.7% 15.9%;
   --input: 240 3.7% 15.88%;
   --ring: 185.33 91.84% 90.39%;
   --radius: 0.5rem;
@@ -88,10 +85,13 @@
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    /* font-feature-settings: "rlig" 1, "calt" 1; */
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
   }
 }

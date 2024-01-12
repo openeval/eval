@@ -57,7 +57,7 @@ export default async function Page({ params }: PageProps) {
         </div>
         <div
           tabIndex={-1}
-          className="fixed bottom-0 left-0 z-50 flex w-full  bg-muted/30 p-4 "
+          className="fixed bottom-0 left-0 z-50 flex w-full  bg-muted p-4 "
         >
           <div className="container flex justify-end">
             <StartAssessmentButton

@@ -153,7 +153,7 @@ export default function SearchIssuesBar() {
             </CommandGroup>
           </CommandList>
         </Command>
-        <div className="bottom-0 left-0  w-full flex-row border-t border-slate-300 bg-white p-4 ">
+        <div className="bottom-0 left-0  w-full flex-row border-t  p-4 ">
           <div className="flex gap-x-16 ">
             <div className="flex flex-col gap-y-2">
               <div className="flex flex-col">

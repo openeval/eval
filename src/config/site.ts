@@ -3,6 +3,7 @@ export const siteConfig = {
   github: {
     searchQueryString: "is:public is:open",
   },
+  pageListLimit: 10,
   sidebarNav: [
     {
       title: "Assessments",

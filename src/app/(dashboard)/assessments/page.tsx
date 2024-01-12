@@ -17,20 +17,25 @@ export const metadata = {
   title: "Assessments",
 };
 
-const getAssessmentsForUser = cache(async (where) => {
-  return await findAllForList(where);
+const getAssessmentsForUser = cache(async (where, opts) => {
+  return await findAllForList(where, opts);
 });
 
-export default async function AssessmentPage() {
+export default async function AssessmentPage({ searchParams }) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
 
-  const assessments = await getAssessmentsForUser({
-    organizationId: user.activeOrgId,
-  });
+  const { data: assessments, count } = await getAssessmentsForUser(
+    {
+      organizationId: user.activeOrgId,
+    },
+    {
+      page: searchParams.page,
+    },
+  );
 
   return (
     <>
@@ -51,13 +56,13 @@ export default async function AssessmentPage() {
       <Separator className="my-4" />
 
       {assessments.length > 0 && (
-        <DataTable columns={columns} data={assessments} />
+        <DataTable dataCount={count} columns={columns} data={assessments} />
       )}
 
       {!assessments.length && (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon icon={GitBranch} />
-          <EmptyPlaceholder.Title> No Assessments yet</EmptyPlaceholder.Title>
+          <EmptyPlaceholder.Title>No Assessments yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
             Get started by creating a new one.
           </EmptyPlaceholder.Description>

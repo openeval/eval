@@ -13,7 +13,7 @@ import {
 } from "~/components/ui/DropdownMenu";
 import { type AssessmentsListData } from "~/server/repositories/Assessments";
 
-type Item = AssessmentsListData[0];
+type Item = AssessmentsListData["data"][0];
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
