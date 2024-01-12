@@ -14,7 +14,11 @@ import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import sendInvitationEmail from "~/server/invite";
-import { findInvitedCandidate, findOneById, remove } from "~/server/repositories/Candidates";
+import {
+  findInvitedCandidate,
+  findOneById,
+  remove,
+} from "~/server/repositories/Candidates";
 import type { ActionResponse } from "~/types";
 
 export type InviteCandidateAction = (
@@ -109,7 +113,9 @@ export type RemoveCandidateAction = (
   candidateId: string,
 ) => Promise<ActionResponse<{ message: string }>>;
 
-export const removeCandidateAction: RemoveCandidateAction = async (candidateId) => {
+export const removeCandidateAction: RemoveCandidateAction = async (
+  candidateId,
+) => {
   const session = await getServerSession(authOptions);
 
   // users shound't be able to execute an action without a session
@@ -120,31 +126,28 @@ export const removeCandidateAction: RemoveCandidateAction = async (candidateId) 
 
   const { user } = session;
 
+  try {
+    const candidate = await findOneById(candidateId, user.activeOrgId);
 
-try{
-  const candidate = await findOneById(candidateId,user.activeOrgId);
-  
+    if (!candidate) {
+      throw Error("Candidate not found");
+    }
 
-  if(!candidate){
-    throw Error("Candidate not found");
+    await remove(candidateId);
+
+    return { success: true, data: { message: "ok" } };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
+    }
+
+    return { success: false, error: createError() };
   }
-
-  await remove(candidateId);
-
-  return { success: true, data: { message: "ok" } };
-} catch (error) {
-  if (error instanceof z.ZodError) {
-    return {
-      success: false,
-      error: createError(
-        "Incorrect format",
-        ERROR_CODES.BAD_REQUEST,
-        error.issues,
-      ),
-    };
-  }
-
-  return { success: false, error: createError() };
-}
-
-}
+};

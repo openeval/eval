@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-
-const colors = require("tailwindcss/colors");
 const { fontFamily } = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
@@ -26,8 +24,6 @@ const config = {
         };
       },
       colors: {
-        brandblue: colors.blue[500],
-        brandred: colors.red[500],
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -58,7 +58,7 @@ export default function CandidateDetailPage({
 
       {candidate.status === CandidateStatus.VERIFIED && (
         <div className="mb-8">
-          <Typography variant={"h2"}> Github stats</Typography>
+          <Typography variant={"h2"}>Github stats</Typography>
           <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-y-2">
             <div className="flex grow">
               {/* contributions */}
