@@ -31,12 +31,12 @@ export default function RegisterPage() {
             <h1 className="text-2xl font-semibold tracking-tight">
               Create an account
             </h1>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-muted-foreground">
               Enter your email below to create your account
             </p>
           </div>
           <UserAuthForm />
-          <p className="px-8 text-center text-sm text-muted">
+          <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
             <Link
               href={siteConfig.termsUrl}

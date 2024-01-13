@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Typography } from "~/components/ui/Typography";
+import { toast } from "~/hooks/use-toast";
 import { timeAgo } from "~/lib/utils";
 import { DiffViewer } from "./DiffViewer";
 import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
@@ -79,7 +80,7 @@ export function SubmissionDetailPage({
               </TabsList>
             </div>
             <TabsContent value="preview">
-              <div className="prose pb-8">
+              <div className="prose pb-8 dark:prose-invert">
                 <Markdown
                   content={
                     (data.submission.contribution.description as string) ||
@@ -98,7 +99,7 @@ export function SubmissionDetailPage({
 
           {review && (
             <Card className="my-4" key={review.id}>
-              <CardHeader className="rounded-t-lg bg-slate-100 px-4 py-2 ">
+              <CardHeader className="rounded-t-lg bg-muted px-4 py-2 ">
                 <Typography variant={"subtle"}>
                   {timeAgo(review.createdAt)}
                 </Typography>
@@ -132,11 +133,11 @@ export function SubmissionDetailPage({
               evaluationCriterias={data.evaluationCriterias}
               action={submitReviewAction}
               onSuccess={() => {
-                router.push(
-                  params?.assessmentId
-                    ? `/assessments/${params?.assessmentId}`
-                    : "" + `/submissions`,
-                );
+                toast({
+                  title: "Success.",
+                  description: "Review submitted",
+                });
+                router.refresh();
               }}
             />
           )}

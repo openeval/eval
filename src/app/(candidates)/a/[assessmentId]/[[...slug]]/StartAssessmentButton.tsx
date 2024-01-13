@@ -1,6 +1,9 @@
 "use client";
 
-import type { AssessmentSession } from "@prisma/client";
+import {
+  AssessmentSessionStatus,
+  type AssessmentSession,
+} from "@prisma/client";
 import { type User } from "next-auth";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
@@ -28,7 +31,7 @@ interface StartAssessmentButtonProps {
   user?: User;
   className?: string;
   action: StartAssessmentSessionAction;
-  applicantSession?: Pick<AssessmentSession, "id">;
+  applicantSession?: AssessmentSession;
 }
 // add alert to start
 export function StartAssessmentButton({
@@ -75,8 +78,12 @@ export function StartAssessmentButton({
 
   if (applicantSession) {
     return (
-      <Button variant="outline">
-        <Link href={`/s/${applicantSession.id}`}>Continue</Link>
+      <Button>
+        {applicantSession.status === AssessmentSessionStatus.STARTED ? (
+          <Link href={`/s/${applicantSession.id}`}>Continue</Link>
+        ) : (
+          <Link href={`/`}>Go Back</Link>
+        )}
       </Button>
     );
   } else {

@@ -19,7 +19,7 @@ interface SubmissionItemProps {
 
 export function SubmissionItem({ item }: SubmissionItemProps) {
   return (
-    <div className="grid gap-y-4 p-4 text-sm hover:bg-slate-100 sm:grid-cols-3">
+    <div className="grid gap-y-4 p-4 text-sm hover:bg-muted/50 sm:grid-cols-3">
       <div className="grid gap-1">
         <div className="items-center text-lg font-medium sm:flex">
           <span className="flex">
@@ -39,7 +39,7 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
           </span>
         </div>
         <Link href={`/submissions/${item.id}`}>
-          <span className="text-muted hover:text-primary">
+          <span className="text-muted-foreground hover:text-primary">
             {formatDate(new Date(item.createdAt).toDateString())}
           </span>
         </Link>
