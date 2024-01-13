@@ -109,7 +109,7 @@ export default async function Page({ params }: PageProps) {
         Issues
       </Typography>
       <div className="mb-8">
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+        <div className="divide divide-y rounded-md border">
           {issues.items.map((item) => (
             <OpenTaskItem key={item.id} item={item} />
           ))}
@@ -132,7 +132,7 @@ export default async function Page({ params }: PageProps) {
       </Typography>
 
       {contributions.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+        <div className="divide divide-y rounded-md border">
           {contributions.map((item) => (
             <OpenTaskItem key={item.id} item={item} type="pull-request" />
           ))}

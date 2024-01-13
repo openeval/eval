@@ -29,7 +29,7 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
           </span>
         </div>
         <div className="">
-          <span className="flex cursor-pointer font-medium hover:text-sky-500">
+          <span className="flex cursor-pointer font-medium hover:text-primary">
             {item.contribution && (
               <>
                 <GitMerge className="mr-2 h-4 w-4" />
@@ -39,7 +39,7 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
           </span>
         </div>
         <Link href={`/submissions/${item.id}`}>
-          <span className="text-zinc-400 hover:text-sky-500">
+          <span className="text-muted hover:text-primary">
             {formatDate(new Date(item.createdAt).toDateString())}
           </span>
         </Link>

@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Separator } from "~/components/ui/Separator";
+import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
 import { findAllForForCandidateList } from "~/server/repositories/Assessments";
 import { AssessmentItem } from "./AssessmentItem";
@@ -36,16 +37,16 @@ export default async function AssessmentsPage() {
     <>
       <div className="flex justify-between px-2">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-bold tracking-wide text-slate-900">
+          <Typography className="mx-auto mb-4" variant="h1">
             Assessments
-          </h1>
+          </Typography>
         </div>
       </div>
 
       <Separator className="my-4" />
 
       {rows.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+        <div className="divide divide-y rounded-md border ">
           {rows.map((row, key) => (
             <AssessmentItem key={key} data={row} />
           ))}
