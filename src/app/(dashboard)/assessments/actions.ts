@@ -1,6 +1,6 @@
 "use server";
 
-import { Assessment, AssessmentStatus, type Prisma } from "@prisma/client";
+import { AssessmentStatus, type Assessment, type Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";

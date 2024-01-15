@@ -116,7 +116,7 @@ export function CandidateUpdateForm({
               )}
             />
           </CardContent>
-          <CardFooter className="justify-end bg-slate-100 p-4">
+          <CardFooter className="justify-end p-4">
             <Button disabled={isLoading}>save</Button>
           </CardFooter>
         </Card>

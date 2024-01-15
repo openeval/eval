@@ -31,8 +31,6 @@ export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionActio
       redirect("/login");
     }
 
-    const { user } = session;
-
     const price = await stripe.prices.retrieve(priceId);
 
     try {

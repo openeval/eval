@@ -33,9 +33,7 @@ interface CandidateOperationsProps {
 export function CandidateOperations({ candidate }: CandidateOperationsProps) {
   const router = useRouter();
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
-  const [isDeleteLoading, setIsDeleteLoading] = React.useState<boolean>(false);
-
-  const [isArchivingLoading, startActionTransition] = React.useTransition();
+  const [isDeleteLoading, startActionTransition] = React.useTransition();
 
   async function onDeleteCandidate(candidateId: string) {
     startActionTransition(async () => {

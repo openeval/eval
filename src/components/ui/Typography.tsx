@@ -13,7 +13,7 @@ const typographyVariants = cva("", {
       p: "leading-7 [&:not(:first-child)]:mt-4",
       blockquote: "mt-6 border-l-2 pl-6 italic",
       lead: "text-xl text-muted-foreground",
-      subtle: "text-sm text-slate-500 dark:text-slate-400",
+      subtle: "text-sm text-muted-foreground",
       ul: "my-6 ml-6 list-disc [&>li]:mt-2",
       small: "text-sm font-medium leading-none",
       muted: "text-sm text-muted-foreground",

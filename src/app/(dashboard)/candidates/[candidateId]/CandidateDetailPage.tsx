@@ -87,7 +87,7 @@ export default function CandidateDetailPage({
       </Typography>
 
       {candidate.submissions?.length > 0 && (
-        <div className="divide-y divide-neutral-200 rounded-md border border-slate-200">
+        <div className="divide divide-y rounded-md border">
           {candidate.submissions.map((submission) => (
             <SubmissionItem key={submission.id} item={submission} />
           ))}

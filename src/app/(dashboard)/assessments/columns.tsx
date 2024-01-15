@@ -12,7 +12,7 @@ import { type AssessmentsListData } from "~/server/repositories/Assessments";
 import { updateAssessmentAction } from "./actions";
 import { DataTableRowActions } from "./data-table-row-actions";
 
-export type Item = AssessmentsListData[0];
+export type Item = AssessmentsListData["data"][0];
 
 async function onPublishChange(id: string, published: boolean) {
   const res = await updateAssessmentAction({ id }, { published: !published });

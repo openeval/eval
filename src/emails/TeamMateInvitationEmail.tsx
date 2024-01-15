@@ -38,8 +38,8 @@ export const TeamMateInvitationEmail = ({
       <Preview>{previewText}</Preview>
       {/* https://gist.github.com/lordelogos/f2146ec1769510afc769a1b0d1ba0363 */}
       <Tailwind>
-        <Body className="m-auto bg-white font-sans">
-          <Container className="mx-auto my-[40px] w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
+        <Body className="m-auto bg-background font-sans">
+          <Container className="mx-auto my-[40px] w-[465px] rounded border border-solid p-[20px]">
             <Section className="mt-[32px]">
               <Img
                 src={`${baseUrl}/icon.png`}
@@ -62,7 +62,7 @@ export const TeamMateInvitationEmail = ({
 
             <Section className="my-[32px] text-center">
               <Button
-                className="rounded bg-[#000000]  p-4 text-center text-[12px] font-semibold text-white no-underline"
+                className="rounded bg-background  p-4 text-center text-[12px] font-semibold text-white no-underline"
                 href={inviteLink}
               >
                 Join the team
@@ -70,11 +70,11 @@ export const TeamMateInvitationEmail = ({
             </Section>
             <Text className="text-[14px] leading-[24px] text-black">
               or copy and paste this URL into your browser:{" "}
-              <Link href={inviteLink} className="text-blue-600 no-underline">
+              <Link href={inviteLink} className="text-primary no-underline">
                 {inviteLink}
               </Link>
             </Text>
-            <Hr className="mx-0 my-[26px] w-full border border-solid border-[#eaeaea]" />
+            <Hr className="mx-0 my-[26px] w-full border border-solid" />
           </Container>
         </Body>
       </Tailwind>
