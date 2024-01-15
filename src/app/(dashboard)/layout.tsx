@@ -25,7 +25,7 @@ export default async function Layout({
     redirect("/onboarding");
   }
 
-  if (user.type !== UserType.RECRUITER) {
+  if (user.type === UserType.CANDIDATE) {
     redirect("/d");
   }
 

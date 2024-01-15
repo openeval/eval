@@ -12,7 +12,7 @@ import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import "react-diff-view/style/index.css";
 
 import { GitPullRequest, Loader } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import Markdown from "~/components/Markdown";
 import { Badge } from "~/components/ui/Badge";
@@ -39,7 +39,6 @@ export function SubmissionDetailPage({
   submitReviewAction,
 }: SubmissionDetailPageProps) {
   const router = useRouter();
-  const params = useParams();
   const { review } = data.submission;
   return (
     <div>

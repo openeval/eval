@@ -43,15 +43,15 @@ export default async function AssessmentCandidatePage({
           </Typography>
 
           <div className="mt-4 flex items-center justify-between">
-            <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto rounded-lg border border-slate-100 bg-slate-100 px-2 dark:border-slate-700 dark:bg-black">
-              <code className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-50">
+            <pre className="flex h-11 items-center justify-between space-x-2 overflow-x-auto text-nowrap rounded-lg border border-muted bg-muted px-2 ">
+              <code className="font-mono text-sm font-semibold">
                 {absoluteUrl("/").toString()}a/{assessment.id}/
                 {slugify(assessment.title)}
               </code>
               <CopyButton
                 value={`${absoluteUrl("/")}a/${assessment.id}/
               ${slugify(assessment.title)}`}
-                className="border-none text-slate-900 hover:bg-transparent dark:text-slate-50"
+                className="border-none hover:bg-transparent"
               />
             </pre>
           </div>
@@ -60,7 +60,7 @@ export default async function AssessmentCandidatePage({
       </div>
 
       {candidates && candidates.length > 0 && (
-        <div className="divide-y divide-slate-200 rounded-md border border-slate-200">
+        <div className="divide divide-y rounded-md border">
           {candidates.map((candidate) => (
             <CandidateItem
               key={candidate.id}
