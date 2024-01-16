@@ -6,6 +6,7 @@ import {
   type MembershipRole,
   type User,
 } from "@prisma/client";
+import { render } from "@react-email/render";
 import { getServerSession } from "next-auth/next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -13,11 +14,12 @@ import { z } from "zod";
 
 import { FlowTypes } from "~/config/flows";
 import { updateSubscriptionSeats } from "~/ee/lib/core";
+import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
 import { env } from "~/env.mjs";
-import { authOptions } from "~/server/auth";
+import { authOptions, generateAuthLink } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
-import sendInvitationEmail from "~/server/invite";
+import { transporter } from "~/server/mailer";
 import * as MembershipRepo from "~/server/repositories/Membership";
 import * as OrgRepo from "~/server/repositories/Organizations";
 import * as UserRepo from "~/server/repositories/User";
@@ -72,18 +74,28 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     });
 
     if (!membership.accepted) {
-      const emailSettings = {
-        toEmail: data.email,
-        subject: `${org.name} invited you to join its team`,
-        emailTemplate: "MEMBERSHIP_INVITATION",
+      //Todo: return short url
+      const inviteLink = await generateAuthLink(data.email, {
         callbackUrl: `/`,
         urlSearchParams: {
           organizationId: user.activeOrgId,
           flow: FlowTypes.TEAM_MEMEBER_INVITED,
         },
-      };
+      });
 
-      await sendInvitationEmail(emailSettings);
+      const html = render(
+        <TeamMateInvitationEmail
+          username={data.name}
+          teamName={org.name}
+          inviteLink={inviteLink}
+        />,
+      );
+
+      await transporter.sendMail({
+        to: data.email, // list of receivers
+        subject: `${org.name} invited you to join the team`, // Subject line
+        html: html, // html body
+      });
     }
 
     if (env.IS_EE) {

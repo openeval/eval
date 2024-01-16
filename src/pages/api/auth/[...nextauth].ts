@@ -8,10 +8,7 @@ import { linkInvitedUser } from "~/server/repositories/Candidates";
 import { update as updateUser } from "~/server/repositories/User";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  if (
-    req.query.nextauth?.includes("inviteEmailProvider") &&
-    req.method === "GET"
-  ) {
+  if (req.query.nextauth?.includes("email") && req.method === "GET") {
     const { flow } = req.query;
     // TODO: augmentate createUser instead of replace it
     authOptions.events = {

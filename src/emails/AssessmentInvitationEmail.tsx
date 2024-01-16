@@ -19,18 +19,20 @@ import { siteConfig } from "~/config/site";
 import { absoluteUrl } from "~/lib/utils";
 import config from "./tailwind.config.cjs";
 
-interface TeamMateInvitationEmailProps {
-  username?: string;
-  teamName?: string;
-  inviteLink?: string;
+interface AssessmentInvitationEmailProps {
+  username: string;
+  assessmentName: string;
+  org: string;
+  inviteLink: string;
 }
 
-export const TeamMateInvitationEmail = ({
+export const AssessmentInvitationEmail = ({
   username = "Eval",
-  teamName = "Eval",
-  inviteLink = "https://useeval.com/teams/invite/foo",
-}: TeamMateInvitationEmailProps) => {
-  const previewText = `Join ${teamName} on ${siteConfig.name}`;
+  assessmentName = "full stack engineer",
+  org = "Eval",
+  inviteLink = "https://useeval.com/assessments/invite/foo",
+}: AssessmentInvitationEmailProps) => {
+  const previewText = `You have a new assessment invitation`;
 
   return (
     <Html>
@@ -50,15 +52,15 @@ export const TeamMateInvitationEmail = ({
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal ">
-              Join <strong>{teamName}</strong> on{" "}
-              <strong>{siteConfig.name}</strong>
+              {assessmentName}
             </Heading>
             <Text className="text-[14px] leading-[24px]">
               Hello {username},
             </Text>
-            <Text className="text-[14px] leading-[24px] ">
-              You have a new invitation to join <strong>{teamName}</strong> on{" "}
-              <strong>{siteConfig.name}</strong>.
+            <Text className="text-[14px] leading-[24px]">
+              A new assessment for the {assessmentName} role at{" "}
+              <strong>{org}</strong> is ready for you. Click the button below to
+              get started:{" "}
             </Text>
 
             <Section className="my-[32px] text-center">
@@ -66,7 +68,7 @@ export const TeamMateInvitationEmail = ({
                 className="rounded bg-primary px-6 py-3 text-center text-[12px] font-semibold text-white no-underline"
                 href={inviteLink}
               >
-                Join the team
+                Start Assessment
               </Button>
             </Section>
             <Text className="break-normal text-[14px] leading-[24px]">
@@ -76,6 +78,11 @@ export const TeamMateInvitationEmail = ({
               <Link href={inviteLink} className="text-primary no-underline">
                 {inviteLink}
               </Link>
+            </Text>
+            <Text>
+              Our process involves open source issues to assess your skills. If
+              you have any questions or encounter technical issues, reach out to
+              us at [support@email.com].
             </Text>
             <Hr className="mx-0 my-[26px] w-full border border-solid" />
             <Text className="text-[12px] leading-[24px] text-[#666666]">
@@ -90,4 +97,4 @@ export const TeamMateInvitationEmail = ({
   );
 };
 
-export default TeamMateInvitationEmail;
+export default AssessmentInvitationEmail;

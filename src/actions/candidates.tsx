@@ -1,5 +1,6 @@
 "use server";
 
+import { render } from "@react-email/render";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
@@ -10,10 +11,11 @@ import {
   InviteCandidateSchema,
   type InviteCandidateType,
 } from "~/dto/InviteCandidateDto";
-import { authOptions } from "~/server/auth";
+import { AssessmentInvitationEmail } from "~/emails/AssessmentInvitationEmail";
+import { authOptions, generateAuthLink } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
-import sendInvitationEmail from "~/server/invite";
+import { transporter } from "~/server/mailer";
 import {
   findInvitedCandidate,
   findOneById,
@@ -80,18 +82,30 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
       create: { candidateId: candidate.id, assessmentId: assessmentId },
     });
 
-    const emailSettings = {
-      toEmail: data.email,
-      subject: "You have a new assessment invitation",
-      emailTemplate: "ASSESSMENT_INVITATION",
+    //Todo: return short url
+    const inviteLink = await generateAuthLink(data.email, {
       callbackUrl: `/a/${assessment.id}/${slugify(assessment.title)}`,
       urlSearchParams: {
         flow: FlowTypes.CANDIDATE_INVITED,
         assessmentId: assessment.id,
       },
-    };
+    });
 
-    await sendInvitationEmail(emailSettings);
+    const html = render(
+      <AssessmentInvitationEmail
+        username={data.name}
+        org={"TODO"}
+        assessmentName={assessment.title}
+        inviteLink={inviteLink}
+      />,
+    );
+
+    await transporter.sendMail({
+      to: data.email, // list of receivers
+      subject: `You have a new assessment invitation`, // Subject line
+      html: html, // html body
+    });
+
     return { success: true, data: { message: "ok" } };
   } catch (error) {
     if (error instanceof z.ZodError) {

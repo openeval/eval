@@ -20,10 +20,10 @@ import GitHubProvider from "next-auth/providers/github";
 import nodemailer from "nodemailer";
 
 import { env } from "~/env.mjs";
+import { absoluteUrl, createHash, randomString } from "~/lib/utils";
 import { prisma } from "~/server/db";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
 import { update as updateUser } from "~/server/repositories/User";
-import { inviteEmailProvider } from "./invite";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -125,7 +125,6 @@ const providers = [
     from: env.SMTP_FROM,
     sendVerificationRequest,
   }),
-  inviteEmailProvider,
 ];
 
 // @ts-expect-error no error here
@@ -311,4 +310,53 @@ export async function getCurrentUser(): Promise<User | undefined> {
   const session = await getSession();
 
   return session?.user;
+}
+
+type AuthLinkOpts = {
+  provider?: string;
+  maxAge?: number;
+  callbackUrl?: string;
+  urlSearchParams?: Record<string, string | null>;
+};
+
+/**
+ * Generate a one time link to login the user
+ * @param toEmail
+ * @param opts
+ * @returns
+ */
+export async function generateAuthLink(
+  toEmail: string,
+  opts: AuthLinkOpts = {},
+) {
+  const adapter = PrismaAdapter(prisma);
+  const url = absoluteUrl("/api/auth");
+
+  const token = randomString(32);
+
+  const ONE_DAY_IN_SECONDS = 86400;
+  const expires = new Date(
+    Date.now() + (opts.maxAge ?? ONE_DAY_IN_SECONDS) * 1000,
+  );
+  const { callbackUrl, urlSearchParams } = opts;
+
+  // Generate a link with email, unhashed token and callback url
+  const params = new URLSearchParams({
+    ...(opts.callbackUrl && { callbackUrl }),
+    token,
+    email: toEmail,
+    ...urlSearchParams,
+  });
+
+  const secret = env.NEXTAUTH_SECRET;
+
+  await adapter.createVerificationToken?.({
+    identifier: toEmail,
+    token: await createHash(`${token}${secret}`),
+    expires,
+  });
+
+  const _url = `${url}/callback/${opts.provider || "email"}?${params}`;
+
+  return _url;
 }
