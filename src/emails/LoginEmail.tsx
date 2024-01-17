@@ -19,18 +19,13 @@ import { siteConfig } from "~/config/site";
 import { absoluteUrl } from "~/lib/utils";
 import config from "./tailwind.config.cjs";
 
-interface TeamMateInvitationEmailProps {
-  username?: string;
-  teamName?: string;
-  inviteLink?: string;
+interface LoginEmailProps {
+  username: string;
+  url: string;
 }
 
-export const TeamMateInvitationEmail = ({
-  username = "Eval",
-  teamName = "Eval",
-  inviteLink = "https://useeval.com/teams/invite/foo",
-}: TeamMateInvitationEmailProps) => {
-  const previewText = `Join ${teamName} on ${siteConfig.name}`;
+export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
+  const previewText = `You have a new assessment invitation`;
 
   return (
     <Html>
@@ -50,38 +45,32 @@ export const TeamMateInvitationEmail = ({
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal ">
-              Join <strong>{teamName}</strong> on{" "}
-              <strong>{siteConfig.name}</strong>
+              Sign in as <strong>{username}</strong>
             </Heading>
+
             <Text className="text-[14px] leading-[24px]">
-              Hello {username},
-            </Text>
-            <Text className="text-[14px] leading-[24px] ">
-              You have a new invitation to join <strong>{teamName}</strong> on{" "}
-              <strong>{siteConfig.name}</strong>.
+              Click the button below to sign in on {siteConfig.name}:{" "}
             </Text>
 
             <Section className="my-[32px] text-center">
               <Button
                 className="rounded bg-primary px-6 py-3 text-center text-[12px] font-semibold text-white no-underline"
-                href={inviteLink}
+                href={url}
               >
-                Join the team
+                Sign in
               </Button>
             </Section>
             <Text className="break-normal text-[14px] leading-[24px]">
               or copy and paste this URL into your browser:
             </Text>
             <Text className="w-[465px] text-wrap break-words rounded-sm bg-gray-100 p-4">
-              <Link href={inviteLink} className="text-primary no-underline">
-                {inviteLink}
+              <Link href={url} className="text-primary no-underline">
+                {url}
               </Link>
             </Text>
             <Hr className="mx-0 my-[26px] w-full border border-solid" />
             <Text className="text-[12px] leading-[24px] text-[#666666]">
-              This invitation was intended for{" "}
-              <span className="text-black">{username} </span>. If you were not
-              expecting this invitation, you can ignore this email.
+              If you did not request this email you can safely ignore it.
             </Text>
           </Container>
         </Body>
@@ -90,4 +79,4 @@ export const TeamMateInvitationEmail = ({
   );
 };
 
-export default TeamMateInvitationEmail;
+export default LoginEmail;

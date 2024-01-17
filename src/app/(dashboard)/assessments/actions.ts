@@ -1,7 +1,6 @@
 "use server";
 
 import { AssessmentStatus, type Assessment, type Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -11,7 +10,7 @@ import {
   type CreateAssessmentDtoType,
 } from "~/dto/CreateAssessmentDto";
 import { UpdateAssessmentDto } from "~/dto/UpdateAssessmentDto";
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import type { ActionResponse } from "~/types";
@@ -25,7 +24,7 @@ export type CreateAssessmentAction = (
 ) => Promise<ActionResponse<Assessment>>;
 
 export const createAssessmentAction: CreateAssessmentAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention
@@ -75,7 +74,7 @@ export const updateAssessmentAction: UpdateAssessmentAction = async (
   where,
   data,
 ) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");

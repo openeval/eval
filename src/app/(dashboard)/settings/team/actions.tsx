@@ -6,18 +6,18 @@ import {
   type MembershipRole,
   type User,
 } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
+import { render } from "@react-email/render";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { FlowTypes } from "~/config/flows";
 import { updateSubscriptionSeats } from "~/ee/lib/core";
+import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
 import { env } from "~/env.mjs";
-import { authOptions } from "~/server/auth";
+import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
-import sendInvitationEmail from "~/server/invite";
+import { transporter } from "~/server/mailer";
 import * as MembershipRepo from "~/server/repositories/Membership";
 import * as OrgRepo from "~/server/repositories/Organizations";
 import * as UserRepo from "~/server/repositories/User";
@@ -34,7 +34,7 @@ export type InviteTeamMemberAction = (data: {
 }) => Promise<ActionResponse<User>>;
 
 export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");
@@ -50,9 +50,14 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     }
 
     const member = await prisma.user.upsert({
-      where: { email: data.email },
+      where: { email: data.email, type: UserType.RECRUITER },
       update: {},
-      create: { name: data.name, email: data.email, type: UserType.RECRUITER },
+      create: {
+        name: data.name,
+        email: data.email,
+        type: UserType.RECRUITER,
+        completedOnboarding: true,
+      },
     });
 
     if (member.type === UserType.CANDIDATE) {
@@ -72,18 +77,24 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     });
 
     if (!membership.accepted) {
-      const emailSettings = {
-        toEmail: data.email,
-        subject: `${org.name} invited you to join its team`,
-        emailTemplate: "MEMBERSHIP_INVITATION",
-        callbackUrl: `/`,
-        urlSearchParams: {
-          organizationId: user.activeOrgId,
-          flow: FlowTypes.TEAM_MEMEBER_INVITED,
-        },
-      };
+      //Todo: return short url
+      const inviteLink = await generateAuthLink(data.email, {
+        callbackUrl: `/onboarding/recruiter/invited?membershipId=${membership.id}`,
+      });
 
-      await sendInvitationEmail(emailSettings);
+      const html = render(
+        <TeamMateInvitationEmail
+          username={data.name}
+          teamName={org.name}
+          inviteLink={inviteLink}
+        />,
+      );
+
+      await transporter.sendMail({
+        to: data.email, // list of receivers
+        subject: `${org.name} invited you to join the team`, // Subject line
+        html: html, // html body
+      });
     }
 
     if (env.IS_EE) {
@@ -115,7 +126,7 @@ export type RemoveMembershipAction = (
 ) => Promise<ActionResponse<{ message: string }>>;
 
 export const removeMembershipAction: RemoveMembershipAction = async (id) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");
@@ -185,7 +196,7 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
   id,
   role,
 ) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");

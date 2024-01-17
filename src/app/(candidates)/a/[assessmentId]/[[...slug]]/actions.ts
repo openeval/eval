@@ -7,12 +7,11 @@ import {
   type AssessmentSession,
 } from "@prisma/client";
 import { add } from "date-fns";
-import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import { absoluteUrl } from "~/lib/utils";
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
 import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
@@ -25,7 +24,7 @@ export type StartAssessmentSessionAction = (
 export async function startAssessmentSessionAction(
   assessmentId: string,
 ): Promise<ActionResponse<AssessmentSession>> {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
   // users shound't be able to execute an action without a session
   // this is a security prevention
   if (!session) {

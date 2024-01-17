@@ -7,7 +7,6 @@ import type {
   User,
   UserType,
 } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import {
   CandidateCreateInputSchema,
@@ -17,7 +16,7 @@ import {
 import slugify from "slugify";
 import { z } from "zod";
 
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { create as createCandidate } from "~/server/repositories/Candidates";
@@ -34,7 +33,7 @@ export type UpdateUserTypeAction = (data: {
 }) => Promise<ActionResponse<User>>;
 
 export const updateUserTypeAction: UpdateUserTypeAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention
@@ -69,7 +68,7 @@ export type CreateCandidateAction = (
 ) => Promise<ActionResponse<Candidate>>;
 
 export const createCandidateAction: CreateCandidateAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention
@@ -115,7 +114,7 @@ export type CreateOrgAction = (
 ) => Promise<ActionResponse<Organization>>;
 
 export const createOrgAction: CreateOrgAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention

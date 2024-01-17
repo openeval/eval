@@ -22,43 +22,6 @@ export async function findInvitedCandidate(
   });
 }
 
-/**
- * Link invited users from assessments to candidates
- * when they loging for the first time
- * @param user
- * @param assessmentId
- */
-export async function linkInvitedUser(
-  user: Partial<User>,
-  assessmentId: string,
-) {
-  const candidate = await prisma.candidate.update({
-    where: {
-      email: user.email as string,
-      candidatesOnAssessments: {
-        some: {
-          assessmentId: assessmentId,
-        },
-      },
-    },
-    data: {
-      userId: user.id,
-    },
-  });
-
-  await prisma.candidatesOnAssessments.update({
-    where: {
-      candidateId_assessmentId: {
-        assessmentId: assessmentId,
-        candidateId: candidate.id,
-      },
-    },
-    data: {
-      status: CandidateOnAssessmentStatus.ACCEPTED,
-    },
-  });
-}
-
 export async function update(
   where: Prisma.CandidateWhereUniqueInput,
   data: Prisma.CandidateUpdateInput,

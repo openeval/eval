@@ -6,11 +6,10 @@ import {
   CandidateOnAssessmentStatus,
   type AssessmentSession,
 } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import * as assessmentsRepo from "~/server/repositories/Assessments";
@@ -29,7 +28,7 @@ export async function finishAssessmentSessionAction(
   sessionId: string,
   contribution: components["schemas"]["issue-search-result-item"],
 ): Promise<ActionResponse<AssessmentSession>> {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");
