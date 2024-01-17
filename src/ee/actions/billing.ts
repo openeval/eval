@@ -1,14 +1,13 @@
 "use server";
 
 import { type User } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import { stripe } from "~/ee/lib/stripe";
 import { organizationMetadataSchema } from "~/ee/types/Organization";
 import { absoluteUrl } from "~/lib/utils";
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
 import * as OrgRepo from "~/server/repositories/Organizations";
 import type { ActionResponse } from "~/types";
@@ -25,7 +24,7 @@ export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionActio
   async (data) => {
     const { priceId } = data;
 
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
 
     if (!session) {
       redirect("/login");
@@ -82,7 +81,7 @@ export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionActio
 export async function createStripeBillingPortalSessionAction(): Promise<
   ActionResponse<string>
 > {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");

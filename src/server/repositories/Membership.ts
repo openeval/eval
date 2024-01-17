@@ -5,6 +5,7 @@ import { prisma } from "~/server/db";
 export async function findOneById(id, organizationId?) {
   return await prisma.membership.findFirst({
     where: { id, organizationId },
+    include: { organization: true },
   });
 }
 

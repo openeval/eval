@@ -44,7 +44,7 @@ export const TeamMateInvitationEmail = ({
               <Img
                 src={`${absoluteUrl()}/icon.png`}
                 width="40"
-                height="37"
+                height="40"
                 alt={siteConfig.name}
                 className="mx-auto my-0"
               />

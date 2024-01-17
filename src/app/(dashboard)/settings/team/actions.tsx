@@ -7,16 +7,14 @@ import {
   type User,
 } from "@prisma/client";
 import { render } from "@react-email/render";
-import { getServerSession } from "next-auth/next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { FlowTypes } from "~/config/flows";
 import { updateSubscriptionSeats } from "~/ee/lib/core";
 import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
 import { env } from "~/env.mjs";
-import { authOptions, generateAuthLink } from "~/server/auth";
+import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { transporter } from "~/server/mailer";
@@ -36,7 +34,7 @@ export type InviteTeamMemberAction = (data: {
 }) => Promise<ActionResponse<User>>;
 
 export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");
@@ -52,9 +50,14 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     }
 
     const member = await prisma.user.upsert({
-      where: { email: data.email },
+      where: { email: data.email, type: UserType.RECRUITER },
       update: {},
-      create: { name: data.name, email: data.email, type: UserType.RECRUITER },
+      create: {
+        name: data.name,
+        email: data.email,
+        type: UserType.RECRUITER,
+        completedOnboarding: true,
+      },
     });
 
     if (member.type === UserType.CANDIDATE) {
@@ -76,11 +79,7 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     if (!membership.accepted) {
       //Todo: return short url
       const inviteLink = await generateAuthLink(data.email, {
-        callbackUrl: `/`,
-        urlSearchParams: {
-          organizationId: user.activeOrgId,
-          flow: FlowTypes.TEAM_MEMEBER_INVITED,
-        },
+        callbackUrl: `/onboarding/recruiter/invited?membershipId=${membership.id}`,
       });
 
       const html = render(
@@ -127,7 +126,7 @@ export type RemoveMembershipAction = (
 ) => Promise<ActionResponse<{ message: string }>>;
 
 export const removeMembershipAction: RemoveMembershipAction = async (id) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");
@@ -197,7 +196,7 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
   id,
   role,
 ) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/login");

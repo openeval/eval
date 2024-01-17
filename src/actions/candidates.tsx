@@ -1,18 +1,17 @@
 "use server";
 
+import { UserType } from "@prisma/client";
 import { render } from "@react-email/render";
-import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import { z } from "zod";
 
-import { FlowTypes } from "~/config/flows";
 import {
   InviteCandidateSchema,
   type InviteCandidateType,
 } from "~/dto/InviteCandidateDto";
 import { AssessmentInvitationEmail } from "~/emails/AssessmentInvitationEmail";
-import { authOptions, generateAuthLink } from "~/server/auth";
+import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { transporter } from "~/server/mailer";
@@ -28,7 +27,7 @@ export type InviteCandidateAction = (
 ) => Promise<ActionResponse<{ message: string }>>;
 
 export const inviteCandidateAction: InviteCandidateAction = async (data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention
@@ -58,6 +57,20 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
       throw Error("Candidate already invited");
     }
 
+    const userCandidate = await prisma.user.upsert({
+      where: {
+        email: data.email,
+        emailVerified: undefined,
+        type: UserType.CANDIDATE,
+      },
+      create: {
+        email: data.email,
+        completedOnboarding: true,
+        type: UserType.CANDIDATE,
+      },
+      update: {},
+    });
+
     const candidate = await prisma.candidate.upsert({
       where: { email: data.email, organizationId: user.activeOrgId },
       update: {},
@@ -68,6 +81,7 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
         },
         organization: { connect: { id: user.activeOrgId || undefined } },
         createdBy: { connect: { id: user.id } },
+        user: { connect: { id: userCandidate.id } },
       },
     });
 
@@ -82,13 +96,8 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
       create: { candidateId: candidate.id, assessmentId: assessmentId },
     });
 
-    //Todo: return short url
     const inviteLink = await generateAuthLink(data.email, {
       callbackUrl: `/a/${assessment.id}/${slugify(assessment.title)}`,
-      urlSearchParams: {
-        flow: FlowTypes.CANDIDATE_INVITED,
-        assessmentId: assessment.id,
-      },
     });
 
     const html = render(
@@ -130,7 +139,7 @@ export type RemoveCandidateAction = (
 export const removeCandidateAction: RemoveCandidateAction = async (
   candidateId,
 ) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention

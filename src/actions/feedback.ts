@@ -1,16 +1,15 @@
 "use server";
 
-import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { FeedbackSchema } from "prisma/zod";
 import { z } from "zod";
 
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 
 export const sendFeedbackAction = async (data: { message: string }) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention

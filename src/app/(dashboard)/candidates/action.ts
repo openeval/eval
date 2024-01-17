@@ -1,11 +1,10 @@
 "use server";
 
 import { type Candidate, type Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
 import { update as updateCandidate } from "~/server/repositories/Candidates";
 import type { ActionResponse } from "~/types";
@@ -18,7 +17,7 @@ export const updateCandidateAction: UpdateCandidateAction = async (
   candidateId,
   data,
 ) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention

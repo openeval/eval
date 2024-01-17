@@ -2,13 +2,12 @@
 "use only-server";
 
 import type { Organization, Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
 import { OrganizationUpdateInputSchema } from "prisma/zod";
 import slugify from "slugify";
 import { z } from "zod";
 
-import { authOptions } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
 import * as orgRepo from "~/server/repositories/Organizations";
 import type { ActionResponse } from "~/types";
@@ -19,7 +18,7 @@ export type UpdateOrgAction = (
 ) => Promise<ActionResponse<Organization>>;
 
 export const updateOrgAction: UpdateOrgAction = async (id, data) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   // users shound't be able to execute an action without a session
   // this is a security prevention
