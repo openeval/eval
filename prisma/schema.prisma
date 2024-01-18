@@ -104,7 +104,7 @@ model Organization {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
   email       String?
-  slug        String?      @unique
+  slug        String?
   logo        String?
   bio         String?
   size        String?

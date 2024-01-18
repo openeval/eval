@@ -184,6 +184,7 @@ export const authOptions: NextAuthConfig = {
         },
       };
     },
+    // @ts-expect-error authjs token
     session: async ({ session, token }) => {
       session.user = {
         ...session.user,

@@ -86,7 +86,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             disabled={isLoading}
           >
             {isLoading && <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In with Email
+            Continue with Email
           </button>
         </div>
       </form>
@@ -95,7 +95,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <span className="w-full border-t border-slate-300" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2">Or continue with</span>
+          <span className="bg-background px-2">Or use</span>
         </div>
       </div>
       <button

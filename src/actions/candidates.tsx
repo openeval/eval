@@ -60,7 +60,6 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
     const userCandidate = await prisma.user.upsert({
       where: {
         email: data.email,
-        emailVerified: undefined,
         type: UserType.CANDIDATE,
       },
       create: {
@@ -132,7 +131,7 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
   }
 };
 
-export type RemoveCandidateAction = (
+type RemoveCandidateAction = (
   candidateId: string,
 ) => Promise<ActionResponse<{ message: string }>>;
 

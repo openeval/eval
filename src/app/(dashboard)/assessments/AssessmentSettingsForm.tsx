@@ -141,7 +141,12 @@ export function AssessmentSettingsForm({
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit" disabled={isLoading} className="ml-auto">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="ml-auto"
+                data-testid="confirmation-button"
+              >
                 Save
               </Button>
             </CardFooter>
