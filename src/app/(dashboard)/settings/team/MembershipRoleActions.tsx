@@ -31,7 +31,7 @@ export const MembershipRoleActions = ({ membership }) => {
   const router = useRouter();
   const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
   const [isArchivingLoading, startActionTransition] = React.useTransition();
-  const [isUpdateRoleLoading, startUpdateRoleActionTransition] =
+  const [_isUpdateRoleLoading, startUpdateRoleActionTransition] =
     React.useTransition();
 
   async function onRemoveMembership(membershipId: string) {

@@ -2783,23 +2783,13 @@ export const OrganizationOrderByWithRelationInputSchema: z.ZodType<Prisma.Organi
 
 export const OrganizationWhereUniqueInputSchema: z.ZodType<Prisma.OrganizationWhereUniqueInput> =
   z
-    .union([
-      z.object({
-        id: z.string(),
-        slug: z.string(),
-      }),
-      z.object({
-        id: z.string(),
-      }),
-      z.object({
-        slug: z.string(),
-      }),
-    ])
+    .object({
+      id: z.string(),
+    })
     .and(
       z
         .object({
           id: z.string().optional(),
-          slug: z.string().optional(),
           AND: z
             .union([
               z.lazy(() => OrganizationWhereInputSchema),
@@ -2820,6 +2810,10 @@ export const OrganizationWhereUniqueInputSchema: z.ZodType<Prisma.OrganizationWh
             .union([z.lazy(() => StringFilterSchema), z.string()])
             .optional(),
           email: z
+            .union([z.lazy(() => StringNullableFilterSchema), z.string()])
+            .optional()
+            .nullable(),
+          slug: z
             .union([z.lazy(() => StringNullableFilterSchema), z.string()])
             .optional()
             .nullable(),

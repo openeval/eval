@@ -60,7 +60,7 @@ export async function login(user: Pick<User, "email">, page: Page) {
   const toast = await page.waitForSelector('[data-testid="toast-default"]');
   expect(toast).toBeTruthy();
 
-  let emailLink = null as any;
+  let emailLink;
 
   try {
     const { email } = await mailServer.captureOne(user.email, {

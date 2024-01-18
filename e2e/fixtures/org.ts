@@ -18,6 +18,11 @@ export const createOrgsFixture = (page: Page) => {
         {
           name: opts.name || getRandomSlug(),
           slug: opts.slug || getRandomSlug(),
+          // todo: pass as option
+          metadata: {
+            subscriptionId: "sub_1OWxfeKnIh8U839cbbrda4Qx",
+            stripeCustomerId: "cus_PLezfqHjUo7fUl",
+          },
         },
         opts.owner,
       );

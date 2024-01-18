@@ -23,7 +23,7 @@ export const sendFeedbackAction = async (data: { message: string }) => {
     FeedbackSchema.pick({ message: true }).parse(data);
 
     const feedback = await prisma.feedback.create({
-      data: { message: data.message, createdById: user.id },
+      data: { message: data.message, createdBy: { connect: { id: user.id } } },
     });
 
     return { success: true, data: feedback };

@@ -43,7 +43,10 @@ test.describe("Assessments", () => {
     await page.waitForLoadState("networkidle");
 
     await expect(page).toHaveTitle("Assessments - tasks");
-    await form.getByTestId("confirmation-button").click();
+    await page.waitForLoadState("networkidle");
+
+    await page.getByTestId("confirmation-button").scrollIntoViewIfNeeded();
+    await page.getByTestId("confirmation-button").click();
 
     const taskToast = await page.waitForSelector(
       '[data-testid="toast-default"]',

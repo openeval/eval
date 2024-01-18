@@ -30,15 +30,8 @@ export const updateOrgAction: UpdateOrgAction = async (id, data) => {
 
   let org = await orgRepo.findOneById(id);
 
-  if (!org) {
+  if (!org || org?.id !== user.activeOrgId) {
     notFound();
-  }
-
-  if (org?.createdById !== user.id) {
-    return {
-      success: false,
-      error: createError("you must be the owner of the org to change it"),
-    };
   }
 
   try {

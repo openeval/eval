@@ -18,7 +18,7 @@ export async function create(
       slug: slugify(data.name),
       members: {
         create: {
-          userId: owner.id,
+          user: { connect: { id: owner.id } },
           role: MembershipRole.OWNER,
           accepted: true,
         },

@@ -45,11 +45,12 @@ export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal ">
-              Sign in as <strong>{username}</strong>
+              Sign in
             </Heading>
 
             <Text className="text-[14px] leading-[24px]">
-              Click the button below to sign in on {siteConfig.name}:{" "}
+              Click the button below to sign in on {siteConfig.name} as{" "}
+              <strong>{username}</strong>:{" "}
             </Text>
 
             <Section className="my-[32px] text-center">
@@ -64,7 +65,11 @@ export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
               or copy and paste this URL into your browser:
             </Text>
             <Text className="w-[465px] text-wrap break-words rounded-sm bg-gray-100 p-4">
-              <Link href={url} className="text-primary no-underline">
+              <Link
+                href={url}
+                id="magic-link"
+                className="text-primary no-underline"
+              >
                 {url}
               </Link>
             </Text>

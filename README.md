@@ -77,6 +77,17 @@ check package.json to see other available commands
 
 Please see our [contributing guide](/CONTRIBUTING.md).
 
+## Good First Issues
+
+We have a list of good first issues that contain bugs that have a relatively limited scope. This is a great place to get started, gain experience, and get familiar with our contribution process.
+
 ## Acknowledgements
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+this project woudn't exist without this awesome open source projects
+
+- [Next.js](https://github.com/vercel/next.js)
+- [Tailwindcss](https://tailwindcss.com)
+- [Supabase](https://supabase.com)
+- [PrismaORM](https://www.prisma.io/)
+- [Shadcn/ui](https://ui.shadcn.com/)
+- [github](https://github.com/octokit)

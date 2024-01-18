@@ -77,7 +77,6 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     });
 
     if (!membership.accepted) {
-      //Todo: return short url
       const inviteLink = await generateAuthLink(data.email, {
         callbackUrl: `/onboarding/recruiter/invited?membershipId=${membership.id}`,
       });

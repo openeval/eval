@@ -51,6 +51,8 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_GITHUB_APP_CLIENT_ID,
     GITHUB_APP_CLIENT_SECRET: process.env.GITHUB_APP_CLIENT_SECRET,
     IS_EE: process.env.IS_EE,
+    // we use CI instead of NODE_ENV="test"
+    // otherwise it might modify third party libraries behavior
     CI: process.env.CI,
   },
 });
