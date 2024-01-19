@@ -15,7 +15,7 @@ export async function findInvitedCandidate(
       candidatesOnAssessments: {
         some: {
           assessmentId: assessmentId,
-          status: CandidateOnAssessmentStatus.ACCEPTED,
+          status: CandidateOnAssessmentStatus.STARTED,
         },
       },
     },
@@ -60,13 +60,14 @@ export async function findByIdFull(id, organizationId?) {
     },
   });
 }
-
+export type CandidateOnAssessmentItems = Prisma.PromiseReturnType<
+  typeof findCandidatesByAssessment
+>;
 export async function findCandidatesByAssessment(assessmentId) {
-  return await prisma.candidate.findMany({
+  return await prisma.candidatesOnAssessments.findMany({
+    include: { candidate: true },
     where: {
-      candidatesOnAssessments: {
-        some: { assessmentId: assessmentId },
-      },
+      assessmentId: assessmentId,
     },
   });
 }
