@@ -17,5 +17,7 @@ const config = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // useSearchParams should be wrapped with a Suspense boundary https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+  missingSuspenseWithCSRBailout: false,
 };
 export default config;
