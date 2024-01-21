@@ -41,13 +41,13 @@ export async function startAssessmentSessionAction(
     notFound();
   }
 
-  try {
-    if (!candidate || candidate.status === CandidateStatus.PENDING) {
-      redirect(
-        `/onboarding?callbackUrl=${absoluteUrl() + "a/" + assessmentId}`,
-      );
-    }
+  if (!candidate || candidate.status === CandidateStatus.PENDING) {
+    redirect(
+      `/onboarding/candidate/?step=github-connect&callbackUrl=${absoluteUrl() + "a/" + assessmentId}`,
+    );
+  }
 
+  try {
     if (candidate.status === CandidateStatus.ARCHIVED) {
       throw new Error("Invalid Candidate");
     }
