@@ -28,7 +28,7 @@ export default async function AssessmentsPage() {
   const { candidate } = user;
 
   if (!candidate) {
-    redirect("/onboarding/candidate");
+    redirect("/");
   }
 
   const rows = await getAssessments(candidate.id);
@@ -58,7 +58,7 @@ export default async function AssessmentsPage() {
           <EmptyPlaceholder.Icon icon={GitBranch} />
           <EmptyPlaceholder.Title>
             {" "}
-            You have no assessments yet
+            You have no assessments assigned yet
           </EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
             Your invitations will appear here.

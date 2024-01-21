@@ -61,7 +61,7 @@ export function StartAssessmentButton({
       } else {
         toast({
           title: "Something went wrong.",
-          description: "Please try again.",
+          description: res.error?.message,
           variant: "destructive",
         });
       }

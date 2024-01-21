@@ -2,7 +2,6 @@ import { Users } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import slugify from "slugify";
 
-import { CandidateItem } from "~/components/CandidateItem";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 import { CopyButton } from "~/components/ui/CopyButton";
@@ -11,6 +10,7 @@ import { absoluteUrl } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById } from "~/server/repositories/Assessments";
 import { findCandidatesByAssessment } from "~/server/repositories/Candidates";
+import { CandidateOnAssessmentItem } from "./CandidateOnAssessmentItem";
 
 const getCandidates = async (assessmentId: string) => {
   return await findCandidatesByAssessment(assessmentId);
@@ -61,12 +61,8 @@ export default async function AssessmentCandidatePage({
 
       {candidates && candidates.length > 0 && (
         <div className="divide divide-y rounded-md border">
-          {candidates.map((candidate) => (
-            <CandidateItem
-              key={candidate.id}
-              candidate={candidate}
-              assessmentId={assessmentId}
-            />
+          {candidates.map((candidate, key) => (
+            <CandidateOnAssessmentItem key={key} item={candidate} />
           ))}
         </div>
       )}

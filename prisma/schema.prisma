@@ -173,7 +173,7 @@ model Candidate {
 
 enum CandidateOnAssessmentStatus {
   PENDING
-  ACCEPTED
+  ACCEPTED // we not longer track this event (user click invitation)
   STARTED
   FINISHED
   REJECTED //private

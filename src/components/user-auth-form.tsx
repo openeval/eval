@@ -95,7 +95,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <span className="w-full border-t border-slate-300" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2">Or use</span>
+          <span className="bg-background px-2">or</span>
         </div>
       </div>
       <button

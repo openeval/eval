@@ -49,7 +49,7 @@ export default async function Layout({
         </aside>
         <main
           id="main-content"
-          className="relative mt-8 h-full w-full overflow-x-hidden md:px-2"
+          className="relative mt-8 h-full w-full overflow-x-hidden pb-8 md:px-2"
         >
           {children}
         </main>
