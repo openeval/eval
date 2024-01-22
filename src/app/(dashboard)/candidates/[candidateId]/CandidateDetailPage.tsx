@@ -63,18 +63,18 @@ export default function CandidateDetailPage({
             <div className="flex grow">
               {/* contributions */}
               <img
-                src={`https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=${candidate.ghUsername}&theme=github`}
+                src={`https://gh-card.useeval.com/api/cards/profile-details?username=${candidate.ghUsername}&theme=github_dark`}
                 className="w-full"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               {/* contributions */}
               <img
-                src={`https://github-profile-summary-cards.vercel.app/api/cards/stats?username=${candidate.ghUsername}&theme=github`}
+                src={`https://gh-card.useeval.com/api/cards/stats?username=${candidate.ghUsername}&theme=github_dark`}
                 className="w-full"
               />
               <img
-                src={`https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=${candidate.ghUsername}&theme=github`}
+                src={`https://gh-card.useeval.com/api/cards/repos-per-language?username=${candidate.ghUsername}&theme=github_dark`}
                 className="w-full"
               />
             </div>
