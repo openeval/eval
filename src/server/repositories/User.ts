@@ -6,6 +6,10 @@ export async function create(data: Prisma.UserCreateInput) {
   return await prisma.user.create({ data });
 }
 
+export async function findOneById(id: User["id"]) {
+  return await prisma.user.findFirst({ where: { id } });
+}
+
 export async function findOneByEmail(email: User["email"]) {
   return await prisma.user.findFirst({ where: { email } });
 }
