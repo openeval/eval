@@ -46,3 +46,5 @@ yarn-error.log*
 /.react-email/
 
 /playwright-report
+# Sentry Config File
+.sentryclirc
