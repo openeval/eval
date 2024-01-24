@@ -49,14 +49,26 @@ export async function findAllForList(
   return { data, count };
 }
 
+export type AssessmentItemData = Prisma.PromiseReturnType<typeof findOneById>;
+
 export async function findOneById(id, organizationId?) {
   return await prisma.assessment.findFirst({
+    include: { reviewers: true },
     where: { id, organizationId },
   });
 }
 
 export async function update(where: Prisma.AssessmentWhereUniqueInput, data) {
-  return await prisma.assessment.update({ where, data });
+  return await prisma.assessment.update({
+    where,
+    data: {
+      ...data,
+      reviewers: {
+        set: [],
+        connect: data.reviewers || [],
+      },
+    },
+  });
 }
 
 export async function findByCandidate(candidateId) {
