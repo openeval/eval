@@ -12,7 +12,6 @@ export async function findOneById(id, organizationId?) {
 export type MembershipsByOrg = Prisma.PromiseReturnType<
   typeof findAllMembershipsByOrgId
 >;
-
 export async function findAllMembershipsByOrgId(organizationId: string) {
   return await prisma.membership.findMany({
     include: { user: true },

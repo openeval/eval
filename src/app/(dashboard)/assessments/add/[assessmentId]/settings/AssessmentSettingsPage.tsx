@@ -3,11 +3,12 @@
 import type { Assessment } from "@prisma/client";
 import { redirect } from "next/navigation";
 
+import type { MembershipsByOrg } from "~/server/repositories/Membership";
 import { updateAssessmentAction } from "../../../actions";
 import { AssessmentSettingsForm } from "../../../AssessmentSettingsForm";
 
 type AssessmentSettingsPageProps = {
-  data: { assessment: Assessment };
+  data: { assessment: Assessment; members: MembershipsByOrg };
 };
 
 export const AssessmentSettingsPage = ({
@@ -16,6 +17,7 @@ export const AssessmentSettingsPage = ({
   return (
     <AssessmentSettingsForm
       assessment={data.assessment}
+      reviewees={data.members}
       action={updateAssessmentAction}
       onSuccess={() =>
         redirect(`/assessments/add/${data.assessment.id}/invite`)

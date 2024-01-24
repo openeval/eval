@@ -1,11 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Assessment } from "@prisma/client";
 import { AssessmentSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
+import { z } from "zod";
 
 import { Button } from "~/components/ui/Button";
 import {
@@ -23,6 +22,7 @@ import {
   FormItem,
   FormLabel,
 } from "~/components/ui/Form";
+import { MultiSelect } from "~/components/ui/MultiSelect";
 import {
   Select,
   SelectContent,
@@ -33,12 +33,15 @@ import {
 import { Switch } from "~/components/ui/Switch";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import type { AssessmentItemData } from "~/server/repositories/Assessments";
+import type { MembershipsByOrg } from "~/server/repositories/Membership";
 import type { UpdateAssessmentAction } from "./actions";
 
 interface AssessmentSettingsFormProps
   extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
-  assessment: Partial<Assessment>;
+  assessment: NonNullable<Partial<AssessmentItemData>>;
+  reviewees: MembershipsByOrg;
   action: UpdateAssessmentAction;
   onSuccess?: () => void;
 }
@@ -46,6 +49,10 @@ interface AssessmentSettingsFormProps
 const assessmentSchema = AssessmentSchema.pick({
   published: true,
   evaluationPeriodDays: true,
+}).extend({
+  reviewers: z
+    .array(z.object({ value: z.string(), label: z.string() }))
+    .optional(),
 });
 
 type FormData = z.infer<typeof assessmentSchema>;
@@ -54,17 +61,30 @@ export function AssessmentSettingsForm({
   className,
   ...props
 }: AssessmentSettingsFormProps) {
+  const defaultData = {
+    ...props.assessment,
+    reviewers: props.assessment?.reviewers?.map((i) => {
+      return { value: i.id, label: i.name };
+    }),
+  };
+
   const form = useForm<FormData>({
     resolver: zodResolver(assessmentSchema),
     // @ts-expect-error prisma
-    values: props.assessment,
+    values: defaultData,
   });
 
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
+    const payload = {
+      ...data,
+      reviewers: data.reviewers?.map((o) => ({ id: o.value })) || [],
+    };
+
+    // return;
     startActionTransition(async () => {
-      const res = await props.action({ id: props.assessment.id }, data);
+      const res = await props.action({ id: props.assessment.id }, payload);
       if (res.success) {
         toast({
           title: "Success.",
@@ -135,6 +155,32 @@ export function AssessmentSettingsForm({
 
                     <FormDescription>
                       The interval to submit solutions.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="reviewers"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reviewers</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        value={field.value}
+                        defaultOptions={props.reviewees.map((i) => {
+                          return {
+                            value: i.user.id,
+                            label: i.user.name || i.user.email,
+                          };
+                        })}
+                        emptyIndicator="no teammates left"
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The candidate submissions reviewers.
                     </FormDescription>
                   </FormItem>
                 )}
