@@ -146,6 +146,12 @@ dependencies:
   pnpm:
     specifier: ^8.14.0
     version: 8.14.0
+  posthog-js:
+    specifier: ^1.102.1
+    version: 1.102.1
+  posthog-node:
+    specifier: ^3.6.0
+    version: 3.6.0
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -5590,6 +5596,13 @@ packages:
       has-symbols: 1.0.3
     dev: true
 
+  /asynckit@0.4.0:
+    resolution:
+      {
+        integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==,
+      }
+    dev: false
+
   /autoprefixer@10.4.14(postcss@8.4.32):
     resolution:
       {
@@ -5643,6 +5656,19 @@ packages:
       }
     engines: { node: ">=4" }
     dev: true
+
+  /axios@1.6.7:
+    resolution:
+      {
+        integrity: sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==,
+      }
+    dependencies:
+      follow-redirects: 1.15.5
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /axobject-query@3.2.1:
     resolution:
@@ -6334,6 +6360,16 @@ packages:
       }
     dev: true
 
+  /combined-stream@1.0.8:
+    resolution:
+      {
+        integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==,
+      }
+    engines: { node: ">= 0.8" }
+    dependencies:
+      delayed-stream: 1.0.0
+    dev: false
+
   /comma-separated-tokens@2.0.3:
     resolution:
       {
@@ -6699,6 +6735,14 @@ packages:
       rimraf: 3.0.2
       slash: 3.0.0
     dev: true
+
+  /delayed-stream@1.0.0:
+    resolution:
+      {
+        integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==,
+      }
+    engines: { node: ">=0.4.0" }
+    dev: false
 
   /deprecation@2.3.1:
     resolution:
@@ -7747,6 +7791,13 @@ packages:
       web-streams-polyfill: 3.3.2
     dev: true
 
+  /fflate@0.4.8:
+    resolution:
+      {
+        integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==,
+      }
+    dev: false
+
   /figures@3.2.0:
     resolution:
       {
@@ -7824,6 +7875,19 @@ packages:
         integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==,
       }
 
+  /follow-redirects@1.15.5:
+    resolution:
+      {
+        integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==,
+      }
+    engines: { node: ">=4.0" }
+    peerDependencies:
+      debug: "*"
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
+
   /for-each@0.3.3:
     resolution:
       {
@@ -7842,6 +7906,18 @@ packages:
     dependencies:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
+
+  /form-data@4.0.0:
+    resolution:
+      {
+        integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==,
+      }
+    engines: { node: ">= 6" }
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
 
   /formdata-polyfill@4.0.10:
     resolution:
@@ -11691,6 +11767,29 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
+  /posthog-js@1.102.1:
+    resolution:
+      {
+        integrity: sha512-vHkLtnjDce8qxoKX9K4HOWEvCW/xPTEzHDBJIPrhjWCfXLPa5NePEeSiQjr64BV4DFMBbvyNtUUPVstZoIqQcw==,
+      }
+    dependencies:
+      fflate: 0.4.8
+      preact: 10.19.3
+    dev: false
+
+  /posthog-node@3.6.0:
+    resolution:
+      {
+        integrity: sha512-N/4//SIQR4fhwbHnDdJ2rQCYdu9wo0EVPK4lVgZswp5R/E42RKlpuO6ZfPsBl+Bcg06OYiOd/WR/jLV90FCoSw==,
+      }
+    engines: { node: ">=15.0.0" }
+    dependencies:
+      axios: 1.6.7
+      rusha: 0.8.14
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /preact-render-to-string@5.2.3(preact@10.11.3):
     resolution:
       {
@@ -11707,6 +11806,13 @@ packages:
     resolution:
       {
         integrity: sha512-eY93IVpod/zG3uMF22Unl8h9KkrcKIRs2EGar8hwLZZDU1lkjph303V9HZBwufh2s736U6VXuhD109LYqPoffg==,
+      }
+    dev: false
+
+  /preact@10.19.3:
+    resolution:
+      {
+        integrity: sha512-nHHTeFVBTHRGxJXKkKu5hT8C/YWBkPso4/Gad6xuj5dbptt9iF9NZr9pHbPhBrnT2klheu7mHTxTZ/LjwJiEiQ==,
       }
     dev: false
 
@@ -12594,6 +12700,13 @@ packages:
       }
     dependencies:
       queue-microtask: 1.2.3
+
+  /rusha@0.8.14:
+    resolution:
+      {
+        integrity: sha512-cLgakCUf6PedEu15t8kbsjnwIFFR2D4RfL+W3iWFJ4iac7z4B0ZI8fxy4R3J956kAI68HclCFGL8MPoUVC3qVA==,
+      }
+    dev: false
 
   /rxjs@7.8.1:
     resolution:

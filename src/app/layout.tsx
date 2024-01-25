@@ -2,7 +2,9 @@ import "~/styles/globals.css";
 
 import clsx from "clsx";
 import { Work_Sans } from "next/font/google";
+import { Suspense } from "react";
 
+import { PHProvider, PostHogPageView } from "~/components/PHProvider";
 import { ThemeProvider } from "~/components/ThemeProvider";
 import { Toaster } from "~/components/toaster";
 
@@ -20,22 +22,27 @@ export default async function RootLayout({
 }) {
   return (
     <html dir="ltr" lang="en">
-      <body
-        className={clsx(
-          "min-h-screen scroll-smooth border-t-2 border-primary bg-background font-sans antialiased",
-          fontWorkSans.variable,
-        )}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+      <Suspense>
+        <PostHogPageView />
+      </Suspense>
+      <PHProvider>
+        <body
+          className={clsx(
+            "min-h-screen scroll-smooth border-t-2 border-primary bg-background font-sans antialiased",
+            fontWorkSans.variable,
+          )}
         >
-          {children}
-          <Toaster />
-        </ThemeProvider>
-      </body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </body>
+      </PHProvider>
     </html>
   );
 }
