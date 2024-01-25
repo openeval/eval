@@ -102,7 +102,7 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
     const html = render(
       <AssessmentInvitationEmail
         username={data.name}
-        org={"TODO"}
+        org={user.activeOrg.name}
         assessmentName={assessment.title}
         inviteLink={inviteLink}
       />,

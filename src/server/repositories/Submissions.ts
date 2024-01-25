@@ -25,10 +25,12 @@ export async function findAllForList(where: Prisma.SubmissionWhereInput) {
   });
 }
 
-export async function findByAssessmentId(assessmentId: string) {
-  return await prisma.submission.findMany({
-    where: { assessmentId },
-    include: { contribution: true, review: true },
+export async function findByCandidateOnAssessment(
+  candidateId: string,
+  assessmentId: string,
+) {
+  return await prisma.submission.findFirst({
+    where: { candidateId, assessmentId },
   });
 }
 
@@ -82,4 +84,8 @@ export async function findByIdFull(
 
 export async function update(id: string, data: Prisma.SubmissionUpdateInput) {
   return await prisma.submission.update({ where: { id }, data });
+}
+
+export async function create(data: Prisma.SubmissionCreateInput) {
+  return await prisma.submission.create({ data });
 }

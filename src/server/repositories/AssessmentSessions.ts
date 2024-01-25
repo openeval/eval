@@ -16,7 +16,7 @@ export async function findOneById(id) {
 export async function findOneByCandidate(id, candidateId) {
   return await prisma.assessmentSession.findFirst({
     where: { id, candidateId, status: AssessmentSessionStatus.STARTED },
-    include: { assessment: true },
+    include: { assessment: { include: { reviewers: true } } },
   });
 }
 
