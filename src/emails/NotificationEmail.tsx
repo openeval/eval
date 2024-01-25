@@ -29,7 +29,7 @@ interface NotificationEmailProps {
 export const NotificationEmail = ({
   username = "Eval",
   title,
-  description = `Click on the link below to see it on ${siteConfig.name}`,
+  description = `Click on the link below to review it on ${siteConfig.name}`,
   url,
 }: NotificationEmailProps) => {
   const previewText = `You have a new notification`;
@@ -81,7 +81,8 @@ export const NotificationEmail = ({
             </Text>
             <Hr className="mx-0 my-[26px] w-full border border-solid" />
             <Text className="text-[12px] leading-[24px] text-[#666666]">
-              If you did not request this email you can safely ignore it.
+              This is an automated message - please do not reply directly to
+              this email.
             </Text>
           </Container>
         </Body>

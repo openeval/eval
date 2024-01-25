@@ -114,7 +114,7 @@ export async function finishAssessmentSessionAction(
 
     await transporter.sendMail({
       to: assessment.reviewers.map((r) => r.email), // list of receivers
-      subject: `You have a new assessment invitation`, // Subject line
+      subject: `You have a new candidate submission`, // Subject line
       html: html, // html body
     });
 
