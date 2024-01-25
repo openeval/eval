@@ -44,6 +44,7 @@ export function CandidateOperations({ candidate }: CandidateOperationsProps) {
           description: "Candidate removed",
         });
         router.refresh();
+        setShowDeleteAlert(!showDeleteAlert);
       } else {
         toast({
           title: "Something went wrong.",

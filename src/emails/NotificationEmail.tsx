@@ -19,13 +19,20 @@ import { siteConfig } from "~/config/site";
 import { absoluteUrl } from "~/lib/utils";
 import config from "./tailwind.config.cjs";
 
-interface LoginEmailProps {
-  username: string;
+interface NotificationEmailProps {
+  username?: string;
   url: string;
+  title: string;
+  description?: string;
 }
 
-export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
-  const previewText = `Sign in to ${siteConfig.name}`;
+export const NotificationEmail = ({
+  username = "Eval",
+  title,
+  description = `Click on the link below to review it on ${siteConfig.name}`,
+  url,
+}: NotificationEmailProps) => {
+  const previewText = `You have a new notification`;
 
   return (
     <Html>
@@ -45,20 +52,19 @@ export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal ">
-              Sign in
+              {title}
             </Heading>
 
-            <Text className="text-[14px] leading-[24px]">
-              Click the button below to sign in on {siteConfig.name} as{" "}
-              <strong>{username}</strong>:{" "}
-            </Text>
+            <Text className="text-[14px] leading-[24px]">Hello,</Text>
+
+            <Text className="text-[14px] leading-[24px]">{description}</Text>
 
             <Section className="my-[32px] text-center">
               <Button
                 className="rounded bg-primary px-6 py-3 text-center text-[12px] font-semibold text-white no-underline"
                 href={url}
               >
-                Sign in
+                View on {siteConfig.name}
               </Button>
             </Section>
             <Text className="break-normal text-[14px] leading-[24px]">
@@ -75,7 +81,8 @@ export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
             </Text>
             <Hr className="mx-0 my-[26px] w-full border border-solid" />
             <Text className="text-[12px] leading-[24px] text-[#666666]">
-              If you did not request this email you can safely ignore it.
+              This is an automated message - please do not reply directly to
+              this email.
             </Text>
           </Container>
         </Body>
@@ -84,4 +91,4 @@ export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
   );
 };
 
-export default LoginEmail;
+export default NotificationEmail;

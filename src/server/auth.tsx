@@ -1,11 +1,11 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
   CandidateStatus,
+  UserType,
   type User as BaseUser,
   type Candidate,
   type Membership,
   type Organization,
-  type UserType,
 } from "@prisma/client";
 import { render } from "@react-email/render";
 import NextAuth, {
@@ -196,7 +196,7 @@ export const authOptions: NextAuthConfig = {
   },
   events: {
     async linkAccount({ account, user, profile }) {
-      if (account.provider === "github") {
+      if (account.provider === "github" && user.type === UserType.CANDIDATE) {
         // candidates need to link their github account to verify their profiles
         // this happens when a candidate is invited (created by organization) and
         // when the candidate is created in the onboarding process

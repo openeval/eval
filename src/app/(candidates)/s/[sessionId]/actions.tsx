@@ -6,14 +6,19 @@ import {
   CandidateOnAssessmentStatus,
   type AssessmentSession,
 } from "@prisma/client";
+import { render } from "@react-email/render";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
+import { NotificationEmail } from "~/emails/NotificationEmail";
+import { absoluteUrl } from "~/lib/utils";
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
+import { transporter } from "~/server/mailer";
 import * as assessmentsRepo from "~/server/repositories/Assessments";
 import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
+import * as submissionsRepo from "~/server/repositories/Submissions";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -87,6 +92,31 @@ export async function finishAssessmentSessionAction(
       candidate.id,
       CandidateOnAssessmentStatus.FINISHED,
     );
+
+    // send email notification to reviewers
+    const { assessment } = assessmentSession;
+
+    const submission = await submissionsRepo.findByCandidateOnAssessment(
+      candidate.id,
+      assessmentSession.assessment.id,
+    );
+
+    if (!submission) {
+      throw new Error("submission do not exist");
+    }
+
+    const html = render(
+      <NotificationEmail
+        url={absoluteUrl(`/submissions/${submission.id}`).toString()}
+        title="New candidate submission"
+      />,
+    );
+
+    await transporter.sendMail({
+      to: assessment.reviewers.map((r) => r.email), // list of receivers
+      subject: `You have a new candidate submission`, // Subject line
+      html: html, // html body
+    });
 
     return { success: true, data: response };
   } catch (error) {
