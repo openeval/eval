@@ -3,6 +3,7 @@
 import { Decoration, Diff, Hunk, parseDiff } from "react-diff-view";
 
 import "react-diff-view/style/index.css";
+import "~/styles/DiffViewer.css";
 
 export const DiffViewer = ({ diffText }) => {
   const files = parseDiff(diffText);
@@ -29,9 +30,7 @@ export const DiffViewer = ({ diffText }) => {
           hunks.map((hunk) => (
             <>
               <Decoration key={"deco-" + hunk.content}>
-                <div className="hunk-header bg-cyan-100 px-6">
-                  {hunk.content}
-                </div>
+                <div className="hunk-header bg-muted px-6">{hunk.content}</div>
               </Decoration>
               <Hunk key={hunk.content} hunk={hunk} />
             </>

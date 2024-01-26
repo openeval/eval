@@ -1,27 +1,23 @@
 "use client";
 
-import { Suspense } from "react";
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
-import { Typography } from "~/components/ui/Typography";
-import { toast } from "~/hooks/use-toast";
-import { timeAgo } from "~/lib/utils";
-import { DiffViewer } from "./DiffViewer";
-import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
-
-import "react-diff-view/style/index.css";
-
 import { GitPullRequest, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 
+import { DiffViewer } from "~/components/DiffViewer";
 import Markdown from "~/components/Markdown";
 import { Badge } from "~/components/ui/Badge";
 import { Card, CardContent, CardHeader } from "~/components/ui/Card";
 import { Separator } from "~/components/ui/Separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
+import { Typography } from "~/components/ui/Typography";
+import { toast } from "~/hooks/use-toast";
+import { timeAgo } from "~/lib/utils";
 import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
 import type { SubmissionFullData } from "~/server/repositories/Submissions";
 import type { SubmitReviewAction } from "../actions";
 import Pie from "./Pie";
+import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
 
 type SubmissionDetailPageProps = {
