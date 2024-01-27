@@ -55,7 +55,7 @@ export async function findByIdFull(id, organizationId?) {
     },
     include: {
       submissions: {
-        include: { review: true, contribution: true, assessment: true },
+        include: { reviews: true, contribution: true, assessment: true },
       },
     },
   });

@@ -50,9 +50,10 @@ export const submitReviewAction: SubmitReviewAction = async (
       throw Error("Invalid submission status");
     }
 
-    const totalScore = await getTotalScore(data.evaluationCriterias);
+    const score = await getTotalScore(data.evaluationCriterias);
 
     const { evaluationCriterias, ...payload } = data;
+
     const review = await prisma.review.create({
       data: {
         ...payload,
@@ -66,13 +67,17 @@ export const submitReviewAction: SubmitReviewAction = async (
             id: user.id,
           },
         },
-        totalScore,
+        score,
       },
     });
 
-    //update the submission status
+    //update the submission status and score
     await submissionsRepo.update(submissionId, {
       status: SubmissionStatus.REVIEWED,
+      // TODO: set a service to calculate scores
+      score: Math.ceil(
+        (submission.score + score) / (submission.reviews.length + 1),
+      ),
     });
 
     return { success: true, data: review };

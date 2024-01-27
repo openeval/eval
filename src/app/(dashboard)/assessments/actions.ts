@@ -68,7 +68,7 @@ export const createAssessmentAction: CreateAssessmentAction = async (data) => {
 
 export type UpdateAssessmentAction = (
   where: Prisma.AssessmentWhereUniqueInput,
-  data: Prisma.AssessmentUpdateInput & { reviewers: { id: string }[] },
+  data: Prisma.AssessmentUpdateInput & { reviewers?: { id: string }[] },
 ) => Promise<ActionResponse<Assessment>>;
 
 export const updateAssessmentAction: UpdateAssessmentAction = async (

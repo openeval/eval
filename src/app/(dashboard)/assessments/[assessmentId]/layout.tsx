@@ -62,7 +62,7 @@ export default async function Layout({
           <CopyButton
             value={`${absoluteUrl("/")}a/${assessment.id}/
               ${slugify(assessment.title)}`}
-            className="border-none text-slate-900 hover:bg-transparent dark:text-slate-50"
+            className="border-none hover:bg-transparent"
           />
         </div>
         <AssessmentNav assessmentId={assessment.id} />

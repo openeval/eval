@@ -72,15 +72,25 @@ export const columns: ColumnDef<Item>[] = [
     },
   },
   {
-    id: "review.totalScore",
-    accessorFn: (row) => row.review?.totalScore || 0,
+    accessorKey: "reviews",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Reviews" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center">{row.original.reviews.length}</div>
+      );
+    },
+  },
+  {
+    accessorKey: "score",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Score" />
     ),
     cell: ({ row }) => {
       return (
         <div className="flex w-[100px] items-center">
-          <Progress value={row.getValue("review.totalScore")} />
+          <Progress value={row.getValue("score")} />
         </div>
       );
     },
