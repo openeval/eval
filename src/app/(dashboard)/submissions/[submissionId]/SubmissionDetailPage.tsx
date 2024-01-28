@@ -2,18 +2,16 @@
 
 import {
   ChevronDown,
-  ChevronRight,
   GitPullRequest,
   Loader,
   MoreVertical,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useTransition } from "react";
 
+import { useConfirmationDialog } from "~/components/alertConfirmation";
 import { DiffViewer } from "~/components/DiffViewer";
 import Markdown from "~/components/Markdown";
-import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
 import { Card, CardContent, CardHeader } from "~/components/ui/Card";
 import {
@@ -42,7 +40,7 @@ import { toast } from "~/hooks/use-toast";
 import { timeAgo } from "~/lib/utils";
 import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
 import type { SubmissionFullData } from "~/server/repositories/Submissions";
-import type { SubmitReviewAction } from "../actions";
+import { deleteReviewAction, type SubmitReviewAction } from "../actions";
 import Pie from "./Pie";
 import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
@@ -64,6 +62,26 @@ export function SubmissionDetailPage({
   const router = useRouter();
   const { reviews, assessment, candidate } = data.submission;
   const [reviewDialog, setReviewDialog] = useState(false);
+  const [isArchivingLoading, startActionTransition] = useTransition();
+
+  const { getConfirmation } = useConfirmationDialog();
+
+  const onDeleteReview = async (id) => {
+    const confirm = await getConfirmation();
+
+    if (confirm) {
+      startActionTransition(async () => {
+        const res = await deleteReviewAction(id);
+        if (res.success) {
+          toast({
+            title: "Success.",
+            description: "Review deleted",
+          });
+          router.refresh();
+        }
+      });
+    }
+  };
   return (
     <div>
       {data.submission.contribution && (
@@ -71,12 +89,12 @@ export function SubmissionDetailPage({
           <div className="items-top mb-8 flex flex-col justify-between md:flex-row">
             <div className="flex flex-col">
               <div className="flex flex-row items-baseline md:items-center">
-                <GitPullRequest className="mr-2 h-6 w-6" />{" "}
                 <Typography variant={"h1"}>
                   {data.submission.contribution.title}
                 </Typography>
               </div>
               <div className="mt-2 flex items-center">
+                <GitPullRequest className="mr-2 h-6 w-6" />{" "}
                 <Typography variant={"subtle"}>
                   {timeAgo(data.submission.contribution.meta?.created_at)} by{" "}
                   <strong>{candidate.name}</strong>
@@ -199,8 +217,11 @@ export function SubmissionDetailPage({
                     forceMount
                   >
                     <DropdownMenuItem
+                      disabled={isArchivingLoading}
                       className="flex cursor-pointer items-center text-destructive"
-                      onSelect={() => console.log(true)}
+                      onSelect={async () => {
+                        onDeleteReview(review.id);
+                      }}
                     >
                       Delete
                     </DropdownMenuItem>

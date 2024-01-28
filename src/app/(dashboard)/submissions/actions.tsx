@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  MembershipRole,
   SubmissionStatus,
   type Prisma,
   type Review,
@@ -13,6 +14,7 @@ import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { getTotalScore } from "~/server/repositories/EvaluationCriteria";
+import * as reviewsRepo from "~/server/repositories/Reviews";
 import * as submissionsRepo from "~/server/repositories/Submissions";
 import type { ActionResponse } from "~/types";
 
@@ -76,7 +78,69 @@ export const submitReviewAction: SubmitReviewAction = async (
       status: SubmissionStatus.REVIEWED,
       // TODO: set a service to calculate scores
       score: Math.ceil(
-        (submission.score + score) / (submission.reviews.length + 1),
+        (submission.score + score) / (submission.reviews.length + 1), // i'm skiping a db call to refresh submission
+      ),
+    });
+
+    return { success: true, data: review };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: createError(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        ),
+      };
+    }
+
+    return { success: false, error: { message: "something went wrong" } };
+  }
+};
+
+export const deleteReviewAction = async (reviewId) => {
+  const session = await getServerSession();
+
+  // users shound't be able to execute an action without a session
+  // this is a security prevention
+  if (!session) {
+    redirect("/login");
+  }
+
+  const { user } = session;
+
+  const review = await reviewsRepo.findOneById(reviewId);
+
+  if (!review) {
+    notFound();
+  }
+
+  const submission = await submissionsRepo.findOneById(review?.submissionId);
+
+  if (!submission) {
+    notFound();
+  }
+
+  try {
+    const roles = [MembershipRole.OWNER, MembershipRole.ADMIN];
+
+    if (
+      user.id !== review.createdById &&
+      !roles.includes(user.membership.role)
+    ) {
+      throw Error("forbidden");
+    }
+
+    const score = review.score;
+
+    await reviewsRepo.remove(reviewId);
+
+    //update the submission status and score
+    await submissionsRepo.update(submission.id, {
+      // TODO: set a service to calculate scores
+      score: Math.ceil(
+        (submission.score - score) / (submission.reviews.length - 1),
       ),
     });
 

@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { Work_Sans } from "next/font/google";
 import { Suspense } from "react";
 
+import { ConfirmationDialogProvider } from "~/components/alertConfirmation";
 import { PHProvider, PostHogPageView } from "~/components/PHProvider";
 import { ThemeProvider } from "~/components/ThemeProvider";
 import { Toaster } from "~/components/toaster";
@@ -38,7 +39,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <ConfirmationDialogProvider>{children}</ConfirmationDialogProvider>
             <Toaster />
           </ThemeProvider>
         </body>

@@ -6,7 +6,7 @@ import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
 export async function findOneById(id) {
   return await prisma.submission.findFirst({
     where: { id },
-    include: { assessment: true },
+    include: { assessment: true, reviews: true },
   });
 }
 
