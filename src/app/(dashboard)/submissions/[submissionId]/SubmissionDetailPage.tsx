@@ -1,13 +1,36 @@
 "use client";
 
-import { GitPullRequest, Loader } from "lucide-react";
+import { SubmissionStatus } from "@prisma/client";
+import {
+  ChevronDown,
+  GitPullRequest,
+  Loader,
+  MoreVertical,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState, useTransition } from "react";
 
+import { useConfirmationDialog } from "~/components/alertConfirmation";
 import { DiffViewer } from "~/components/DiffViewer";
 import Markdown from "~/components/Markdown";
 import { Badge } from "~/components/ui/Badge";
-import { Card, CardContent, CardHeader } from "~/components/ui/Card";
+import { Button } from "~/components/ui/Button";
+import { Card, CardContent } from "~/components/ui/Card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/Dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/DropdownMenu";
 import { Separator } from "~/components/ui/Separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Typography } from "~/components/ui/Typography";
@@ -15,7 +38,11 @@ import { toast } from "~/hooks/use-toast";
 import { timeAgo } from "~/lib/utils";
 import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
 import type { SubmissionFullData } from "~/server/repositories/Submissions";
-import type { SubmitReviewAction } from "../actions";
+import {
+  deleteReviewAction,
+  rejectSubmissionAction,
+  type SubmitReviewAction,
+} from "../actions";
 import Pie from "./Pie";
 import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
@@ -35,23 +62,67 @@ export function SubmissionDetailPage({
   submitReviewAction,
 }: SubmissionDetailPageProps) {
   const router = useRouter();
-  const { review } = data.submission;
+  const { reviews, candidate } = data.submission;
+  const [reviewDialog, setReviewDialog] = useState(false);
+  const [reviewEditDialog, setReviewEditDialog] = useState(false);
+
+  const [isDelitingReviewLoading, startActionTransition] = useTransition();
+  const [isRejectingSubmissionLoading, startActionRejectingTransition] =
+    useTransition();
+
+  const { getConfirmation } = useConfirmationDialog();
+
+  const onDeleteReview = async (id) => {
+    const confirm = await getConfirmation();
+
+    if (confirm) {
+      startActionTransition(async () => {
+        const res = await deleteReviewAction(id);
+        if (res.success) {
+          toast({
+            title: "Success.",
+            description: "Review deleted",
+          });
+          router.refresh();
+        }
+      });
+    }
+  };
+
+  const onRejectSubmission = async (id) => {
+    const confirm = await getConfirmation();
+
+    if (confirm) {
+      startActionRejectingTransition(async () => {
+        const res = await rejectSubmissionAction(id);
+        if (res.success) {
+          toast({
+            title: "Success.",
+            description: "Status updated",
+          });
+          router.refresh();
+        }
+      });
+    }
+  };
+
   return (
     <div>
       {data.submission.contribution && (
         <>
-          <div className="items-top mb-8 flex flex-row justify-between">
-            <div className="flex flex-col">
-              <h2 className="text-2xl font-semibold">
-                {data.submission.contribution.title}
-              </h2>
+          <div className="items-top mb-8 flex flex-col justify-between md:flex-row">
+            <div className="flex w-full flex-col">
+              <div className="flex flex-row items-end justify-between md:items-baseline">
+                <Typography variant={"h1"}>
+                  {data.submission.contribution.title}
+                </Typography>
+                <Badge variant={"outline"}>{data.submission.status}</Badge>
+              </div>
               <div className="mt-2 flex items-center">
-                <Badge variant="outline" className="mr-2 py-2">
-                  <GitPullRequest className="x-4 mr-1 h-4" />{" "}
-                  {data.submission.contribution.state}
-                </Badge>{" "}
+                <GitPullRequest className="mr-2 h-6 w-6" />{" "}
                 <Typography variant={"subtle"}>
-                  {timeAgo(data.submission.contribution.meta?.created_at)}
+                  {timeAgo(data.submission.contribution.meta?.created_at)} by{" "}
+                  <strong>{candidate.name}</strong>
                 </Typography>
               </div>
             </div>
@@ -72,6 +143,70 @@ export function SubmissionDetailPage({
                 >
                   Changes
                 </TabsTrigger>
+
+                <div className="mb-2 ml-auto flex w-auto items-center space-x-1 self-end rounded-md bg-primary ">
+                  <Dialog open={reviewDialog} onOpenChange={setReviewDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="default" className="px-3 shadow-none">
+                        Review
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className={"max-h-[90vh] overflow-y-scroll"}>
+                      <DialogHeader>
+                        <DialogTitle>Review</DialogTitle>
+                        <DialogDescription>
+                          evaluate the performance of current submission
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <ReviewSubmissionForm
+                        submission={data.submission}
+                        evaluationCriterias={data.evaluationCriterias}
+                        action={submitReviewAction}
+                        onSuccess={() => {
+                          toast({
+                            title: "Success.",
+                            description: "Review submitted",
+                          });
+                          router.refresh();
+                          setReviewDialog(!reviewDialog);
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
+
+                  <Separator
+                    orientation="vertical"
+                    className="h-[20px] text-secondary-foreground"
+                  />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="default" className="px-2 shadow-none">
+                        <ChevronDown className="h-4 w-4 text-primary-foreground" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      alignOffset={-5}
+                      className="w-[200px]"
+                      forceMount
+                    >
+                      <DropdownMenuItem
+                        disabled={
+                          isRejectingSubmissionLoading ||
+                          data.submission.status === SubmissionStatus.REJECTED
+                        }
+                        className="flex cursor-pointer items-center text-destructive"
+                        onSelect={async () => {
+                          await onRejectSubmission(data.submission.id);
+                        }}
+                      >
+                        Reject
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </TabsList>
             </div>
             <TabsContent value="preview">
@@ -90,15 +225,84 @@ export function SubmissionDetailPage({
               </Suspense>
             </TabsContent>
           </Tabs>
+
           <Separator></Separator>
 
-          {review && (
+          {reviews.map((review) => (
             <Card className="my-4" key={review.id}>
-              <CardHeader className="rounded-t-lg bg-muted px-4 py-2 ">
+              <div className="flex flex-row items-center justify-between rounded-t-lg bg-muted px-4 py-0">
                 <Typography variant={"subtle"}>
+                  <strong>
+                    {review.createdBy.name || review.createdBy.email}
+                  </strong>
+                  {" posted "}
                   {timeAgo(review.createdAt)}
                 </Typography>
-              </CardHeader>
+                <Dialog
+                  open={reviewEditDialog}
+                  onOpenChange={setReviewEditDialog}
+                >
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">More</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      alignOffset={-5}
+                      className="w-[200px]"
+                      forceMount
+                    >
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem
+                          disabled={isDelitingReviewLoading}
+                          className="flex cursor-pointer items-center"
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        disabled={isDelitingReviewLoading}
+                        className="flex cursor-pointer items-center text-destructive"
+                        onSelect={async () => {
+                          await onDeleteReview(review.id);
+                        }}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DialogContent className={"max-h-[90vh] overflow-y-scroll"}>
+                    <DialogHeader>
+                      <DialogTitle>Review</DialogTitle>
+                      <DialogDescription>
+                        evaluate the performance of current submission
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <ReviewSubmissionForm
+                      submission={data.submission}
+                      evaluationCriterias={data.evaluationCriterias}
+                      review={review}
+                      action={submitReviewAction}
+                      onSuccess={() => {
+                        toast({
+                          title: "Success.",
+                          description: "Review updated",
+                        });
+                        router.refresh();
+                        setReviewEditDialog(!reviewEditDialog);
+                      }}
+                    />
+                  </DialogContent>
+                </Dialog>
+
+                {/* TODO add edit mode */}
+              </div>
               <CardContent className="flex flex-col md:flex-row">
                 <div className="flex flex-col pt-4">
                   <div className="mx-auto w-[240px]">
@@ -120,22 +324,7 @@ export function SubmissionDetailPage({
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {!review && (
-            <ReviewSubmissionForm
-              submission={data.submission}
-              evaluationCriterias={data.evaluationCriterias}
-              action={submitReviewAction}
-              onSuccess={() => {
-                toast({
-                  title: "Success.",
-                  description: "Review submitted",
-                });
-                router.refresh();
-              }}
-            />
-          )}
+          ))}
         </>
       )}
     </div>

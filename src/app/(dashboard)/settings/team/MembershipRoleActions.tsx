@@ -1,20 +1,11 @@
 "use client";
 
 import { MembershipRole } from "@prisma/client";
-import { ChevronDownIcon, Loader2 as SpinnerIcon, Trash } from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/AlertDialog";
+import { useConfirmationDialog } from "~/components/alertConfirmation";
 import { Button } from "~/components/ui/Button";
 import {
   DropdownMenu,
@@ -29,22 +20,25 @@ import { removeMembershipAction, updateMembershipRoleAction } from "./actions";
 
 export const MembershipRoleActions = ({ membership }) => {
   const router = useRouter();
-  const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
   const [isArchivingLoading, startActionTransition] = React.useTransition();
   const [_isUpdateRoleLoading, startUpdateRoleActionTransition] =
     React.useTransition();
+  const { getConfirmation } = useConfirmationDialog();
 
   async function onRemoveMembership(membershipId: string) {
-    startActionTransition(async () => {
-      const res = await removeMembershipAction(membershipId);
-      if (res.success) {
-        toast({
-          title: "Success.",
-          description: "Member removed",
-        });
-        router.refresh();
-      }
-    });
+    const conf = await getConfirmation();
+    if (conf) {
+      startActionTransition(async () => {
+        const res = await removeMembershipAction(membershipId);
+        if (res.success) {
+          toast({
+            title: "Success.",
+            description: "Member removed",
+          });
+          router.refresh();
+        }
+      });
+    }
   }
 
   async function onUpdateRoleMembership(membershipId: string, role) {
@@ -67,74 +61,42 @@ export const MembershipRoleActions = ({ membership }) => {
   }
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="flex justify-between md:w-1/5">
-            {membership.role}
-            <ChevronDownIcon className="ml-2 h-4 w-4 text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {roleList.map(({ name, description, value }, key) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="flex justify-between md:w-1/5">
+          {membership.role}
+          <ChevronDownIcon className="ml-2 h-4 w-4 text-muted-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {roleList.map(({ name, description, value }, key) => (
+          <DropdownMenuItem
+            key={key}
+            onSelect={() => onUpdateRoleMembership(membership.id, value)}
+            className="flex flex-col items-start "
+          >
+            <p>{name}</p>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </DropdownMenuItem>
+        ))}
+
+        {membership.role !== MembershipRole.OWNER && (
+          <>
+            <DropdownMenuSeparator />
+
             <DropdownMenuItem
-              key={key}
-              onSelect={() => onUpdateRoleMembership(membership.id, value)}
-              className="flex flex-col items-start "
+              disabled={isArchivingLoading}
+              onSelect={async () => await onRemoveMembership(membership.id)}
+              className="flex flex-col items-start px-4 py-2 text-red-600 hover:text-red-600 aria-selected:text-red-600"
             >
-              <p>{name}</p>
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <p>Remove</p>
+              <p className="text-sm text-muted-foreground">
+                Remove team member
+              </p>
             </DropdownMenuItem>
-          ))}
-
-          {membership.role !== MembershipRole.OWNER && (
-            <>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                onSelect={() => setShowDeleteAlert(true)}
-                className="flex flex-col items-start px-4 py-2 text-red-600 hover:text-red-600 aria-selected:text-red-600"
-              >
-                <p>Remove</p>
-                <p className="text-sm text-muted-foreground">
-                  Remove team member
-                </p>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {/* TODO: create an alert provider  */}
-      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to remove it?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async (event) => {
-                event.preventDefault();
-                onRemoveMembership(membership.id);
-              }}
-              variant={"destructive"}
-            >
-              {isArchivingLoading ? (
-                <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash className="mr-2 h-4 w-4" />
-              )}
-              <span>Remove</span>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

@@ -13,7 +13,7 @@ import { SubmissionOperations } from "./SubmissionOperation";
 
 interface SubmissionItemProps {
   item: Prisma.SubmissionGetPayload<{
-    include: { review; contribution; assessment };
+    include: { reviews; contribution; assessment };
   }>;
 }
 
@@ -51,12 +51,17 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
             {item.status}
           </Badge>
         </div>
-        {item.review && (
+        {item.reviews && (
           <div className="flex flex-row items-center">
-            <Progress value={item.review.totalScore} className="mr-2 h-4 " />
-            <div>{item.review.totalScore}%</div>
+            <div className="mr-2">reviews</div>
+            {item.reviews.length}
           </div>
         )}
+
+        <div className="flex flex-row items-center">
+          <Progress value={item.score} className="mr-2 h-4 " />
+          <div>{item.score}%</div>
+        </div>
       </div>
 
       <div className="flex items-center justify-end">

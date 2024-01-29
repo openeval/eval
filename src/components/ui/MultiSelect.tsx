@@ -179,7 +179,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
 
     const handleUnselect = React.useCallback(
       (option: Option) => {
-        const newOptions = selected.filter((s) => s.value !== option.value);
+        const newOptions = selected.filter((s) => s?.value !== option.value);
         setSelected(newOptions);
         onChange?.(newOptions);
       },

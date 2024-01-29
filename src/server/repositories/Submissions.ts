@@ -1,10 +1,13 @@
-import type { Prisma, Submission } from "@prisma/client";
+import type { Prisma, Review, Submission } from "@prisma/client";
 
 import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
 
 export async function findOneById(id) {
-  return await prisma.submission.findFirst({ where: id });
+  return await prisma.submission.findFirst({
+    where: { id },
+    include: { assessment: true, reviews: true },
+  });
 }
 
 export async function findAll() {
@@ -18,7 +21,7 @@ export type SubmissionsListData = Prisma.PromiseReturnType<
 export async function findAllForList(where: Prisma.SubmissionWhereInput) {
   return await prisma.submission.findMany({
     where,
-    include: { contribution: true, review: true, assessment: true },
+    include: { contribution: true, reviews: true, assessment: true },
     orderBy: {
       createdAt: "desc",
     },
@@ -35,48 +38,53 @@ export async function findByCandidateOnAssessment(
 }
 
 export type SubmissionFullData = Prisma.PromiseReturnType<
-  typeof findByIdFull
-> & {
-  review: { plot: { series: number[]; labels: string[] } };
-};
+  typeof findByIdFull & {
+    reviews: [Review & { plot: { series: number[]; labels: string[] } }];
+  }
+>;
 
 export async function findByIdFull(
   id: Submission["id"],
   withOptions: { plotReviewsData?: boolean } = {},
 ) {
-  const data = await prisma.submission.findFirst({
+  let data = await prisma.submission.findFirst({
     where: { id },
     include: {
+      assessment: true,
       contribution: true,
-      review: { include: { evaluationCriterias: true } },
+      candidate: true,
+      reviews: { include: { evaluationCriterias: true, createdBy: true } },
     },
   });
 
-  if (data && data.review) {
-    if (withOptions.plotReviewsData) {
-      const plotData = await getDetailScore(
-        data.review.evaluationCriterias.map((value) => value.id),
-      );
+  if (withOptions.plotReviewsData) {
+    data = {
+      ...data,
+      // @ts-expect-error forget
+      reviews: await Promise.all(
+        // @ts-expect-error TODO: improve this async method
+        data?.reviews.map(async (review) => {
+          const plotData = await getDetailScore(
+            review.evaluationCriterias.map((value) => value.id),
+          );
 
-      const plot = plotData.reduce(
-        (plot, item) => {
-          if (item.score > 0) {
-            return {
-              ...plot,
-              series: [...plot.series, Math.round(item.score * 100) / 100],
-              labels: [...plot.labels, item.name],
-            };
-          }
-          return plot;
-        },
-        { series: [], labels: [] },
-      );
-
-      data.review = {
-        ...data.review,
-        plot,
-      };
-    }
+          const plot = plotData.reduce(
+            (plot, item) => {
+              if (item.score > 0) {
+                return {
+                  ...plot,
+                  series: [...plot.series, Math.round(item.score * 100) / 100],
+                  labels: [...plot.labels, item.name],
+                };
+              }
+              return plot;
+            },
+            { series: [], labels: [] },
+          );
+          return { ...review, plot };
+        }),
+      ),
+    };
   }
 
   return data;

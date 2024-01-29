@@ -36,7 +36,7 @@ import { update as updateUser } from "~/server/repositories/User";
  */
 declare module "next-auth" {
   interface User extends BaseUser {
-    memberships: Membership;
+    membership: Membership;
     candidate?: Candidate;
     activeOrg: Organization;
   }
