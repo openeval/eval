@@ -99,6 +99,10 @@ const config = {
           from: { opacity: "1" },
           to: { opacity: "0" },
         },
+        fillIn: {
+          from: { "stroke-dashoffset": "332", opacity: "0" },
+          to: { opacity: "1" },
+        },
       },
       animation: {
         scaleIn: "scaleIn 200ms ease",
@@ -109,6 +113,7 @@ const config = {
         enterFromRight: "enterFromRight 250ms ease",
         exitToLeft: "exitToLeft 250ms ease",
         exitToRight: "exitToRight 250ms ease",
+        fillIn: "fillIn 1s ease forwards",
       },
     },
   },
