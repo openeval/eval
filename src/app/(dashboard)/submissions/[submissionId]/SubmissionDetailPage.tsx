@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmissionStatus } from "@prisma/client";
 import {
   ChevronDown,
   GitPullRequest,
@@ -12,24 +13,21 @@ import { Suspense, useState, useTransition } from "react";
 import { useConfirmationDialog } from "~/components/alertConfirmation";
 import { DiffViewer } from "~/components/DiffViewer";
 import Markdown from "~/components/Markdown";
+import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
-import { Card, CardContent, CardHeader } from "~/components/ui/Card";
+import { Card, CardContent } from "~/components/ui/Card";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/Dialog";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
@@ -40,7 +38,11 @@ import { toast } from "~/hooks/use-toast";
 import { timeAgo } from "~/lib/utils";
 import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
 import type { SubmissionFullData } from "~/server/repositories/Submissions";
-import { deleteReviewAction, type SubmitReviewAction } from "../actions";
+import {
+  deleteReviewAction,
+  rejectSubmissionAction,
+  type SubmitReviewAction,
+} from "../actions";
 import Pie from "./Pie";
 import { ReviewSubmissionForm } from "./ReviewSubmissionForm";
 import { ViewScoreDetailsButton } from "./ViewScoreDetailsButton";
@@ -60,9 +62,13 @@ export function SubmissionDetailPage({
   submitReviewAction,
 }: SubmissionDetailPageProps) {
   const router = useRouter();
-  const { reviews, assessment, candidate } = data.submission;
+  const { reviews, candidate } = data.submission;
   const [reviewDialog, setReviewDialog] = useState(false);
-  const [isArchivingLoading, startActionTransition] = useTransition();
+  const [reviewEditDialog, setReviewEditDialog] = useState(false);
+
+  const [isDelitingReviewLoading, startActionTransition] = useTransition();
+  const [isRejectingSubmissionLoading, startActionRejectingTransition] =
+    useTransition();
 
   const { getConfirmation } = useConfirmationDialog();
 
@@ -82,16 +88,35 @@ export function SubmissionDetailPage({
       });
     }
   };
+
+  const onRejectSubmission = async (id) => {
+    const confirm = await getConfirmation();
+
+    if (confirm) {
+      startActionRejectingTransition(async () => {
+        const res = await rejectSubmissionAction(id);
+        if (res.success) {
+          toast({
+            title: "Success.",
+            description: "Status updated",
+          });
+          router.refresh();
+        }
+      });
+    }
+  };
+
   return (
     <div>
       {data.submission.contribution && (
         <>
           <div className="items-top mb-8 flex flex-col justify-between md:flex-row">
-            <div className="flex flex-col">
-              <div className="flex flex-row items-baseline md:items-center">
+            <div className="flex w-full flex-col">
+              <div className="flex flex-row items-end justify-between md:items-baseline">
                 <Typography variant={"h1"}>
                   {data.submission.contribution.title}
                 </Typography>
+                <Badge variant={"outline"}>{data.submission.status}</Badge>
               </div>
               <div className="mt-2 flex items-center">
                 <GitPullRequest className="mr-2 h-6 w-6" />{" "}
@@ -167,7 +192,18 @@ export function SubmissionDetailPage({
                       className="w-[200px]"
                       forceMount
                     >
-                      <DropdownMenuLabel>Reject</DropdownMenuLabel>
+                      <DropdownMenuItem
+                        disabled={
+                          isRejectingSubmissionLoading ||
+                          data.submission.status !== SubmissionStatus.REJECTED
+                        }
+                        className="flex cursor-pointer items-center text-destructive"
+                        onSelect={async () => {
+                          await onRejectSubmission(data.submission.id);
+                        }}
+                      >
+                        Reject
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -202,31 +238,68 @@ export function SubmissionDetailPage({
                   {" posted "}
                   {timeAgo(review.createdAt)}
                 </Typography>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    alignOffset={-5}
-                    className="w-[200px]"
-                    forceMount
-                  >
-                    <DropdownMenuItem
-                      disabled={isArchivingLoading}
-                      className="flex cursor-pointer items-center text-destructive"
-                      onSelect={async () => {
-                        onDeleteReview(review.id);
-                      }}
+                <Dialog
+                  open={reviewEditDialog}
+                  onOpenChange={setReviewEditDialog}
+                >
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">More</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      alignOffset={-5}
+                      className="w-[200px]"
+                      forceMount
                     >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem
+                          disabled={isDelitingReviewLoading}
+                          className="flex cursor-pointer items-center"
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        disabled={isDelitingReviewLoading}
+                        className="flex cursor-pointer items-center text-destructive"
+                        onSelect={async () => {
+                          await onDeleteReview(review.id);
+                        }}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DialogContent className={"max-h-[90vh] overflow-y-scroll"}>
+                    <DialogHeader>
+                      <DialogTitle>Review</DialogTitle>
+                      <DialogDescription>
+                        evaluate the performance of current submission
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <ReviewSubmissionForm
+                      submission={data.submission}
+                      evaluationCriterias={data.evaluationCriterias}
+                      review={review}
+                      action={submitReviewAction}
+                      onSuccess={() => {
+                        toast({
+                          title: "Success.",
+                          description: "Review updated",
+                        });
+                        router.refresh();
+                        setReviewEditDialog(!reviewEditDialog);
+                      }}
+                    />
+                  </DialogContent>
+                </Dialog>
 
                 {/* TODO add edit mode */}
               </div>

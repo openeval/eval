@@ -35,6 +35,7 @@ type ReviewSubmissionFormProps = {
 };
 
 const formSchema = z.object({
+  id: z.string().optional(),
   note: z.string(),
   evaluationCriterias: z
     .array(z.number())
@@ -54,7 +55,8 @@ export function ReviewSubmissionForm({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      evaluationCriterias: review?.evaluationCriterias || [],
+      evaluationCriterias: review?.evaluationCriterias.map((e) => e.id) || [],
+      note: review?.note,
     },
   });
 
@@ -62,13 +64,16 @@ export function ReviewSubmissionForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
+      if (review) {
+        data = { ...data, id: review.id };
+      }
       const res = await props.action(submission.id, data);
       if (res.success) {
         typeof props.onSuccess === "function" && props.onSuccess();
       } else {
         toast({
           title: "Something went wrong.",
-          description: "Please try again.",
+          description: res.error?.message,
           variant: "destructive",
         });
       }

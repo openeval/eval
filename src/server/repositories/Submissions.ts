@@ -1,4 +1,4 @@
-import type { Prisma, Submission } from "@prisma/client";
+import type { Prisma, Review, Submission } from "@prisma/client";
 
 import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
@@ -38,10 +38,10 @@ export async function findByCandidateOnAssessment(
 }
 
 export type SubmissionFullData = Prisma.PromiseReturnType<
-  typeof findByIdFull
-> & {
-  review: { plot: { series: number[]; labels: string[] } };
-};
+  typeof findByIdFull & {
+    reviews: [Review & { plot: { series: number[]; labels: string[] } }];
+  }
+>;
 
 export async function findByIdFull(
   id: Submission["id"],
