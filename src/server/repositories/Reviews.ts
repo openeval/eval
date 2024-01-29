@@ -1,5 +1,3 @@
-import type { Prisma, Review } from "@prisma/client";
-
 import { prisma } from "~/server/db";
 
 export async function findOneById(id: string) {
