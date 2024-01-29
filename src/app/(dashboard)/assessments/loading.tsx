@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-import { AssessmentItem } from "~/components/AssessmentItem";
 import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
+import { Skeleton } from "~/components/ui/Skeleton";
 import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
 
@@ -24,11 +24,12 @@ export default function DashboardLoading() {
 
       <Separator className="my-4" />
       <div className="divide-y divide-muted/20 rounded-md border border-muted">
-        <AssessmentItem.Skeleton />
-        <AssessmentItem.Skeleton />
-        <AssessmentItem.Skeleton />
-        <AssessmentItem.Skeleton />
-        <AssessmentItem.Skeleton />
+        <div className="p-4">
+          <div className="space-y-3">
+            <Skeleton className="h-5 w-2/5" />
+            <Skeleton className="h-4 w-4/5" />
+          </div>
+        </div>
       </div>
     </>
   );

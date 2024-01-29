@@ -6,7 +6,7 @@ import Link from "next/link";
 import * as React from "react";
 
 import { Badge } from "~/components/ui/Badge";
-import { Progress } from "~/components/ui/Progress";
+import { ProgressCircle } from "~/components/ui/ProgressCircle";
 import { Skeleton } from "~/components/ui/Skeleton";
 import { formatDate } from "~/lib/utils";
 import { SubmissionOperations } from "./SubmissionOperation";
@@ -51,16 +51,10 @@ export function SubmissionItem({ item }: SubmissionItemProps) {
             {item.status}
           </Badge>
         </div>
-        {item.reviews && (
-          <div className="flex flex-row items-center">
-            <div className="mr-2">reviews</div>
-            {item.reviews.length}
-          </div>
-        )}
 
         <div className="flex flex-row items-center">
-          <Progress value={item.score} className="mr-2 h-4 " />
-          <div>{item.score}%</div>
+          <div className="mr-2">score</div>
+          <ProgressCircle value={item.score} size="small" showValue={true} />
         </div>
       </div>
 

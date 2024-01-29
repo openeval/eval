@@ -8,16 +8,6 @@ import * as React from "react";
 
 import { removeCandidateAction } from "~/actions/candidates";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/AlertDialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -25,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
 import { toast } from "~/hooks/use-toast";
+import { useConfirmationDialog } from "./alertConfirmation";
 
 interface CandidateOperationsProps {
   candidate: Pick<Candidate, "id" | "name">;
@@ -32,27 +23,32 @@ interface CandidateOperationsProps {
 
 export function CandidateOperations({ candidate }: CandidateOperationsProps) {
   const router = useRouter();
-  const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
   const [isDeleteLoading, startActionTransition] = React.useTransition();
+  const { getConfirmation } = useConfirmationDialog();
 
   async function onDeleteCandidate(candidateId: string) {
-    startActionTransition(async () => {
-      const res = await removeCandidateAction(candidateId);
-      if (res.success) {
-        toast({
-          title: "Success.",
-          description: "Candidate removed",
-        });
-        router.refresh();
-        setShowDeleteAlert(!showDeleteAlert);
-      } else {
-        toast({
-          title: "Something went wrong.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
-      }
+    const confirmation = await getConfirmation({
+      title: "Are you sure you want to delete this Candidate?",
     });
+
+    if (confirmation) {
+      startActionTransition(async () => {
+        const res = await removeCandidateAction(candidateId);
+        if (res.success) {
+          toast({
+            title: "Success.",
+            description: "Candidate removed",
+          });
+          router.refresh();
+        } else {
+          toast({
+            title: "Something went wrong.",
+            description: "Please try again.",
+            variant: "destructive",
+          });
+        }
+      });
+    }
   }
 
   return (
@@ -70,42 +66,22 @@ export function CandidateOperations({ candidate }: CandidateOperationsProps) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="flex cursor-pointer items-center text-destructive focus:bg-destructive/20 focus:text-destructive-foreground"
-            onSelect={() => setShowDeleteAlert(true)}
+            className="flex cursor-pointer items-center text-destructive"
+            disabled={isDeleteLoading}
+            onSelect={async (event) => {
+              event.preventDefault();
+              await onDeleteCandidate(candidate.id);
+            }}
           >
+            {isDeleteLoading ? (
+              <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Trash className="mr-2 h-4 w-4" />
+            )}
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to delete this Candidate?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async (event) => {
-                event.preventDefault();
-                await onDeleteCandidate(candidate.id);
-              }}
-              variant={"destructive"}
-            >
-              {isDeleteLoading ? (
-                <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash className="mr-2 h-4 w-4" />
-              )}
-              <span>Delete</span>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

@@ -10,17 +10,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/AlertDialog";
+import { useConfirmationDialog } from "~/components/alertConfirmation";
 import { Button } from "~/components/ui/Button";
 import { toast } from "~/hooks/use-toast";
 import { absoluteUrl } from "~/lib/utils";
@@ -44,6 +34,8 @@ export function StartAssessmentButton({
   const router = useRouter();
   const [isLoading, startActionTransition] = React.useTransition();
   const pathname = usePathname();
+  const { getConfirmation } = useConfirmationDialog();
+
   const handleStart = async () => {
     await signIn("github", {
       callbackUrl: absoluteUrl(pathname).toString(),
@@ -51,21 +43,27 @@ export function StartAssessmentButton({
   };
 
   const onStartSession = async () => {
+    const confirmation = await getConfirmation({
+      message:
+        " Once you start your session you will not be able to stop it. Good luck!",
+    });
     //given the current user
     // create an assessment session
-    startActionTransition(async () => {
-      const res = await action(assessmentId);
-      if (res.success) {
-        // router.refresh();
-        router.push(`/s/${res.data?.id}`);
-      } else {
-        toast({
-          title: "Something went wrong.",
-          description: res.error?.message,
-          variant: "destructive",
-        });
-      }
-    });
+    if (confirmation) {
+      startActionTransition(async () => {
+        const res = await action(assessmentId);
+        if (res.success) {
+          // router.refresh();
+          router.push(`/s/${res.data?.id}`);
+        } else {
+          toast({
+            title: "Something went wrong.",
+            description: res.error?.message,
+            variant: "destructive",
+          });
+        }
+      });
+    }
   };
 
   if (!user) {
@@ -88,29 +86,9 @@ export function StartAssessmentButton({
     );
   } else {
     return (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="default">Start</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Once you start your session you will not be able to stop it. Good
-              luck!
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isLoading}
-              onClick={() => onStartSession()}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Button variant="default" onClick={() => onStartSession()}>
+        Start
+      </Button>
     );
   }
 }

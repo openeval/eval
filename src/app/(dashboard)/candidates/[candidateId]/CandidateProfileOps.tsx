@@ -5,16 +5,7 @@ import { CircleEllipsis, Loader2 as SpinnerIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/components/ui/AlertDialog";
+import { useConfirmationDialog } from "~/components/alertConfirmation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,33 +33,35 @@ export function CandidateProfileOps({
   updateCandidateAction,
 }: CandidateProfileOpsProps) {
   const router = useRouter();
-  const [showDeleteAlert, setShowDeleteAlert] = React.useState<boolean>(false);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [isArchivingLoading, startActionTransition] = React.useTransition();
+  const { getConfirmation } = useConfirmationDialog();
 
   async function archiveCandidate(candidateId: string) {
-    startActionTransition(async () => {
-      // unlink the user to the candidate in order we can onboarding them again
-      const res = await updateCandidateAction(candidateId, {
-        status: CandidateStatus.ARCHIVED,
-        user: { disconnect: true, update: { completedOnboarding: false } },
-      });
+    const confirmation = await getConfirmation();
+    if (confirmation) {
+      startActionTransition(async () => {
+        // unlink the user to the candidate in order we can onboarding them again
+        const res = await updateCandidateAction(candidateId, {
+          status: CandidateStatus.ARCHIVED,
+          user: { disconnect: true, update: { completedOnboarding: false } },
+        });
 
-      if (res.success) {
-        setShowDeleteAlert(false);
-        router.refresh();
-        toast({
-          title: "Success.",
-          description: "Candidate updated",
-        });
-      } else {
-        toast({
-          title: "Something went wrong.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
-      }
-    });
+        if (res.success) {
+          router.refresh();
+          toast({
+            title: "Success.",
+            description: "Candidate updated",
+          });
+        } else {
+          toast({
+            title: "Something went wrong.",
+            description: "Please try again.",
+            variant: "destructive",
+          });
+        }
+      });
+    }
   }
 
   function onSuccess() {
@@ -96,42 +89,21 @@ export function CandidateProfileOps({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="flex cursor-pointer items-center text-red-600 focus:bg-red-50"
-            onSelect={() => setShowDeleteAlert(true)}
+            className="flex cursor-pointer items-center text-destructive"
+            onClick={async (event) => {
+              event.preventDefault();
+              await archiveCandidate(candidate.id);
+            }}
           >
+            {isArchivingLoading ? (
+              <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Trash className="mr-2 h-4 w-4" />
+            )}
             Archive
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to archive this Candidate?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async (event) => {
-                event.preventDefault();
-                await archiveCandidate(candidate.id);
-              }}
-              className="bg-red-600 focus:ring-red-600"
-            >
-              {isArchivingLoading ? (
-                <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash className="mr-2 h-4 w-4" />
-              )}
-              <span>archive</span>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right">

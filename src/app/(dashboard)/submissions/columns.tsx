@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { Badge } from "~/components/ui/Badge";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
-import { Progress } from "~/components/ui/Progress";
+import { ProgressCircle } from "~/components/ui/ProgressCircle";
 import { formatDate } from "~/lib/utils";
 import type { SubmissionsListData } from "~/server/repositories/Submissions";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -89,8 +89,12 @@ export const columns: ColumnDef<Item>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex w-[100px] items-center">
-          <Progress value={row.getValue("score")} />
+        <div className="flex  items-center">
+          <ProgressCircle
+            value={row.getValue("score")}
+            size="small"
+            showValue={true}
+          />
         </div>
       );
     },
