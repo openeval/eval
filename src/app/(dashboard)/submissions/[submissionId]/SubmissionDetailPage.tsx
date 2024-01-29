@@ -195,7 +195,7 @@ export function SubmissionDetailPage({
                       <DropdownMenuItem
                         disabled={
                           isRejectingSubmissionLoading ||
-                          data.submission.status !== SubmissionStatus.REJECTED
+                          data.submission.status === SubmissionStatus.REJECTED
                         }
                         className="flex cursor-pointer items-center text-destructive"
                         onSelect={async () => {
