@@ -87,9 +87,10 @@ export const submitReviewAction: SubmitReviewAction = async (
       //update the submission status and score
       await submissionsRepo.update(submissionId, {
         status: SubmissionStatus.REVIEWED,
+        // avg score
         score: Math.ceil(
           submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length,
+            submission.reviews.length || 0,
         ),
       });
     }
@@ -144,17 +145,22 @@ export const deleteReviewAction = async (reviewId) => {
       throw Error("forbidden");
     }
 
-    const score = review.score;
-
     await reviewsRepo.remove(reviewId);
 
-    //update the submission status and score
-    await submissionsRepo.update(submission.id, {
-      // TODO: set a service to calculate scores
-      score: Math.ceil(
-        (submission.score - score) / (submission.reviews.length - 1),
-      ),
-    });
+    const submissionUpdated = await submissionsRepo.findByIdFull(submission.id);
+
+    if (submissionUpdated) {
+      //update the submission status and score
+      await submissionsRepo.update(submission.id, {
+        ...(submissionUpdated.reviews.length === 0 && {
+          status: SubmissionStatus.TO_REVIEW,
+        }),
+        score: Math.ceil(
+          submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
+            submission.reviews.length || 0,
+        ),
+      });
+    }
 
     return { success: true, data: review };
   } catch (error) {
