@@ -230,10 +230,10 @@ async function sendVerificationRequest({
     to: email,
     from,
     subject: `Sign in to ${host}`,
-    text: render(<LoginEmail url={url} username={email} />, {
+    text: render(<LoginEmail url={url} />, {
       plainText: true,
     }),
-    html: render(<LoginEmail url={url} username={email} />),
+    html: render(<LoginEmail url={url} />),
   });
 }
 
