@@ -309,7 +309,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
           commandProps?.onKeyDown?.(e);
         }}
         className={cn(
-          "overflow-visible bg-transparent",
+          "h-auto overflow-visible bg-transparent",
           commandProps?.className,
         )}
         shouldFilter={

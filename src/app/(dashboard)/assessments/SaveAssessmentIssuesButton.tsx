@@ -23,7 +23,9 @@ export default function SaveAssessmentIssuesButton({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const q = searchParams?.get("q") || siteConfig.github.searchQueryString;
+  const q = (
+    searchParams?.get("q") || siteConfig.github.searchQueryString
+  ).toLowerCase();
 
   async function onSubmit() {
     startActionTransition(async () => {

@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
 import { searchIssues } from "~/server/github";
+import { findOneById } from "~/server/repositories/Assessments";
 import { AssessmentTaskPage } from "../../AssessmentTaskPage";
 
 const getIssues = async (querySearch?: {
@@ -26,10 +27,21 @@ export default async function Page({
     redirect("/login");
   }
 
+  const assessment = await findOneById(assessmentId, user.activeOrgId);
+
+  if (!assessment) {
+    notFound();
+  }
+
   const { items: issues, total_count } = await getIssues(searchParams);
   return (
     <AssessmentTaskPage
-      data={{ issues, total_count, assessmentId }}
+      data={{
+        issues,
+        total_count,
+        assessmentId,
+        ghIssuesQuerySeach: assessment.ghIssuesQuerySeach,
+      }}
       flow="update"
     />
   );

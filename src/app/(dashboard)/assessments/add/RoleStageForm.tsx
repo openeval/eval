@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { AssessmentSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -38,7 +38,6 @@ export function RoleStageForm({
   className,
   ...props
 }: AssessmentRoleFormProps) {
-  const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(assessmentSchema),
   });
@@ -54,7 +53,7 @@ export function RoleStageForm({
           description: "Assessment created",
         });
 
-        router.push(`/assessments/add/${res.data?.id}/tasks`);
+        redirect(`/assessments/add/${res.data?.id}/tasks`);
       } else {
         toast({
           title: "Something went wrong.",
