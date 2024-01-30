@@ -20,11 +20,10 @@ import { absoluteUrl } from "~/lib/utils";
 import config from "./tailwind.config.cjs";
 
 interface LoginEmailProps {
-  username: string;
   url: string;
 }
 
-export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
+export const LoginEmail = ({ url }: LoginEmailProps) => {
   const previewText = `Sign in to ${siteConfig.name}`;
 
   return (
@@ -49,8 +48,7 @@ export const LoginEmail = ({ username = "Eval", url }: LoginEmailProps) => {
             </Heading>
 
             <Text className="text-[14px] leading-[24px]">
-              Click the button below to sign in on {siteConfig.name} as{" "}
-              <strong>{username}</strong>:{" "}
+              Click the button below to sign in on {siteConfig.name}:
             </Text>
 
             <Section className="my-[32px] text-center">

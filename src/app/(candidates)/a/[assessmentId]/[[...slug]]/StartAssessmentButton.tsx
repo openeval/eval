@@ -47,8 +47,7 @@ export function StartAssessmentButton({
       message:
         " Once you start your session you will not be able to stop it. Good luck!",
     });
-    //given the current user
-    // create an assessment session
+
     if (confirmation) {
       startActionTransition(async () => {
         const res = await action(assessmentId);
@@ -86,7 +85,11 @@ export function StartAssessmentButton({
     );
   } else {
     return (
-      <Button variant="default" onClick={() => onStartSession()}>
+      <Button
+        variant="default"
+        disabled={isLoading}
+        onClick={() => onStartSession()}
+      >
         Start
       </Button>
     );
