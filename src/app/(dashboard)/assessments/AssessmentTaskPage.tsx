@@ -15,6 +15,7 @@ type AssessmentTaskPageProps = {
     issues: components["schemas"]["issue-search-result-item"][];
     total_count: number;
     assessmentId: string;
+    ghIssuesQuerySeach: string | null;
   };
   flow: "update" | "create";
 };
@@ -28,7 +29,7 @@ export const AssessmentTaskPage = ({ data, flow }: AssessmentTaskPageProps) => {
         </Typography>
       </div>
 
-      <SearchIssuesBar />
+      <SearchIssuesBar value={data.ghIssuesQuerySeach} />
 
       <Separator className="my-4" />
 

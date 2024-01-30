@@ -64,7 +64,7 @@ export function AssessmentSettingsForm({
   const defaultData = {
     ...props.assessment,
     reviewers: props.assessment?.reviewers?.map((i) => {
-      return { value: i.id, label: i.name };
+      return { value: i.id, label: i.name || i.email };
     }),
   };
 

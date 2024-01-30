@@ -19,14 +19,14 @@ import { Input } from "~/components/ui/Input";
 import { popularLanguages, popularTags } from "~/config/ghSearch";
 import { Badge } from "./ui/Badge";
 
-export default function SearchIssuesBar() {
+export default function SearchIssuesBar({ value }: { value?: string | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
 
   const searchParams = useSearchParams();
 
-  const q = searchParams?.get("q");
+  const q = value || searchParams?.get("q");
 
   // Toggle the menu when ⌘K is pressed
   React.useEffect(() => {
@@ -70,7 +70,9 @@ export default function SearchIssuesBar() {
       event.preventDefault();
       event.stopPropagation();
 
-      router.push(`${pathname}?${createQueryString("q", event.target.value)}`);
+      router.push(
+        `${pathname}?${createQueryString("q", (event.target as HTMLInputElement).value)}`,
+      );
       setOpen(false);
     }
   };
