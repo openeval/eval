@@ -150,8 +150,8 @@ dependencies:
     specifier: ^1.102.1
     version: 1.102.1
   posthog-node:
-    specifier: ^3.6.0
-    version: 3.6.0
+    specifier: ^3.6.1
+    version: 3.6.1
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -11780,10 +11780,10 @@ packages:
       preact: 10.19.3
     dev: false
 
-  /posthog-node@3.6.0:
+  /posthog-node@3.6.1:
     resolution:
       {
-        integrity: sha512-N/4//SIQR4fhwbHnDdJ2rQCYdu9wo0EVPK4lVgZswp5R/E42RKlpuO6ZfPsBl+Bcg06OYiOd/WR/jLV90FCoSw==,
+        integrity: sha512-nvuZngDjzbQ2L2NqaBRWONuQeA3Dv+A8qXGMlOnM3/x07tGUrNYItgrLQH8wCntx75/PUlKq3ftxyQqNprGZjA==,
       }
     engines: { node: ">=15.0.0" }
     dependencies:

@@ -14,6 +14,8 @@ import NextAuth, {
   type User,
 } from "next-auth";
 
+import { PostHogClient } from "~/server/telemetry";
+
 import "next-auth";
 
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -195,6 +197,11 @@ export const authOptions: NextAuthConfig = {
     },
   },
   events: {
+    async signIn({ user }) {
+      const posthog = PostHogClient();
+      // @ts-expect-error types issue
+      posthog.identify(user?.id);
+    },
     async linkAccount({ account, user, profile }) {
       if (account.provider === "github" && user.type === UserType.CANDIDATE) {
         // candidates need to link their github account to verify their profiles
