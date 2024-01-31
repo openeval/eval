@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import { type AssessmentsListData } from "~/server/repositories/Assessments";
+import { type AssessmentsListData } from "~/server/services/Assessments";
 
 type Item = AssessmentsListData["data"][0];
 

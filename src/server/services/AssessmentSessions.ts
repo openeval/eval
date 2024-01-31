@@ -6,6 +6,13 @@ export async function create(data) {
   return await prisma.assessmentSession.create({ data });
 }
 
+export async function fetchAssessmentSession(id) {
+  return await prisma.assessmentSession.findFirst({
+    where: { id },
+    include: { assessment: true },
+  });
+}
+
 export async function findOneById(id) {
   return await prisma.assessmentSession.findFirst({
     where: { id },

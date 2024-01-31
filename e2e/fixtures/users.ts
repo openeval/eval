@@ -6,7 +6,7 @@ import smtpTester from "smtp-tester";
 
 import { absoluteUrl } from "~/lib/utils";
 import { prisma } from "~/server/db";
-import * as UserRepo from "~/server/repositories/User";
+import * as userService from "~/server/services/User";
 
 // creates a user fixture instance and stores the collection
 export const createUsersFixture = (page: Page) => {
@@ -125,5 +125,5 @@ async function createUserInDb(userDto?: Partial<Prisma.UserCreateInput>) {
     password: hashPassword("example"),
   };
 
-  return await UserRepo.create(data);
+  return await userService.create(data);
 }

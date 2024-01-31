@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/Badge";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { formatDate } from "~/lib/utils";
-import { type CandidatesListData } from "~/server/repositories/Candidates";
+import { type CandidatesListData } from "~/server/services/Candidates";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export type Item = CandidatesListData[0];

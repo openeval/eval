@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findOneById } from "~/server/repositories/Assessments";
+import { findOneById } from "~/server/services/Assessments";
 import { updateAssessmentAction } from "../actions";
 import { AssessmentRoleForm } from "./AssessmentRoleForm";
 

@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findOneById as findOrg } from "~/server/repositories/Organizations";
+import { findOneById as findOrg } from "~/server/services/Organizations";
 import { updateOrgAction } from "../actions";
 import { GeneralSettingsPage } from "./GeneralSettingsPage";
 

@@ -1,8 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findAllMembershipsByOrgId } from "~/server/repositories/Membership";
-import { findOneById as findOrg } from "~/server/repositories/Organizations";
+import { findAllMembershipsByOrgId } from "~/server/services/Membership";
+import { findOneById as findOrg } from "~/server/services/Organizations";
 import { TeamSettingsPage } from "./TeamSettingsPage";
 
 export const metadata = {

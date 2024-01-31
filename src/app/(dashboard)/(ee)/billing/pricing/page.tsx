@@ -3,7 +3,7 @@ import Script from "next/script";
 
 import { env } from "~/ee/env.mjs";
 import { getCurrentUser } from "~/server/auth";
-import { findOneById as findOrg } from "~/server/repositories/Organizations";
+import { findOneById as findOrg } from "~/server/services/Organizations";
 
 // TODO: deprecated
 export default async function PricingTable() {

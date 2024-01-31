@@ -12,9 +12,9 @@ import { z } from "zod";
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
-import { getTotalScore } from "~/server/repositories/EvaluationCriteria";
-import * as reviewsRepo from "~/server/repositories/Reviews";
-import * as submissionsRepo from "~/server/repositories/Submissions";
+import { getTotalScore } from "~/server/services/EvaluationCriteria";
+import * as reviewsService from "~/server/services/Reviews";
+import * as submissionsService from "~/server/services/Submissions";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -40,7 +40,7 @@ export const submitReviewAction: SubmitReviewAction = async (
 
   const { user } = session;
 
-  const submission = await submissionsRepo.findByIdFull(submissionId);
+  const submission = await submissionsService.findByIdFull(submissionId);
 
   if (!submission || submission.organizationId !== user.activeOrgId) {
     notFound();
@@ -81,11 +81,12 @@ export const submitReviewAction: SubmitReviewAction = async (
       },
     });
 
-    const submissionUpdated = await submissionsRepo.findByIdFull(submissionId);
+    const submissionUpdated =
+      await submissionsService.findByIdFull(submissionId);
 
     if (submissionUpdated) {
       //update the submission status and score
-      await submissionsRepo.update(submissionId, {
+      await submissionsService.update(submissionId, {
         status: SubmissionStatus.REVIEWED,
         // avg score
         score: Math.ceil(
@@ -123,13 +124,13 @@ export const deleteReviewAction = async (reviewId) => {
 
   const { user } = session;
 
-  const review = await reviewsRepo.findOneById(reviewId);
+  const review = await reviewsService.findOneById(reviewId);
 
   if (!review) {
     notFound();
   }
 
-  const submission = await submissionsRepo.findOneById(review?.submissionId);
+  const submission = await submissionsService.findOneById(review?.submissionId);
 
   if (!submission) {
     notFound();
@@ -145,13 +146,15 @@ export const deleteReviewAction = async (reviewId) => {
       throw Error("forbidden");
     }
 
-    await reviewsRepo.remove(reviewId);
+    await reviewsService.remove(reviewId);
 
-    const submissionUpdated = await submissionsRepo.findByIdFull(submission.id);
+    const submissionUpdated = await submissionsService.findByIdFull(
+      submission.id,
+    );
 
     if (submissionUpdated) {
       //update the submission status and score
-      await submissionsRepo.update(submission.id, {
+      await submissionsService.update(submission.id, {
         ...(submissionUpdated.reviews.length === 0 && {
           status: SubmissionStatus.TO_REVIEW,
         }),
@@ -190,7 +193,7 @@ export const rejectSubmissionAction = async (submissionId) => {
 
   const { user } = session;
 
-  const submission = await submissionsRepo.findByIdFull(submissionId);
+  const submission = await submissionsService.findByIdFull(submissionId);
 
   if (!submission || submission.organizationId !== user.activeOrgId) {
     notFound();
@@ -202,7 +205,7 @@ export const rejectSubmissionAction = async (submissionId) => {
     }
 
     //update the submission status and score
-    await submissionsRepo.update(submissionId, {
+    await submissionsService.update(submissionId, {
       status: SubmissionStatus.REJECTED,
       score: 0,
     });

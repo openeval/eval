@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
-import * as userRepo from "~/server/repositories/User";
+import * as userService from "~/server/services/User";
 import type { ActionResponse } from "~/types";
 
 export type UpdateProfileAction = (
@@ -27,7 +27,7 @@ export const updateProfileAction: UpdateProfileAction = async (id, data) => {
 
   const { user } = session;
 
-  let uUser = await userRepo.findOneById(id);
+  let uUser = await userService.findOneById(id);
 
   if (!uUser || uUser?.id !== user.id) {
     notFound();
@@ -35,7 +35,7 @@ export const updateProfileAction: UpdateProfileAction = async (id, data) => {
 
   try {
     UserUpdateInputSchema.parse(data);
-    uUser = await userRepo.update(
+    uUser = await userService.update(
       { id },
       {
         ...data,

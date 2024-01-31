@@ -8,7 +8,7 @@ import { CopyButton } from "~/components/ui/CopyButton";
 import { Typography } from "~/components/ui/Typography";
 import { absoluteUrl } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
-import { findOneById } from "~/server/repositories/Assessments";
+import { findOneById } from "~/server/services/Assessments";
 
 type AssessmentDetailPageProps = {
   children: React.ReactNode;

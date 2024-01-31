@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "~/components/ui/Card";
 import { cn, toStringUser } from "~/lib/utils";
-import type { MembershipsByOrg } from "~/server/repositories/Membership";
+import type { MembershipsByOrg } from "~/server/services/Membership";
 import { InviteTeamMemberButton } from "./InviteTeamMemberButton";
 import { MembershipRoleActions } from "./MembershipRoleActions";
 

@@ -16,9 +16,9 @@ import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { transporter } from "~/server/mailer";
-import * as assessmentsRepo from "~/server/repositories/Assessments";
-import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
-import * as submissionsRepo from "~/server/repositories/Submissions";
+import * as assessmentsService from "~/server/services/Assessments";
+import * as assessmentSessionsService from "~/server/services/AssessmentSessions";
+import * as submissionsService from "~/server/services/Submissions";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -41,7 +41,7 @@ export async function finishAssessmentSessionAction(
 
   const { user } = session;
 
-  const assessmentSession = await assessmentSessionsRepo.findOneByCandidate(
+  const assessmentSession = await assessmentSessionsService.findOneByCandidate(
     sessionId,
     user.candidate?.id,
   );
@@ -87,7 +87,7 @@ export async function finishAssessmentSessionAction(
       },
     });
 
-    await assessmentsRepo.updateCandidateAssessmentStatus(
+    await assessmentsService.updateCandidateAssessmentStatus(
       assessmentSession.assessment.id,
       candidate.id,
       CandidateOnAssessmentStatus.FINISHED,
@@ -96,7 +96,7 @@ export async function finishAssessmentSessionAction(
     // send email notification to reviewers
     const { assessment } = assessmentSession;
 
-    const submission = await submissionsRepo.findByCandidateOnAssessment(
+    const submission = await submissionsService.findByCandidateOnAssessment(
       candidate.id,
       assessmentSession.assessment.id,
     );

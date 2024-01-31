@@ -2,7 +2,7 @@ import { CandidateStatus, UserType } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findCandidateByUserId } from "~/server/repositories/Candidates";
+import { findCandidateByUserId } from "~/server/services/Candidates";
 import { updateUserTypeAction } from "./actions";
 import { UserTypeForm } from "./UserTypeForm";
 

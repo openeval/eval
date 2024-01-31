@@ -19,7 +19,7 @@ import {
   findInvitedCandidate,
   findOneById,
   remove,
-} from "~/server/repositories/Candidates";
+} from "~/server/services/Candidates";
 import type { ActionResponse } from "~/types";
 
 export type InviteCandidateAction = (

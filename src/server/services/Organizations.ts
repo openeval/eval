@@ -3,6 +3,7 @@ import type { User } from "next-auth";
 import slugify from "slugify";
 
 import { prisma } from "~/server/db";
+import { update as updateUser } from "./User";
 
 export async function update(where, data) {
   return await prisma.organization.update({ where, data });
@@ -12,7 +13,7 @@ export async function create(
   data: Prisma.OrganizationCreateInput,
   owner: User,
 ) {
-  return await prisma.organization.create({
+  const org = await prisma.organization.create({
     data: {
       ...data,
       slug: slugify(data.name),
@@ -25,6 +26,13 @@ export async function create(
       },
     },
   });
+
+  await updateUser(
+    { id: owner.id },
+    { activeOrg: { connect: { id: org.id } }, completedOnboarding: true },
+  );
+
+  return org;
 }
 
 export async function findOneById(id) {

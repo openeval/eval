@@ -16,7 +16,7 @@ import {
   searchIssues,
   searchPullRequestContributions,
 } from "~/server/github";
-import { findOneByCandidate } from "~/server/repositories/AssessmentSessions";
+import { findOneByCandidate } from "~/server/services/AssessmentSessions";
 import { finishAssessmentSessionAction } from "./actions";
 import { FinishAssessmentSessionButton } from "./FinishAssessmentSessionButton";
 

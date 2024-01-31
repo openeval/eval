@@ -8,7 +8,7 @@ import { DataTableColumnHeader } from "~/components/ui/data-table-column-header"
 import { Switch } from "~/components/ui/Switch";
 import { toast } from "~/hooks/use-toast";
 import { formatDate } from "~/lib/utils";
-import { type AssessmentsListData } from "~/server/repositories/Assessments";
+import { type AssessmentsListData } from "~/server/services/Assessments";
 import { updateAssessmentAction } from "./actions";
 import { DataTableRowActions } from "./data-table-row-actions";
 

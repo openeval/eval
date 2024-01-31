@@ -6,7 +6,7 @@ import { Badge } from "~/components/ui/Badge";
 import { Card, CardContent } from "~/components/ui/Card";
 import { Typography } from "~/components/ui/Typography";
 import { formatDate } from "~/lib/utils";
-import type { CandidateFullData } from "~/server/repositories/Candidates";
+import type { CandidateFullData } from "~/server/services/Candidates";
 import type { UpdateCandidateAction } from "../action";
 import { CandidateProfileOps } from "./CandidateProfileOps";
 import { SubmissionItem } from "./SubmissionItem";

@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { getCurrentUser } from "~/server/auth";
-import { findByIdFull } from "~/server/repositories/Candidates";
+import { findByIdFull } from "~/server/services/Candidates";
 import { updateCandidateAction } from "../action";
 import CandidateDetailPage from "./CandidateDetailPage";
 

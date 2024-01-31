@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { env } from "~/ee/env.mjs";
 import { createSubscriptionSessionLink, stripe } from "~/ee/lib/stripe";
-import { countOrgMembers } from "~/server/repositories/Membership";
+import { countOrgMembers } from "~/server/services/Membership";
 
 // Check if user has an active subscription
 export const checkSubscription = async (user: User) => {

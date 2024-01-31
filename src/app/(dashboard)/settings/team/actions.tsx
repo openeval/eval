@@ -18,9 +18,9 @@ import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
 import { transporter } from "~/server/mailer";
-import * as MembershipRepo from "~/server/repositories/Membership";
-import * as OrgRepo from "~/server/repositories/Organizations";
-import * as UserRepo from "~/server/repositories/User";
+import * as MembershipService from "~/server/services/Membership";
+import * as OrgService from "~/server/services/Organizations";
+import * as UserService from "~/server/services/User";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -43,7 +43,7 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
+    const org = await OrgService.findOneById(user.activeOrgId);
 
     if (!org) {
       throw Error("organization not found");
@@ -134,13 +134,13 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
+    const org = await OrgService.findOneById(user.activeOrgId);
 
     if (!org) {
       throw Error("organization not found");
     }
 
-    const memership = await MembershipRepo.findOneById(id);
+    const memership = await MembershipService.findOneById(id);
 
     if (!memership) {
       throw Error("membership not found");
@@ -154,10 +154,10 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
       throw Error("You can't remove yourself from the org");
     }
 
-    await MembershipRepo.remove(id);
+    await MembershipService.remove(id);
 
     // TODO: active orgs should be part of user sessions
-    await UserRepo.update(
+    await UserService.update(
       { id: memership.userId },
       { activeOrg: { disconnect: true } },
     );
@@ -204,13 +204,13 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
+    const org = await OrgService.findOneById(user.activeOrgId);
 
     if (!org) {
       throw Error("organization not found");
     }
 
-    const memership = await MembershipRepo.findOneById(id);
+    const memership = await MembershipService.findOneById(id);
 
     if (!memership) {
       throw Error("membership not found");
@@ -224,7 +224,7 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
       throw Error("You can't remove yourself from the org");
     }
 
-    const res = await MembershipRepo.update({ id }, { role });
+    const res = await MembershipService.update({ id }, { role });
 
     // this refresh the data from the form
     revalidatePath("/settings/team");

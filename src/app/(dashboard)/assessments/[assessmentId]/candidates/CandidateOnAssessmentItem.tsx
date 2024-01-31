@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CandidateOperations } from "~/components/CandidateOperations";
 import { Skeleton } from "~/components/ui/Skeleton";
 import { formatDate } from "~/lib/utils";
-import type { CandidateOnAssessmentItems } from "~/server/repositories/Candidates";
+import type { CandidateOnAssessmentItems } from "~/server/services/Candidates";
 
 interface CandidateOnAssessmentItemProps {
   item: CandidateOnAssessmentItems[0];

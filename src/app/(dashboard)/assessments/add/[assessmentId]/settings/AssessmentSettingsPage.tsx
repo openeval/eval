@@ -3,7 +3,7 @@
 import type { Assessment } from "@prisma/client";
 import { redirect } from "next/navigation";
 
-import type { MembershipsByOrg } from "~/server/repositories/Membership";
+import type { MembershipsByOrg } from "~/server/services/Membership";
 import { updateAssessmentAction } from "../../../actions";
 import { AssessmentSettingsForm } from "../../../AssessmentSettingsForm";
 

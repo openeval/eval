@@ -9,7 +9,7 @@ import { organizationMetadataSchema } from "~/ee/types/Organization";
 import { absoluteUrl } from "~/lib/utils";
 import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
-import * as OrgRepo from "~/server/repositories/Organizations";
+import * as OrgService from "~/server/services/Organizations";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -88,7 +88,7 @@ export async function createStripeBillingPortalSessionAction(): Promise<
   }
 
   const { user } = session;
-  const org = await OrgRepo.findOneById(user.activeOrgId);
+  const org = await OrgService.findOneById(user.activeOrgId);
 
   if (!org) {
     notFound();

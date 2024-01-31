@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
 import { searchIssues } from "~/server/github";
-import { findOneById } from "~/server/repositories/Assessments";
+import { findOneById } from "~/server/services/Assessments";
 import { AssessmentTaskPage } from "../../AssessmentTaskPage";
 
 const getIssues = async (querySearch?: {

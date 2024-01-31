@@ -27,8 +27,8 @@ import { LoginEmail } from "~/emails/LoginEmail";
 import { env } from "~/env.mjs";
 import { absoluteUrl, createHash, randomString } from "~/lib/utils";
 import { prisma } from "~/server/db";
-import { update as updateCandidate } from "~/server/repositories/Candidates";
-import { update as updateUser } from "~/server/repositories/User";
+import { update as updateCandidate } from "~/server/services/Candidates";
+import { update as updateUser } from "~/server/services/User";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

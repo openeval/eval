@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { Stripe } from "stripe";
 
 import { stripe } from "~/ee/lib/stripe";
-import * as OrgRepo from "~/server/repositories/Organizations";
+import * as OrgService from "~/server/services/Organizations";
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         case "checkout.session.completed":
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
 
-          const org = await OrgRepo.findOneById(
+          const org = await OrgService.findOneById(
             checkoutSession.client_reference_id,
           );
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
           }
 
           if (checkoutSession.mode === "subscription") {
-            await OrgRepo.update(
+            await OrgService.update(
               { id: org.id },
               {
                 metadata: {
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
         case "customer.subscription.deleted":
           const subscription = event.data.object as Stripe.Subscription;
           // TODO: 500 error
-          await OrgRepo.update(
+          await OrgService.update(
             { metadata: { path: ["subscriptionId"], equals: subscription.id } },
             {
               metadata: {

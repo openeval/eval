@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findOneById } from "~/server/repositories/Candidates";
+import { findOneById } from "~/server/services/Candidates";
 
 type CandidateDetailPageProps = {
   children: React.ReactNode;

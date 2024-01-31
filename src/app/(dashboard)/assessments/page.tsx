@@ -9,7 +9,7 @@ import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
-import { findAllForList } from "~/server/repositories/Assessments";
+import { findAllForList } from "~/server/services/Assessments";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 

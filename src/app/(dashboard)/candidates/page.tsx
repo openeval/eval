@@ -7,7 +7,7 @@ import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
-import { findAllForList } from "~/server/repositories/Candidates";
+import { findAllForList } from "~/server/services/Candidates";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 

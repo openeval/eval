@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
-import { update as updateCandidate } from "~/server/repositories/Candidates";
+import { update as updateCandidate } from "~/server/services/Candidates";
 import type { ActionResponse } from "~/types";
 
 export type UpdateCandidateAction = (

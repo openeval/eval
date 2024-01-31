@@ -17,11 +17,10 @@ import slugify from "slugify";
 import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
-import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";
-import { create as createCandidate } from "~/server/repositories/Candidates";
-import * as orgRepo from "~/server/repositories/Organizations";
-import { update as updateUser } from "~/server/repositories/User";
+import { create as createCandidate } from "~/server/services/Candidates";
+import * as orgService from "~/server/services/Organizations";
+import { update as updateUser } from "~/server/services/User";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -137,15 +136,7 @@ export const createOrgAction: CreateOrgAction = async (data) => {
       slug: slugify(data.name),
     });
 
-    const org = await orgRepo.create(createDto, user);
-
-    if (org) {
-      // set active org to current created
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { activeOrgId: org.id, completedOnboarding: true },
-      });
-    }
+    const org = await orgService.create(createDto, user);
 
     return { success: true, data: org };
   } catch (error) {

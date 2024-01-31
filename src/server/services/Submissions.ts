@@ -1,7 +1,7 @@
 import type { Prisma, Review, Submission } from "@prisma/client";
 
 import { prisma } from "~/server/db";
-import { getDetailScore } from "~/server/repositories/EvaluationCriteria";
+import { getDetailScore } from "~/server/services/EvaluationCriteria";
 
 export async function findOneById(id) {
   return await prisma.submission.findFirst({

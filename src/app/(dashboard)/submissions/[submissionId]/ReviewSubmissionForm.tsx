@@ -19,7 +19,7 @@ import {
 } from "~/components/ui/Form";
 import { Textarea } from "~/components/ui/Textarea";
 import { toast } from "~/hooks/use-toast";
-import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
+import type { EvaluationCriteriaWithChildren } from "~/server/services/EvaluationCriteria";
 import type { SubmitReviewAction } from "../actions";
 
 type ReviewWithEC = Prisma.ReviewGetPayload<{
