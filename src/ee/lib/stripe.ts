@@ -14,7 +14,16 @@ export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? "", {
   // },
 });
 
-export const createSubscriptionSessionLink = async (orgId, email) => {
+type SubscriptionOpts = {
+  email: string;
+  orgId: string;
+  interval: string;
+};
+export const createSubscriptionSessionLink = async ({
+  email,
+  orgId,
+  interval,
+}: SubscriptionOpts) => {
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
@@ -24,13 +33,10 @@ export const createSubscriptionSessionLink = async (orgId, email) => {
     client_reference_id: orgId,
     line_items: [
       {
-        price: env.STRIPE_BASIC_MONTHLY_PRICE_ID,
-        adjustable_quantity: {
-          enabled: true,
-          minimum: 1,
-          maximum: 99,
-        },
-        quantity: 1,
+        price:
+          interval === "year"
+            ? process.env.STRIPE_PRICE_STANDARD_CANDIDATES_METERED_YEARLY_ID
+            : process.env.STRIPE_PRICE_STANDARD_CANDIDATES_METERED_MONTHLY_ID,
       },
     ],
     subscription_data: {

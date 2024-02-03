@@ -33,10 +33,16 @@ test.describe("Onboarding", () => {
     await page.locator('input[name="name"]').fill(`${user.email} Org`);
     await page.getByTestId("confirmation-button").click();
 
+    await expect(page).toHaveTitle(/Pricing/);
+
+    await page.getByTestId("Standard-pricing-card-button").click();
+
     //Test Stripe checkout integration
     const toast = await page.waitForSelector(
       '[data-testid="checkout-container"]',
     );
+
+    // mock create subscription
 
     expect(toast).toBeTruthy();
   });

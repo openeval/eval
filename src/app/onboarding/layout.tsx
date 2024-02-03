@@ -19,7 +19,7 @@ export default async function Layout({
   return (
     <div>
       <Header user={user} withMenu={false} />
-      <div className="flex overflow-hidden border-t border-transparent pt-16">
+      <div className="flex overflow-hidden border-t border-transparent">
         <main
           id="main-content"
           className="container relative h-full w-full overflow-y-auto py-8"

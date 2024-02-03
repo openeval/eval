@@ -11,7 +11,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { updateSubscriptionSeats } from "~/ee/lib/core";
 import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
 import { env } from "~/env.mjs";
 import { generateAuthLink, getServerSession } from "~/server/auth";
@@ -96,10 +95,6 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
       });
     }
 
-    if (env.IS_EE) {
-      await updateSubscriptionSeats(org);
-    }
-
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
     revalidatePath("/settings/team");
@@ -161,10 +156,6 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
       { id: memership.userId },
       { activeOrg: { disconnect: true } },
     );
-
-    if (env.IS_EE) {
-      await updateSubscriptionSeats(org);
-    }
 
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form

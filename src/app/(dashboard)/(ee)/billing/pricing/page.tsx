@@ -1,11 +1,16 @@
 import { notFound, redirect } from "next/navigation";
-import Script from "next/script";
 
 import { env } from "~/ee/env.mjs";
+import { createSubscriptionSessionLink, stripe } from "~/ee/lib/stripe";
+import { organizationMetadataSchema } from "~/ee/types/Organization";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById as findOrg } from "~/server/services/Organizations";
+import PricingPage from "./PricingPage";
 
-// TODO: deprecated
+export const metadata = {
+  title: "Pricing",
+};
+
 export default async function PricingTable() {
   const user = await getCurrentUser();
 
@@ -19,16 +24,29 @@ export default async function PricingTable() {
     notFound();
   }
 
+  const metadata = organizationMetadataSchema.parse(org.metadata);
+
+  if (metadata?.subscriptionId) {
+    redirect("/billing/settings");
+  }
+
+  const startStripeCheckoutAction = async (interval) => {
+    "use server";
+
+    const url = await createSubscriptionSessionLink({
+      orgId: org.id,
+      email: user.email as string,
+      interval,
+    });
+
+    if (url) {
+      redirect(url);
+    }
+  };
+
   return (
     <>
-      <Script src="https://js.stripe.com/v3/pricing-table.js"></Script>
-      {/* @ts-expect-error stripe issues */}
-      <stripe-pricing-table
-        pricing-table-id={env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID}
-        publishable-key={env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
-        client-reference-id={org.id}
-        customer-email={user.email}
-      />
+      <PricingPage planAction={startStripeCheckoutAction} />
     </>
   );
 }

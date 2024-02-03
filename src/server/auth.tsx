@@ -23,6 +23,7 @@ import EmailProvider from "next-auth/providers/email";
 import GitHubProvider from "next-auth/providers/github";
 import nodemailer from "nodemailer";
 
+import { trackUsage } from "~/ee/lib/core";
 import { LoginEmail } from "~/emails/LoginEmail";
 import { env } from "~/env.mjs";
 import { absoluteUrl, createHash, randomString } from "~/lib/utils";
@@ -207,12 +208,17 @@ export const authOptions: NextAuthConfig = {
         // candidates need to link their github account to verify their profiles
         // this happens when a candidate is invited (created by organization) and
         // when the candidate is created in the onboarding process
-        await updateCandidate(
+        const candidate = await updateCandidate(
           { userId: user.id },
           { status: CandidateStatus.VERIFIED, ghUsername: profile.ghUsername },
         );
 
         await updateUser({ id: user.id }, { completedOnboarding: true });
+
+        //find invitation and update the verified account
+        if (env.IS_EE) {
+          await trackUsage(candidate);
+        }
       }
     },
   },

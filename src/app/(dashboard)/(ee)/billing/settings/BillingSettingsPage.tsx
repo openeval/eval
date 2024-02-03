@@ -41,14 +41,14 @@ export const BillingSettingsPage = ({ data }: BillingSettingsPageProps) => {
             <Badge variant={"outline"}>{data.currentPlan?.status}</Badge>
           </CardHeader>
 
-          <CardContent className="grid gap-6">
+          {/* <CardContent className="grid gap-6">
             {data.currentPlan && (
               <div>
                 {data.currentPlan.quantity} x {data.currentPlan.price}/
                 {data.currentPlan.interval}
               </div>
             )}
-          </CardContent>
+          </CardContent> */}
           <CardFooter className="justify-end">
             {data.currentPlan && data.currentPlan.status !== "canceled" && (
               <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
