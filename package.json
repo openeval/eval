@@ -13,7 +13,8 @@
     "lint": "next lint",
     "start": "next start",
     "ts-lint": "tsc --noEmit --incremental --watch",
-    "test:e2e": "CI=true playwright test",
+    "test:e2e:dev": "NODE_ENV=development CI=true playwright test",
+    "test:e2e:prod": "NODE_ENV=production CI=true playwright test",
     "format": "prettier . --write",
     "email:dev": "email dev --dir src/emails",
     "prepare": "husky install"

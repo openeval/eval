@@ -29,6 +29,7 @@ export const createUsersFixture = (page: Page) => {
         update: async (data: Prisma.UserUpdateInput) =>
           await prisma.user.update({ data, where: { id: userDb.id } }),
       };
+
       store.users.push(user);
       return user;
     },

@@ -16,6 +16,8 @@ import {
 import slugify from "slugify";
 import { z } from "zod";
 
+import { createCustomer } from "~/ee/lib/core";
+import { env } from "~/env.mjs";
 import { getServerSession } from "~/server/auth";
 import { createError, ERROR_CODES } from "~/server/error";
 import { create as createCandidate } from "~/server/services/Candidates";
@@ -137,6 +139,10 @@ export const createOrgAction: CreateOrgAction = async (data) => {
     });
 
     const org = await orgService.create(createDto, user);
+
+    if (env.IS_EE) {
+      await createCustomer(org);
+    }
 
     return { success: true, data: org };
   } catch (error) {

@@ -12,7 +12,6 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
-import { env } from "~/env.mjs";
 import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { createError, ERROR_CODES } from "~/server/error";

@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 
-import { siteConfig } from "~/config/site";
 import { env } from "~/env.mjs";
 
 const transporter = nodemailer.createTransport(
@@ -13,7 +12,7 @@ const transporter = nodemailer.createTransport(
     },
   },
   {
-    from: `"${siteConfig.name}" <${env.SMTP_FROM}>`,
+    from: env.SMTP_FROM,
   },
 );
 

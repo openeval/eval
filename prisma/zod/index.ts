@@ -3361,21 +3361,8 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
       z.object({
         id: z.string(),
         userId: z.string(),
-        email: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
-        ),
-      }),
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        email: z.string(),
-      }),
-      z.object({
-        id: z.string(),
-        userId: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
+        email_organizationId: z.lazy(
+          () => CandidateEmailOrganizationIdCompoundUniqueInputSchema,
         ),
       }),
       z.object({
@@ -3384,19 +3371,8 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
       }),
       z.object({
         id: z.string(),
-        email: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
-        ),
-      }),
-      z.object({
-        id: z.string(),
-        email: z.string(),
-      }),
-      z.object({
-        id: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
+        email_organizationId: z.lazy(
+          () => CandidateEmailOrganizationIdCompoundUniqueInputSchema,
         ),
       }),
       z.object({
@@ -3404,36 +3380,16 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
       }),
       z.object({
         userId: z.string(),
-        email: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
-        ),
-      }),
-      z.object({
-        userId: z.string(),
-        email: z.string(),
-      }),
-      z.object({
-        userId: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
+        email_organizationId: z.lazy(
+          () => CandidateEmailOrganizationIdCompoundUniqueInputSchema,
         ),
       }),
       z.object({
         userId: z.string(),
       }),
       z.object({
-        email: z.string(),
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
-        ),
-      }),
-      z.object({
-        email: z.string(),
-      }),
-      z.object({
-        id_email_organizationId: z.lazy(
-          () => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema,
+        email_organizationId: z.lazy(
+          () => CandidateEmailOrganizationIdCompoundUniqueInputSchema,
         ),
       }),
     ])
@@ -3442,9 +3398,8 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
         .object({
           id: z.string().optional(),
           userId: z.string().optional(),
-          email: z.string().optional(),
-          id_email_organizationId: z
-            .lazy(() => CandidateIdEmailOrganizationIdCompoundUniqueInputSchema)
+          email_organizationId: z
+            .lazy(() => CandidateEmailOrganizationIdCompoundUniqueInputSchema)
             .optional(),
           AND: z
             .union([
@@ -3480,6 +3435,9 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
             ])
             .optional(),
           lastName: z
+            .union([z.lazy(() => StringFilterSchema), z.string()])
+            .optional(),
+          email: z
             .union([z.lazy(() => StringFilterSchema), z.string()])
             .optional(),
           createdAt: z
@@ -11374,10 +11332,9 @@ export const CandidatesOnAssessmentsOrderByRelationAggregateInputSchema: z.ZodTy
     })
     .strict();
 
-export const CandidateIdEmailOrganizationIdCompoundUniqueInputSchema: z.ZodType<Prisma.CandidateIdEmailOrganizationIdCompoundUniqueInput> =
+export const CandidateEmailOrganizationIdCompoundUniqueInputSchema: z.ZodType<Prisma.CandidateEmailOrganizationIdCompoundUniqueInput> =
   z
     .object({
-      id: z.string(),
       email: z.string(),
       organizationId: z.string(),
     })

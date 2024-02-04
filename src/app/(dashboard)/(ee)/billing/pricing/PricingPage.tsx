@@ -209,15 +209,17 @@ export default function PricingPage({ planAction }) {
         "Volume discounts",
         "Workshops",
       ],
-      actionLabel: "Contact Sales",
+      actionLabel: "Contact us",
       exclusive: true,
       action: (plan) => {
-        window.location.replace(`"mailto:${siteConfig.contactUsEmail}"`);
+        window.location.replace(
+          `mailto:${siteConfig.contactUsEmail}?subject=Enterprise plan`,
+        );
       },
     },
   ];
   return (
-    <div className="">
+    <div data-testid="pricing-page" className="">
       <section className="mb-8 text-center">
         <Typography variant={"h1"} className="mb-4 uppercase">
           Pricing

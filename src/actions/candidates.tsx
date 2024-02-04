@@ -71,7 +71,12 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
     });
 
     const candidate = await prisma.candidate.upsert({
-      where: { email: data.email, organizationId: user.activeOrgId },
+      where: {
+        email_organizationId: {
+          email: data.email,
+          organizationId: user.activeOrgId as string,
+        },
+      },
       update: {},
       create: {
         ...invitedData,

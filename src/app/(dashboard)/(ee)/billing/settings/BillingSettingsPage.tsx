@@ -5,13 +5,7 @@ import * as React from "react";
 
 import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/Card";
+import { Card, CardFooter, CardHeader, CardTitle } from "~/components/ui/Card";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { ManageSubscriptionButton } from "~/ee/components/ManageSubscriptionButton";
@@ -40,20 +34,11 @@ export const BillingSettingsPage = ({ data }: BillingSettingsPageProps) => {
             <CardTitle>{data.currentPlan?.name || "Free"}</CardTitle>
             <Badge variant={"outline"}>{data.currentPlan?.status}</Badge>
           </CardHeader>
-
-          {/* <CardContent className="grid gap-6">
-            {data.currentPlan && (
-              <div>
-                {data.currentPlan.quantity} x {data.currentPlan.price}/
-                {data.currentPlan.interval}
-              </div>
-            )}
-          </CardContent> */}
           <CardFooter className="justify-end">
             {data.currentPlan && data.currentPlan.status !== "canceled" && (
               <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
                 <ManageSubscriptionButton>
-                  Open customer postal
+                  View my plan
                 </ManageSubscriptionButton>
               </div>
             )}

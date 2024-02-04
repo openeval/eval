@@ -30,7 +30,7 @@ export const UpgradeBanner = async ({ activeOrg }) => {
             variant="link"
             className="text-md text-white underline"
           >
-            Upgrade here
+            Check it here
           </ManageSubscriptionButton>
         </div>
       );

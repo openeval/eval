@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { env } from "~/ee/env.mjs";
-import { createSubscriptionSessionLink, stripe } from "~/ee/lib/stripe";
+import { createSubscriptionSessionLink } from "~/ee/lib/stripe";
 import { organizationMetadataSchema } from "~/ee/types/Organization";
 import { getCurrentUser } from "~/server/auth";
 import { findOneById as findOrg } from "~/server/services/Organizations";
@@ -34,8 +33,7 @@ export default async function PricingTable() {
     "use server";
 
     const url = await createSubscriptionSessionLink({
-      orgId: org.id,
-      email: user.email as string,
+      org,
       interval,
     });
 

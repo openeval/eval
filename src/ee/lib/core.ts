@@ -1,9 +1,8 @@
-import type { Candidate, UserType } from "@prisma/client";
-import type { User } from "next-auth";
+import { Organization, UserType, type Candidate } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { stripe } from "~/ee/lib/stripe";
-import { findOneById } from "~/server/services/Organizations";
+import * as orgService from "~/server/services/Organizations";
 import { organizationMetadataSchema } from "../types/Organization";
 
 // Check if user has an active subscription
@@ -18,9 +17,22 @@ export const checkSubscription = async (user: User) => {
   }
 };
 
+export const createCustomer = async (org: Organization) => {
+  const customer = await stripe.customers.create({
+    name: org.name as string,
+    email: org.email as string,
+  });
+
+  const metadata = organizationMetadataSchema.parse(org?.metadata);
+  await orgService.update(
+    { id: org.id },
+    { metadata: { ...metadata, stripeCustomerId: customer.id } },
+  );
+};
+
 // we track usage for candidates
 export const trackUsage = async (candidate: Candidate) => {
-  const org = await findOneById(candidate.organizationId);
+  const org = await orgService.findOneById(candidate.organizationId);
   const metadata = organizationMetadataSchema.parse(org?.metadata);
   if (metadata?.subscriptionId) {
     const subscription = await stripe.subscriptions.retrieve(
