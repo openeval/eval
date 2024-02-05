@@ -1,6 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
-  CandidateStatus,
   UserType,
   type User as BaseUser,
   type Candidate,
@@ -14,6 +13,7 @@ import NextAuth, {
   type User,
 } from "next-auth";
 
+import { linkGithubAccount } from "~/server/services/Candidates";
 import { PostHogClient } from "~/server/telemetry";
 
 import "next-auth";
@@ -23,13 +23,10 @@ import EmailProvider from "next-auth/providers/email";
 import GitHubProvider from "next-auth/providers/github";
 import nodemailer from "nodemailer";
 
-import { trackUsage } from "~/ee/lib/core";
 import { LoginEmail } from "~/emails/LoginEmail";
 import { env } from "~/env.mjs";
 import { absoluteUrl, createHash, randomString } from "~/lib/utils";
 import { prisma } from "~/server/db";
-import { update as updateCandidate } from "~/server/services/Candidates";
-import { update as updateUser } from "~/server/services/User";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -40,7 +37,7 @@ import { update as updateUser } from "~/server/services/User";
 declare module "next-auth" {
   interface User extends BaseUser {
     membership: Membership;
-    candidate?: Candidate;
+    applications?: Candidate[];
     activeOrg: Organization;
   }
 
@@ -74,7 +71,7 @@ const credentialsProvider = CredentialsProvider({
         email: credentials?.email as string,
       },
       include: {
-        candidate: true,
+        applications: true,
         memberships: true,
         activeOrg: true,
       },
@@ -157,7 +154,7 @@ export const authOptions: NextAuthConfig = {
           email: token.email as string,
         },
         include: {
-          candidate: true,
+          applications: true,
           memberships: true,
           activeOrg: true,
         },
@@ -180,7 +177,7 @@ export const authOptions: NextAuthConfig = {
           activeOrg: dbUser.activeOrg,
           type: dbUser.type,
           completedOnboarding: dbUser.completedOnboarding,
-          candidate: dbUser.candidate,
+          applications: dbUser.applications,
           membership: dbUser.memberships.find(
             (item) => item.organizationId === dbUser.activeOrgId,
           ),
@@ -204,21 +201,8 @@ export const authOptions: NextAuthConfig = {
       posthog.identify(user?.id);
     },
     async linkAccount({ account, user, profile }) {
-      if (account.provider === "github" && user.type === UserType.CANDIDATE) {
-        // candidates need to link their github account to verify their profiles
-        // this happens when a candidate is invited (created by organization) and
-        // when the candidate is created in the onboarding process
-        const candidate = await updateCandidate(
-          { userId: user.id },
-          { status: CandidateStatus.VERIFIED, ghUsername: profile.ghUsername },
-        );
-
-        await updateUser({ id: user.id }, { completedOnboarding: true });
-
-        //find invitation and update the verified account
-        if (env.IS_EE) {
-          await trackUsage(candidate);
-        }
+      if (account.provider === "github" && user.type === UserType.APPLICANT) {
+        await linkGithubAccount(user, profile);
       }
     },
   },

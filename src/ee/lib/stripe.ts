@@ -1,4 +1,4 @@
-import { Organization } from "@prisma/client";
+import type { Organization } from "@prisma/client";
 import Stripe from "stripe";
 
 import { env } from "~/ee/env.mjs";

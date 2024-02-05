@@ -192,7 +192,7 @@ export default function PricingPage({ planAction }) {
       features: ["Unlimited Seats", "Unlimited Assessments", "Basic support"],
       popular: true,
       actionLabel: "Start trial",
-      action: async (plan) => {
+      action: async (_plan) => {
         startActionTransition(async () => {
           await planAction(isYearly ? "year" : "month");
         });
@@ -211,7 +211,7 @@ export default function PricingPage({ planAction }) {
       ],
       actionLabel: "Contact us",
       exclusive: true,
-      action: (plan) => {
+      action: (_plan) => {
         window.location.replace(
           `mailto:${siteConfig.contactUsEmail}?subject=Enterprise plan`,
         );

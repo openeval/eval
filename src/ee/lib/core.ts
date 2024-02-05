@@ -1,4 +1,5 @@
-import { Organization, UserType, type Candidate } from "@prisma/client";
+import { UserType, type Candidate, type Organization } from "@prisma/client";
+import { type User } from "next-auth";
 import { redirect } from "next/navigation";
 
 import { stripe } from "~/ee/lib/stripe";
@@ -33,6 +34,7 @@ export const createCustomer = async (org: Organization) => {
 // we track usage for candidates
 export const trackUsage = async (candidate: Candidate) => {
   const org = await orgService.findOneById(candidate.organizationId);
+
   const metadata = organizationMetadataSchema.parse(org?.metadata);
   if (metadata?.subscriptionId) {
     const subscription = await stripe.subscriptions.retrieve(

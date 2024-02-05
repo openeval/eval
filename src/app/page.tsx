@@ -15,7 +15,7 @@ export default async function Home() {
     redirect("/onboarding");
   }
 
-  if (user.type === UserType.CANDIDATE) {
+  if (user.type === UserType.APPLICANT) {
     redirect("/d");
   }
 

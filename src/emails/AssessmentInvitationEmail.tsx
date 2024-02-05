@@ -51,7 +51,7 @@ export const AssessmentInvitationEmail = ({
                 className="mx-auto my-0"
               />
             </Section>
-            <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal ">
+            <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal">
               {assessmentName}
             </Heading>
             <Text className="text-[14px] leading-[24px]">

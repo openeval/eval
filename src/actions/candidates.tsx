@@ -1,25 +1,17 @@
 "use server";
 
-import { UserType } from "@prisma/client";
-import { render } from "@react-email/render";
 import { redirect } from "next/navigation";
-import slugify from "slugify";
 import { z } from "zod";
 
 import {
   InviteCandidateSchema,
   type InviteCandidateType,
 } from "~/dto/InviteCandidateDto";
-import { AssessmentInvitationEmail } from "~/emails/AssessmentInvitationEmail";
-import { generateAuthLink, getServerSession } from "~/server/auth";
+import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
-import { transporter } from "~/server/mailer";
-import {
-  findInvitedCandidate,
-  findOneById,
-  remove,
-} from "~/server/services/Candidates";
+import { ERROR_CODES, ErrorResponse, ServiceError } from "~/server/error";
+import { findOneById, remove } from "~/server/services/Candidates";
+import * as candidatesService from "~/server/services/Candidates";
 import type { ActionResponse } from "~/types";
 
 export type InviteCandidateAction = (
@@ -46,93 +38,27 @@ export const inviteCandidateAction: InviteCandidateAction = async (data) => {
       where: { id: assessmentId },
     });
 
-    // check if users has active assessment sessions
-    const invitedCandidate = await findInvitedCandidate(
-      user,
-      assessmentId,
-      data.email,
-    );
-
-    if (invitedCandidate) {
-      throw Error("Candidate already invited");
-    }
-
-    const userCandidate = await prisma.user.upsert({
-      where: {
-        email: data.email,
-        type: UserType.CANDIDATE,
-      },
-      create: {
-        email: data.email,
-        completedOnboarding: true,
-        type: UserType.CANDIDATE,
-      },
-      update: {},
-    });
-
-    const candidate = await prisma.candidate.upsert({
-      where: {
-        email_organizationId: {
-          email: data.email,
-          organizationId: user.activeOrgId as string,
-        },
-      },
-      update: {},
-      create: {
-        ...invitedData,
-        candidatesOnAssessments: {
-          create: { assessmentId: assessmentId },
-        },
-        organization: { connect: { id: user.activeOrgId || undefined } },
-        createdBy: { connect: { id: user.id } },
-        user: { connect: { id: userCandidate.id } },
-      },
-    });
-
-    await prisma.candidatesOnAssessments.upsert({
-      where: {
-        candidateId_assessmentId: {
-          candidateId: candidate.id,
-          assessmentId: assessmentId,
-        },
-      },
-      update: {},
-      create: { candidateId: candidate.id, assessmentId: assessmentId },
-    });
-
-    const inviteLink = await generateAuthLink(data.email, {
-      callbackUrl: `/a/${assessment.id}/${slugify(assessment.title)}`,
-    });
-
-    const html = render(
-      <AssessmentInvitationEmail
-        username={data.name}
-        org={user.activeOrg.name}
-        assessmentName={assessment.title}
-        inviteLink={inviteLink}
-      />,
-    );
-
-    await transporter.sendMail({
-      to: data.email, // list of receivers
-      subject: `You have a new assessment invitation`, // Subject line
-      html: html, // html body
+    await candidatesService.inviteToAssessment(assessment, {
+      ...invitedData,
+      fromOrganization: user.activeOrg,
+      byUser: user,
     });
 
     return { success: true, data: { message: "ok" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    if (error instanceof ServiceError) {
+      return ErrorResponse(error.message);
+    }
+
+    return ErrorResponse();
   }
 };
 
@@ -165,16 +91,13 @@ export const removeCandidateAction: RemoveCandidateAction = async (
     return { success: true, data: { message: "ok" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

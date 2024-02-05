@@ -16,7 +16,7 @@ import {
   searchIssues,
   searchPullRequestContributions,
 } from "~/server/github";
-import { findOneByCandidate } from "~/server/services/AssessmentSessions";
+import { findOneById } from "~/server/services/AssessmentSessions";
 import { finishAssessmentSessionAction } from "./actions";
 import { FinishAssessmentSessionButton } from "./FinishAssessmentSessionButton";
 
@@ -24,8 +24,8 @@ interface PageProps {
   params: { sessionId: string };
 }
 
-const getAssessmentSession = cache(async (id: string, candidateId?: string) => {
-  return await findOneByCandidate(id, candidateId);
+const getAssessmentSession = cache(async (id: string) => {
+  return await findOneById(id);
 });
 
 const getIssues = cache(async (querySearch?: string[] | string | null) => {
@@ -59,10 +59,7 @@ export default async function Page({ params }: PageProps) {
     redirect("/login");
   }
 
-  const session = await getAssessmentSession(
-    params.sessionId,
-    user.candidate?.id,
-  );
+  const session = await getAssessmentSession(params.sessionId);
 
   if (!session) {
     notFound();

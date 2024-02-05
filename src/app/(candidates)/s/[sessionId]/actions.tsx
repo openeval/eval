@@ -14,7 +14,7 @@ import { NotificationEmail } from "~/emails/NotificationEmail";
 import { absoluteUrl } from "~/lib/utils";
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import { transporter } from "~/server/mailer";
 import * as assessmentsService from "~/server/services/Assessments";
 import * as assessmentSessionsService from "~/server/services/AssessmentSessions";
@@ -41,10 +41,8 @@ export async function finishAssessmentSessionAction(
 
   const { user } = session;
 
-  const assessmentSession = await assessmentSessionsService.findOneByCandidate(
-    sessionId,
-    user.candidate?.id,
-  );
+  const assessmentSession =
+    await assessmentSessionsService.findOneById(sessionId);
 
   if (!assessmentSession) {
     notFound();
@@ -55,7 +53,7 @@ export async function finishAssessmentSessionAction(
       throw new Error("Invalid session");
     }
 
-    const candidate = user.candidate;
+    const candidate = user.applications?.find((a) => a.id === user.id);
 
     if (!candidate) {
       throw new Error("candidate do not exist");
@@ -121,16 +119,13 @@ export async function finishAssessmentSessionAction(
     return { success: true, data: response };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 }

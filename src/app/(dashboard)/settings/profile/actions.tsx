@@ -7,7 +7,7 @@ import { UserUpdateInputSchema } from "prisma/zod";
 import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import * as userService from "~/server/services/User";
 import type { ActionResponse } from "~/types";
 
@@ -45,16 +45,13 @@ export const updateProfileAction: UpdateProfileAction = async (id, data) => {
     return { success: true, data: uUser };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

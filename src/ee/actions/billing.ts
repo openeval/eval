@@ -8,7 +8,7 @@ import { stripe } from "~/ee/lib/stripe";
 import { organizationMetadataSchema } from "~/ee/types/Organization";
 import { absoluteUrl } from "~/lib/utils";
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import * as OrgService from "~/server/services/Organizations";
 import type { ActionResponse } from "~/types";
 
@@ -66,7 +66,7 @@ export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionActio
       if (error instanceof z.ZodError) {
         return {
           success: false,
-          error: createError(
+          error: ErrorResponse(
             "Incorrect format",
             ERROR_CODES.BAD_REQUEST,
             error.issues,
@@ -74,7 +74,7 @@ export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionActio
         };
       }
 
-      return { success: false, error: createError(error?.message) };
+      return { success: false, error: ErrorResponse(error?.message) };
     }
   };
 
@@ -108,6 +108,6 @@ export async function createStripeBillingPortalSessionAction(): Promise<
 
     return { success: true, data: url };
   } catch (error) {
-    return { success: false, error: createError(error?.message) };
+    return { success: false, error: ErrorResponse(error?.message) };
   }
 }

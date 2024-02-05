@@ -25,13 +25,7 @@ export default async function AssessmentsPage() {
     redirect("/login");
   }
 
-  const { candidate } = user;
-
-  if (!candidate) {
-    redirect("/");
-  }
-
-  const rows = await getAssessments(candidate.id);
+  const rows = await getAssessments(user.id);
 
   return (
     <>

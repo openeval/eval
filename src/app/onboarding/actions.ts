@@ -1,26 +1,15 @@
 "use server";
 
-import type {
-  Candidate,
-  Organization,
-  Prisma,
-  User,
-  UserType,
-} from "@prisma/client";
+import type { Organization, Prisma, User, UserType } from "@prisma/client";
 import { redirect } from "next/navigation";
-import {
-  CandidateCreateInputSchema,
-  OrganizationCreateInputSchema,
-  UserSchema,
-} from "prisma/zod";
+import { OrganizationCreateInputSchema, UserSchema } from "prisma/zod";
 import slugify from "slugify";
 import { z } from "zod";
 
 import { createCustomer } from "~/ee/lib/core";
 import { env } from "~/env.mjs";
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
-import { create as createCandidate } from "~/server/services/Candidates";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import * as orgService from "~/server/services/Organizations";
 import { update as updateUser } from "~/server/services/User";
 import type { ActionResponse } from "~/types";
@@ -51,22 +40,19 @@ export const updateUserTypeAction: UpdateUserTypeAction = async (data) => {
     return { success: true, data: dbUser };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };
 export type CreateCandidateAction = (
   data: Prisma.CandidateCreateInput,
-) => Promise<ActionResponse<Candidate>>;
+) => Promise<ActionResponse<User>>;
 
 export const createCandidateAction: CreateCandidateAction = async (data) => {
   const session = await getServerSession();
@@ -80,30 +66,19 @@ export const createCandidateAction: CreateCandidateAction = async (data) => {
   const { user } = session;
 
   try {
-    data = CandidateCreateInputSchema.parse({
-      ...data,
-      user: { connect: { id: user.id } },
-      email: user.email,
-    });
-
-    const candidate = await createCandidate(data);
-
-    await updateUser(
+    const uUser = await updateUser(
       { id: user.id },
       { name: `${data.name} ${data.lastName}`, completedOnboarding: true },
     );
 
-    return { success: true, data: candidate };
+    return { success: true, data: uUser };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };
@@ -126,10 +101,7 @@ export const createOrgAction: CreateOrgAction = async (data) => {
   const { user } = session;
 
   if (user.activeOrgId) {
-    return {
-      success: false,
-      error: createError("The user already has an organization"),
-    };
+    return ErrorResponse("The user already has an organization");
   }
 
   try {
@@ -147,16 +119,13 @@ export const createOrgAction: CreateOrgAction = async (data) => {
     return { success: true, data: org };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

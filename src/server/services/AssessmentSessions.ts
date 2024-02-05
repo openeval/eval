@@ -16,7 +16,7 @@ export async function fetchAssessmentSession(id) {
 export async function findOneById(id) {
   return await prisma.assessmentSession.findFirst({
     where: { id },
-    include: { assessment: true },
+    include: { assessment: { include: { reviewers: true } } },
   });
 }
 

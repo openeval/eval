@@ -14,7 +14,7 @@ import { z } from "zod";
 import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
 import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse, ServiceError } from "~/server/error";
 import { transporter } from "~/server/mailer";
 import * as MembershipService from "~/server/services/Membership";
 import * as OrgService from "~/server/services/Organizations";
@@ -58,7 +58,7 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
       },
     });
 
-    if (member.type === UserType.CANDIDATE) {
+    if (member.type === UserType.APPLICANT) {
       throw Error("User unavailable");
     }
 
@@ -100,17 +100,18 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
     return { success: true, data: member };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError(error?.message) };
+    if (error instanceof ServiceError) {
+      return ErrorResponse(error.message);
+    }
+
+    return ErrorResponse();
   }
 };
 
@@ -162,17 +163,14 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
     return { success: true, data: { message: "removed" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError(error?.message) };
+    return ErrorResponse();
   }
 };
 
@@ -221,16 +219,13 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
     return { success: true, data: res };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError(error?.message) };
+    return ErrorResponse();
   }
 };

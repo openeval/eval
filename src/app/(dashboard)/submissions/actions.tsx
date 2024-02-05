@@ -11,7 +11,7 @@ import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import { getTotalScore } from "~/server/services/EvaluationCriteria";
 import * as reviewsService from "~/server/services/Reviews";
 import * as submissionsService from "~/server/services/Submissions";
@@ -99,14 +99,11 @@ export const submitReviewAction: SubmitReviewAction = async (
     return { success: true, data: review };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };
@@ -168,14 +165,11 @@ export const deleteReviewAction = async (reviewId) => {
     return { success: true, data: review };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };
@@ -213,14 +207,11 @@ export const rejectSubmissionAction = async (submissionId) => {
     return { success: true, data: { message: "ok" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };

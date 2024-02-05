@@ -30,7 +30,7 @@ export default async function Layout({
     redirect("/onboarding");
   }
 
-  if (user.type !== UserType.CANDIDATE) {
+  if (user.type !== UserType.APPLICANT) {
     redirect("/");
   }
 
