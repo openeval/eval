@@ -25,7 +25,7 @@ interface InviteCandidateFormProps
 }
 
 const invitationSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   lastName: z.string(),
   email: z.string().email(),
 });

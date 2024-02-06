@@ -53,33 +53,41 @@ export const submitReviewAction: SubmitReviewAction = async (
 
     const score = await getTotalScore(data.evaluationCriterias);
 
-    const { evaluationCriterias, ...payload } = data;
+    const { evaluationCriterias, id: reviewId, ...payload } = data;
+    let review;
 
-    const review = await prisma.review.upsert({
-      where: { submissionId: submissionId, id: data.id },
-      create: {
-        ...payload,
-        evaluationCriterias: {
-          connect:
-            evaluationCriterias && evaluationCriterias.map((c) => ({ id: c })),
-        },
-        submission: { connect: { id: submissionId } },
-        createdBy: {
-          connect: {
-            id: user.id,
+    if (reviewId) {
+      review = await prisma.review.update({
+        where: { submissionId: submissionId, id: reviewId },
+        data: {
+          ...payload,
+          evaluationCriterias: {
+            connect:
+              evaluationCriterias &&
+              evaluationCriterias.map((c) => ({ id: c })),
           },
+          score,
         },
-        score,
-      },
-      update: {
-        ...payload,
-        evaluationCriterias: {
-          connect:
-            evaluationCriterias && evaluationCriterias.map((c) => ({ id: c })),
+      });
+    } else {
+      review = await prisma.review.create({
+        data: {
+          ...payload,
+          evaluationCriterias: {
+            connect:
+              evaluationCriterias &&
+              evaluationCriterias.map((c) => ({ id: c })),
+          },
+          submission: { connect: { id: submissionId } },
+          createdBy: {
+            connect: {
+              id: user.id,
+            },
+          },
+          score,
         },
-        score,
-      },
-    });
+      });
+    }
 
     const submissionUpdated =
       await submissionsService.findByIdFull(submissionId);
@@ -91,7 +99,10 @@ export const submitReviewAction: SubmitReviewAction = async (
         // avg score
         score: Math.ceil(
           submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length || 0,
+            submission.reviews.length >
+            0
+            ? submission.reviews.length
+            : 1,
         ),
       });
     }
@@ -157,7 +168,10 @@ export const deleteReviewAction = async (reviewId) => {
         }),
         score: Math.ceil(
           submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length || 0,
+            submission.reviews.length >
+            0
+            ? submission.reviews.length
+            : 1,
         ),
       });
     }

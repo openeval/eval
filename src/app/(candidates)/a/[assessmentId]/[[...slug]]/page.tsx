@@ -46,7 +46,7 @@ export default async function Page({ params }: PageProps) {
   }
 
   const applicantSession = await assessmentSessionsService.findActiveSession(
-    candidate?.id,
+    candidate.id,
     assessment.id,
   );
 

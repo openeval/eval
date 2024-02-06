@@ -154,7 +154,7 @@ export function AssessmentSettingsForm({
                     </Select>
 
                     <FormDescription>
-                      The interval to submit solutions.
+                      Candidate&amp;s assessments sessions interval.
                     </FormDescription>
                   </FormItem>
                 )}

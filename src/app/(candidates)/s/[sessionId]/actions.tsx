@@ -18,6 +18,7 @@ import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import { transporter } from "~/server/mailer";
 import * as assessmentsService from "~/server/services/Assessments";
 import * as assessmentSessionsService from "~/server/services/AssessmentSessions";
+import * as candidatesService from "~/server/services/Candidates";
 import * as submissionsService from "~/server/services/Submissions";
 import type { ActionResponse } from "~/types";
 
@@ -53,7 +54,10 @@ export async function finishAssessmentSessionAction(
       throw new Error("Invalid session");
     }
 
-    const candidate = user.applications?.find((a) => a.id === user.id);
+    const candidate = await candidatesService.findCandidateByUserId(
+      user.id,
+      assessmentSession.assessment.organizationId,
+    );
 
     if (!candidate) {
       throw new Error("candidate do not exist");
@@ -103,21 +107,25 @@ export async function finishAssessmentSessionAction(
       throw new Error("submission do not exist");
     }
 
-    const html = render(
-      <NotificationEmail
-        url={absoluteUrl(`/submissions/${submission.id}`).toString()}
-        title="New candidate submission"
-      />,
-    );
+    // TODO: we should allow owners to get notifications too
+    if (assessment.reviewers.length > 0) {
+      const html = render(
+        <NotificationEmail
+          url={absoluteUrl(`/submissions/${submission.id}`).toString()}
+          title="New candidate submission"
+        />,
+      );
 
-    await transporter.sendMail({
-      to: assessment.reviewers.map((r) => r.email), // list of receivers
-      subject: `You have a new candidate submission`, // Subject line
-      html: html, // html body
-    });
+      await transporter.sendMail({
+        to: assessment.reviewers.map((r) => r.email), // list of receivers
+        subject: `You have a new candidate submission`, // Subject line
+        html: html, // html body
+      });
+    }
 
     return { success: true, data: response };
   } catch (error) {
+    console.log(error);
     if (error instanceof z.ZodError) {
       return ErrorResponse(
         "Incorrect format",

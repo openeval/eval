@@ -21,7 +21,7 @@ interface StartAssessmentButtonProps {
   user?: User;
   className?: string;
   action: StartAssessmentSessionAction;
-  applicantSession?: AssessmentSession;
+  applicantSession?: AssessmentSession | null;
 }
 // add alert to start
 export function StartAssessmentButton({
