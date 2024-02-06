@@ -93,17 +93,21 @@ export const submitReviewAction: SubmitReviewAction = async (
       await submissionsService.findByIdFull(submissionId);
 
     if (submissionUpdated) {
+      const reviewCount =
+        submissionUpdated.reviews.length > 0
+          ? submissionUpdated.reviews.length
+          : 1;
+
+      const totalScore = Math.ceil(
+        submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
+          reviewCount,
+      );
+
       //update the submission status and score
       await submissionsService.update(submissionId, {
         status: SubmissionStatus.REVIEWED,
         // avg score
-        score: Math.ceil(
-          submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length >
-            0
-            ? submission.reviews.length
-            : 1,
-        ),
+        score: totalScore,
       });
     }
 
@@ -161,18 +165,22 @@ export const deleteReviewAction = async (reviewId) => {
     );
 
     if (submissionUpdated) {
+      const reviewCount =
+        submissionUpdated.reviews.length > 0
+          ? submissionUpdated.reviews.length
+          : 1;
+
+      const totalScore = Math.ceil(
+        submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
+          reviewCount,
+      );
+
       //update the submission status and score
       await submissionsService.update(submission.id, {
         ...(submissionUpdated.reviews.length === 0 && {
           status: SubmissionStatus.TO_REVIEW,
         }),
-        score: Math.ceil(
-          submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length >
-            0
-            ? submission.reviews.length
-            : 1,
-        ),
+        score: totalScore,
       });
     }
 
