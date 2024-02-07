@@ -82,14 +82,18 @@ export type CandidateAssessmentsFullData = Prisma.PromiseReturnType<
   typeof findAllForForCandidateList
 >;
 
-export async function findAllForForCandidateList(candidateId: string) {
+export async function findAllForForCandidateList(applicantId: string) {
   return await prisma.candidatesOnAssessments.findMany({
     include: {
       assessment: {
-        include: { applicantSessions: { where: { candidateId } } },
+        include: {
+          applicantSessions: {
+            where: { candidate: { applicantId: applicantId } },
+          },
+        },
       },
     },
-    where: { candidateId: candidateId },
+    where: { candidate: { applicant: { id: applicantId } } },
   });
 }
 

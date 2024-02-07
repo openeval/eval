@@ -8,7 +8,7 @@ import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
 import { getCurrentUser } from "~/server/auth";
-import { findAllForList } from "~/server/repositories/Submissions";
+import { findAllForList } from "~/server/services/Submissions";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 

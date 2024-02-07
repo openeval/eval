@@ -12,9 +12,10 @@ import { z } from "zod";
 
 import { absoluteUrl } from "~/lib/utils";
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
-import * as assessmentsRepo from "~/server/repositories/Assessments";
-import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
+import * as assessmentsService from "~/server/services/Assessments";
+import * as assessmentSessionsService from "~/server/services/AssessmentSessions";
+import * as candidatesService from "~/server/services/Candidates";
 import type { ActionResponse } from "~/types";
 
 export type StartAssessmentSessionAction = (
@@ -33,17 +34,20 @@ export async function startAssessmentSessionAction(
 
   const { user } = session;
 
-  const { candidate } = user;
-
-  const assessment = await assessmentsRepo.findOneById(assessmentId);
+  const assessment = await assessmentsService.findOneById(assessmentId);
 
   if (!assessment) {
     notFound();
   }
 
+  const candidate = await candidatesService.findCandidateByUserId(
+    user.id,
+    assessment.organizationId,
+  );
+
   if (!candidate || candidate.status === CandidateStatus.PENDING) {
     redirect(
-      `/onboarding/candidate/?step=github-connect&callbackUrl=${absoluteUrl() + "a/" + assessmentId}`,
+      `/onboarding/candidate/?orgId=${assessment.organizationId}&step=github-connect&callbackUrl=${absoluteUrl() + "a/" + assessmentId}`,
     );
   }
 
@@ -61,22 +65,19 @@ export async function startAssessmentSessionAction(
       throw new Error("Invalid assessment");
     }
 
-    const session = await assessmentSessionsRepo.findActiveSession(
+    const session = await assessmentSessionsService.findActiveSession(
       candidate?.id,
       assessmentId,
     );
 
     if (session) {
-      return {
-        success: false,
-        error: createError(
-          "candidate already started a session",
-          ERROR_CODES.BAD_REQUEST,
-        ),
-      };
+      return ErrorResponse(
+        "candidate already started a session",
+        ERROR_CODES.BAD_REQUEST,
+      );
     }
 
-    const response = await assessmentSessionsRepo.create({
+    const response = await assessmentSessionsService.create({
       assessment: { connect: { id: assessmentId } },
       expiresAt: add(new Date(), {
         days: Number(assessment.evaluationPeriodDays) || 1,
@@ -86,7 +87,7 @@ export async function startAssessmentSessionAction(
       },
     });
 
-    await assessmentsRepo.updateCandidateAssessmentStatus(
+    await assessmentsService.updateCandidateAssessmentStatus(
       assessmentId,
       candidate.id,
       CandidateOnAssessmentStatus.STARTED,
@@ -95,16 +96,13 @@ export async function startAssessmentSessionAction(
     return { success: true, data: response };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 }

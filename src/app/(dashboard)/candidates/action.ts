@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
-import { update as updateCandidate } from "~/server/repositories/Candidates";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
+import { update as updateCandidate } from "~/server/services/Candidates";
 import type { ActionResponse } from "~/types";
 
 export type UpdateCandidateAction = (
@@ -36,16 +36,13 @@ export const updateCandidateAction: UpdateCandidateAction = async (
     return { success: true, data: candidate };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

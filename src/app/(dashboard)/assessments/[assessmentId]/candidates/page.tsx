@@ -5,8 +5,8 @@ import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
-import { findOneById } from "~/server/repositories/Assessments";
-import { findCandidatesByAssessment } from "~/server/repositories/Candidates";
+import { findOneById } from "~/server/services/Assessments";
+import { findCandidatesByAssessment } from "~/server/services/Candidates";
 import { CandidateOnAssessmentItem } from "./CandidateOnAssessmentItem";
 
 const getCandidates = async (assessmentId: string) => {

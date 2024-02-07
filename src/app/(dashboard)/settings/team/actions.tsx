@@ -11,16 +11,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { updateSubscriptionSeats } from "~/ee/lib/core";
 import { TeamMateInvitationEmail } from "~/emails/TeamMateInvitationEmail";
-import { env } from "~/env.mjs";
 import { generateAuthLink, getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse, ServiceError } from "~/server/error";
 import { transporter } from "~/server/mailer";
-import * as MembershipRepo from "~/server/repositories/Membership";
-import * as OrgRepo from "~/server/repositories/Organizations";
-import * as UserRepo from "~/server/repositories/User";
+import * as MembershipService from "~/server/services/Membership";
+import * as OrgService from "~/server/services/Organizations";
+import * as UserService from "~/server/services/User";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -43,7 +41,7 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
+    const org = await OrgService.findOneById(user.activeOrgId);
 
     if (!org) {
       throw Error("organization not found");
@@ -60,7 +58,7 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
       },
     });
 
-    if (member.type === UserType.CANDIDATE) {
+    if (member.type === UserType.APPLICANT) {
       throw Error("User unavailable");
     }
 
@@ -96,27 +94,24 @@ export const inviteTeamMemberAction: InviteTeamMemberAction = async (data) => {
       });
     }
 
-    if (env.IS_EE) {
-      await updateSubscriptionSeats(org);
-    }
-
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
     revalidatePath("/settings/team");
     return { success: true, data: member };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError(error?.message) };
+    if (error instanceof ServiceError) {
+      return ErrorResponse(error.message);
+    }
+
+    return ErrorResponse();
   }
 };
 
@@ -134,13 +129,13 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
+    const org = await OrgService.findOneById(user.activeOrgId);
 
     if (!org) {
       throw Error("organization not found");
     }
 
-    const memership = await MembershipRepo.findOneById(id);
+    const memership = await MembershipService.findOneById(id);
 
     if (!memership) {
       throw Error("membership not found");
@@ -154,17 +149,13 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
       throw Error("You can't remove yourself from the org");
     }
 
-    await MembershipRepo.remove(id);
+    await MembershipService.remove(id);
 
     // TODO: active orgs should be part of user sessions
-    await UserRepo.update(
+    await UserService.update(
       { id: memership.userId },
       { activeOrg: { disconnect: true } },
     );
-
-    if (env.IS_EE) {
-      await updateSubscriptionSeats(org);
-    }
 
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
@@ -172,17 +163,14 @@ export const removeMembershipAction: RemoveMembershipAction = async (id) => {
     return { success: true, data: { message: "removed" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError(error?.message) };
+    return ErrorResponse();
   }
 };
 
@@ -204,13 +192,13 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
   const { user } = session;
 
   try {
-    const org = await OrgRepo.findOneById(user.activeOrgId);
+    const org = await OrgService.findOneById(user.activeOrgId);
 
     if (!org) {
       throw Error("organization not found");
     }
 
-    const memership = await MembershipRepo.findOneById(id);
+    const memership = await MembershipService.findOneById(id);
 
     if (!memership) {
       throw Error("membership not found");
@@ -224,23 +212,20 @@ export const updateMembershipRoleAction: UpdateMembershipRoleAction = async (
       throw Error("You can't remove yourself from the org");
     }
 
-    const res = await MembershipRepo.update({ id }, { role });
+    const res = await MembershipService.update({ id }, { role });
 
     // this refresh the data from the form
     revalidatePath("/settings/team");
     return { success: true, data: res };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError(error?.message) };
+    return ErrorResponse();
   }
 };

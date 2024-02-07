@@ -1,8 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findOneById } from "~/server/repositories/Assessments";
-import { findAllMembershipsByOrgId } from "~/server/repositories/Membership";
+import { findOneById } from "~/server/services/Assessments";
+import { findAllMembershipsByOrgId } from "~/server/services/Membership";
 import { AssessmentSettingsPage } from "./AssessmentSettingsPage";
 
 type AssessmentDetailPageProps = {

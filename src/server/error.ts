@@ -16,6 +16,8 @@ export const ERROR_CODES = {
 
 export type API_ERROR_CODE_KEY = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 
+export type ERROR_CODES_KEY = keyof typeof ERROR_CODES;
+
 /**
  * Custom error class
  */
@@ -32,12 +34,35 @@ type CreateError = (
   message?: string,
   errorCode?: API_ERROR_CODE_KEY,
   extra?: unknown,
-) => { message; errorCode; extra: unknown };
+) => {
+  success: boolean;
+  error: { message: string; extra?: unknown; errorCode?: API_ERROR_CODE_KEY };
+};
 
-export const createError: CreateError = (
+export const ErrorResponse: CreateError = (
   message = "Something went wrong",
   errorCode = ERROR_CODES.BAD_REQUEST,
   extra?,
 ) => {
-  return { message, errorCode, extra };
+  return { success: false, error: { message, errorCode, extra } };
 };
+
+export class ServiceError extends Error {
+  errorCode: API_ERROR_CODE_KEY;
+  extra: unknown;
+
+  constructor(
+    message = "Something went wrong",
+    errorCode = ERROR_CODES.BAD_REQUEST,
+    extra?,
+  ) {
+    super(message);
+    this.name = "ServiceError";
+    this.errorCode = errorCode;
+    this.extra = extra;
+  }
+
+  getErrorMessage() {
+    return this.message;
+  }
+}

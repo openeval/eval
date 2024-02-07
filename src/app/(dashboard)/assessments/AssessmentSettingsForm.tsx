@@ -33,8 +33,8 @@ import {
 import { Switch } from "~/components/ui/Switch";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
-import type { AssessmentItemData } from "~/server/repositories/Assessments";
-import type { MembershipsByOrg } from "~/server/repositories/Membership";
+import type { AssessmentItemData } from "~/server/services/Assessments";
+import type { MembershipsByOrg } from "~/server/services/Membership";
 import type { UpdateAssessmentAction } from "./actions";
 
 interface AssessmentSettingsFormProps
@@ -154,7 +154,7 @@ export function AssessmentSettingsForm({
                     </Select>
 
                     <FormDescription>
-                      The interval to submit solutions.
+                      Candidate&amp;s assessments sessions interval.
                     </FormDescription>
                   </FormItem>
                 )}

@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { stripe } from "~/ee/lib/stripe";
 import { organizationMetadataSchema } from "~/ee/types/Organization";
 import { getCurrentUser } from "~/server/auth";
-import { findOneById as findOrg } from "~/server/repositories/Organizations";
+import { findOneById as findOrg } from "~/server/services/Organizations";
 import { BillingSettingsPage } from "./BillingSettingsPage";
 
 export const metadata = {

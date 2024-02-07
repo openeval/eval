@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import type { Stripe } from "stripe";
 
 import { stripe } from "~/ee/lib/stripe";
-import * as OrgRepo from "~/server/repositories/Organizations";
+import { organizationMetadataSchema } from "~/ee/types/Organization";
+import * as orgService from "~/server/services/Organizations";
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
@@ -31,15 +32,18 @@ export async function POST(req: Request) {
   ];
 
   if (permittedEvents.includes(event.type)) {
-    let data;
+    let data, org;
 
     try {
       switch (event.type) {
         // https://stripe.com/docs/payments/checkout/fulfill-orders
         case "checkout.session.completed":
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
+          if (typeof checkoutSession.subscription !== "string") {
+            throw new Error("Missing or invalid subscription id");
+          }
 
-          const org = await OrgRepo.findOneById(
+          org = await orgService.findOneById(
             checkoutSession.client_reference_id,
           );
 
@@ -50,12 +54,13 @@ export async function POST(req: Request) {
           }
 
           if (checkoutSession.mode === "subscription") {
-            await OrgRepo.update(
+            const metadata = organizationMetadataSchema.parse(org.metadata);
+            await orgService.update(
               { id: org.id },
               {
                 metadata: {
-                  subscriptionId: checkoutSession.subscription,
-                  stripeCustomerId: checkoutSession.customer,
+                  ...metadata,
+                  subscriptionId: checkoutSession.subscription as string,
                 },
               },
             );
@@ -77,13 +82,23 @@ export async function POST(req: Request) {
           break;
         case "customer.subscription.deleted":
           const subscription = event.data.object as Stripe.Subscription;
-          // TODO: 500 error
-          await OrgRepo.update(
-            { metadata: { path: ["subscriptionId"], equals: subscription.id } },
+
+          const customer = await stripe.customers.retrieve(
+            subscription.customer as string,
+          );
+
+          // @ts-expect-error stripe issues
+          org = await orgService.findOneByEmail(customer.email);
+          if (!org) {
+            throw new Error(`organization not found`);
+          }
+
+          const metadata = organizationMetadataSchema.parse(org.metadata);
+
+          await orgService.update(
+            { id: org.id },
             {
-              metadata: {
-                subscriptionId: null,
-              },
+              metadata: { ...metadata, subscriptionId: null },
             },
           );
 
@@ -93,7 +108,6 @@ export async function POST(req: Request) {
           throw new Error(`Unhandled event: ${event.type}`);
       }
     } catch (error) {
-      console.log(error);
       return NextResponse.json(
         { message: "Webhook handler failed" },
         { status: 500 },

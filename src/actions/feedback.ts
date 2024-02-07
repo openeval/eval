@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 
 export const sendFeedbackAction = async (data: { message: string }) => {
   const session = await getServerSession();
@@ -29,16 +29,13 @@ export const sendFeedbackAction = async (data: { message: string }) => {
     return { success: true, data: feedback };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

@@ -6,7 +6,7 @@ import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
-import { findAllForForCandidateList } from "~/server/repositories/Assessments";
+import { findAllForForCandidateList } from "~/server/services/Assessments";
 import { AssessmentItem } from "./AssessmentItem";
 
 export const metadata = {
@@ -25,13 +25,7 @@ export default async function AssessmentsPage() {
     redirect("/login");
   }
 
-  const { candidate } = user;
-
-  if (!candidate) {
-    redirect("/");
-  }
-
-  const rows = await getAssessments(candidate.id);
+  const rows = await getAssessments(user.id);
 
   return (
     <>

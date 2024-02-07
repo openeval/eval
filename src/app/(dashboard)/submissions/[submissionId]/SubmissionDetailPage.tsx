@@ -36,8 +36,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/Tabs";
 import { Typography } from "~/components/ui/Typography";
 import { toast } from "~/hooks/use-toast";
 import { timeAgo } from "~/lib/utils";
-import type { EvaluationCriteriaWithChildren } from "~/server/repositories/EvaluationCriteria";
-import type { SubmissionFullData } from "~/server/repositories/Submissions";
+import type { EvaluationCriteriaWithChildren } from "~/server/services/EvaluationCriteria";
+import type { SubmissionFullData } from "~/server/services/Submissions";
 import {
   deleteReviewAction,
   rejectSubmissionAction,

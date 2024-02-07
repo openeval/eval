@@ -14,11 +14,12 @@ import { NotificationEmail } from "~/emails/NotificationEmail";
 import { absoluteUrl } from "~/lib/utils";
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
 import { transporter } from "~/server/mailer";
-import * as assessmentsRepo from "~/server/repositories/Assessments";
-import * as assessmentSessionsRepo from "~/server/repositories/AssessmentSessions";
-import * as submissionsRepo from "~/server/repositories/Submissions";
+import * as assessmentsService from "~/server/services/Assessments";
+import * as assessmentSessionsService from "~/server/services/AssessmentSessions";
+import * as candidatesService from "~/server/services/Candidates";
+import * as submissionsService from "~/server/services/Submissions";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -41,10 +42,8 @@ export async function finishAssessmentSessionAction(
 
   const { user } = session;
 
-  const assessmentSession = await assessmentSessionsRepo.findOneByCandidate(
-    sessionId,
-    user.candidate?.id,
-  );
+  const assessmentSession =
+    await assessmentSessionsService.findOneById(sessionId);
 
   if (!assessmentSession) {
     notFound();
@@ -55,7 +54,10 @@ export async function finishAssessmentSessionAction(
       throw new Error("Invalid session");
     }
 
-    const candidate = user.candidate;
+    const candidate = await candidatesService.findCandidateByUserId(
+      user.id,
+      assessmentSession.assessment.organizationId,
+    );
 
     if (!candidate) {
       throw new Error("candidate do not exist");
@@ -87,7 +89,7 @@ export async function finishAssessmentSessionAction(
       },
     });
 
-    await assessmentsRepo.updateCandidateAssessmentStatus(
+    await assessmentsService.updateCandidateAssessmentStatus(
       assessmentSession.assessment.id,
       candidate.id,
       CandidateOnAssessmentStatus.FINISHED,
@@ -96,7 +98,7 @@ export async function finishAssessmentSessionAction(
     // send email notification to reviewers
     const { assessment } = assessmentSession;
 
-    const submission = await submissionsRepo.findByCandidateOnAssessment(
+    const submission = await submissionsService.findByCandidateOnAssessment(
       candidate.id,
       assessmentSession.assessment.id,
     );
@@ -105,32 +107,33 @@ export async function finishAssessmentSessionAction(
       throw new Error("submission do not exist");
     }
 
-    const html = render(
-      <NotificationEmail
-        url={absoluteUrl(`/submissions/${submission.id}`).toString()}
-        title="New candidate submission"
-      />,
-    );
+    // TODO: we should allow owners to get notifications too
+    if (assessment.reviewers.length > 0) {
+      const html = render(
+        <NotificationEmail
+          url={absoluteUrl(`/submissions/${submission.id}`).toString()}
+          title="New candidate submission"
+        />,
+      );
 
-    await transporter.sendMail({
-      to: assessment.reviewers.map((r) => r.email), // list of receivers
-      subject: `You have a new candidate submission`, // Subject line
-      html: html, // html body
-    });
+      await transporter.sendMail({
+        to: assessment.reviewers.map((r) => r.email), // list of receivers
+        subject: `You have a new candidate submission`, // Subject line
+        html: html, // html body
+      });
+    }
 
     return { success: true, data: response };
   } catch (error) {
+    console.log(error);
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 }

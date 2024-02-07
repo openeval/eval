@@ -7,7 +7,7 @@ import { Badge } from "~/components/ui/Badge";
 import { DataTableColumnHeader } from "~/components/ui/data-table-column-header";
 import { ProgressCircle } from "~/components/ui/ProgressCircle";
 import { formatDate } from "~/lib/utils";
-import type { SubmissionsListData } from "~/server/repositories/Submissions";
+import type { SubmissionsListData } from "~/server/services/Submissions";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export type Item = SubmissionsListData[0];

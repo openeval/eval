@@ -1,8 +1,9 @@
 import { type Page } from "@playwright/test";
 import type { Organization, Prisma, User } from "@prisma/client";
 
+import * as ee from "~/ee/lib/core";
 import { prisma } from "~/server/db";
-import * as OrgRepo from "~/server/repositories/Organizations";
+import * as orgService from "~/server/services/Organizations";
 
 const getRandomSlug = () => `org-${Math.random().toString(36).substring(7)}`;
 
@@ -26,6 +27,9 @@ export const createOrgsFixture = (page: Page) => {
         },
         opts.owner,
       );
+
+      createCustumer(org);
+
       store.orgs.push(org);
       return org;
     },
@@ -44,5 +48,9 @@ export const createOrgsFixture = (page: Page) => {
 };
 
 async function createOrgInDb(data, owner) {
-  return await OrgRepo.create(data, owner);
+  return await orgService.create(data, owner);
+}
+
+async function createCustumer(org) {
+  return await ee.createCustomer(org);
 }

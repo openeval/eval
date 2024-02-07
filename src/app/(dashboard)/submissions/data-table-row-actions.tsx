@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/DropdownMenu";
-import type { SubmissionsListData } from "~/server/repositories/Submissions";
+import type { SubmissionsListData } from "~/server/services/Submissions";
 
 type Item = SubmissionsListData[0];
 

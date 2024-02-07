@@ -1,7 +1,9 @@
+import type { Organization } from "@prisma/client";
 import Stripe from "stripe";
 
 import { env } from "~/ee/env.mjs";
 import { absoluteUrl } from "~/lib/utils";
+import { organizationMetadataSchema } from "../types/Organization";
 
 export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? "", {
   // https://github.com/stripe/stripe-node#configuration
@@ -14,29 +16,35 @@ export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? "", {
   // },
 });
 
-export const createSubscriptionSessionLink = async (orgId, email) => {
+type SubscriptionOpts = {
+  org: Organization;
+  interval: string;
+};
+export const createSubscriptionSessionLink = async ({
+  org,
+  interval,
+}: SubscriptionOpts) => {
+  const orgMetadata = organizationMetadataSchema.parse(org.metadata);
+
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
     success_url: `${absoluteUrl()}/assessments`, //set it with props
     cancel_url: `${absoluteUrl()}/`,
-    customer_email: email,
-    client_reference_id: orgId,
+    customer: orgMetadata?.stripeCustomerId as string,
+    client_reference_id: org.id,
     line_items: [
       {
-        price: env.STRIPE_BASIC_MONTHLY_PRICE_ID,
-        adjustable_quantity: {
-          enabled: true,
-          minimum: 1,
-          maximum: 99,
-        },
-        quantity: 1,
+        price:
+          interval === "year"
+            ? process.env.STRIPE_PRICE_STANDARD_CANDIDATES_METERED_YEARLY_ID
+            : process.env.STRIPE_PRICE_STANDARD_CANDIDATES_METERED_MONTHLY_ID,
       },
     ],
     subscription_data: {
       trial_settings: {
         end_behavior: {
-          missing_payment_method: "pause",
+          missing_payment_method: "cancel",
         },
       },
       trial_period_days: 14,

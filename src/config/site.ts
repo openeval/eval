@@ -1,5 +1,6 @@
 export const siteConfig = {
   name: "Eval",
+  contactUsEmail: "hi@useeval.com",
   github: {
     searchQueryString: "is:public is:open",
   },

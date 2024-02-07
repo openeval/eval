@@ -12,8 +12,8 @@ import {
 import { UpdateAssessmentDto } from "~/dto/UpdateAssessmentDto";
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
-import * as assessmentRepo from "~/server/repositories/Assessments";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
+import * as assessmentService from "~/server/services/Assessments";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -52,17 +52,14 @@ export const createAssessmentAction: CreateAssessmentAction = async (data) => {
     return { success: true, data: assessment };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };
 
@@ -86,7 +83,7 @@ export const updateAssessmentAction: UpdateAssessmentAction = async (
       ...data,
     });
 
-    const assessment = await assessmentRepo.update(where, data);
+    const assessment = await assessmentService.update(where, data);
 
     //revalidate uses string paths rather than string literals like "`/assessments/${id}`"
     // this refresh the data from the form
@@ -94,16 +91,13 @@ export const updateAssessmentAction: UpdateAssessmentAction = async (
     return { success: true, data: assessment };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

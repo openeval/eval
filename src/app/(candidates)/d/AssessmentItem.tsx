@@ -5,7 +5,7 @@ import { Badge } from "~/components/ui/Badge";
 import { Skeleton } from "~/components/ui/Skeleton";
 import { Typography } from "~/components/ui/Typography";
 import { formatDate, formatDateWithTime } from "~/lib/utils";
-import type { CandidateAssessmentsFullData } from "~/server/repositories/Assessments";
+import type { CandidateAssessmentsFullData } from "~/server/services/Assessments";
 
 interface AssessmentItemProps {
   data: CandidateAssessmentsFullData[0];

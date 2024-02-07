@@ -27,7 +27,6 @@ interface NotificationEmailProps {
 }
 
 export const NotificationEmail = ({
-  username = "Eval",
   title,
   description = `Click on the link below to review it on ${siteConfig.name}`,
   url,

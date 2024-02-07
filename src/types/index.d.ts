@@ -20,5 +20,5 @@ export type SidebarNavItem = {
 export type ActionResponse<T> = {
   success: boolean;
   data?: T;
-  error?: { message: string; extra?: unknow };
+  error?: { message: string; errorCode?: API_ERROR_CODE_KEY; extra?: unknow };
 };

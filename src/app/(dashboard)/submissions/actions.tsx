@@ -11,10 +11,10 @@ import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
 import { prisma } from "~/server/db";
-import { createError, ERROR_CODES } from "~/server/error";
-import { getTotalScore } from "~/server/repositories/EvaluationCriteria";
-import * as reviewsRepo from "~/server/repositories/Reviews";
-import * as submissionsRepo from "~/server/repositories/Submissions";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
+import { getTotalScore } from "~/server/services/EvaluationCriteria";
+import * as reviewsService from "~/server/services/Reviews";
+import * as submissionsService from "~/server/services/Submissions";
 import type { ActionResponse } from "~/types";
 
 // action should be imported in server components and use prop drilling
@@ -40,7 +40,7 @@ export const submitReviewAction: SubmitReviewAction = async (
 
   const { user } = session;
 
-  const submission = await submissionsRepo.findByIdFull(submissionId);
+  const submission = await submissionsService.findByIdFull(submissionId);
 
   if (!submission || submission.organizationId !== user.activeOrgId) {
     notFound();
@@ -53,59 +53,72 @@ export const submitReviewAction: SubmitReviewAction = async (
 
     const score = await getTotalScore(data.evaluationCriterias);
 
-    const { evaluationCriterias, ...payload } = data;
+    const { evaluationCriterias, id: reviewId, ...payload } = data;
+    let review;
 
-    const review = await prisma.review.upsert({
-      where: { submissionId: submissionId, id: data.id },
-      create: {
-        ...payload,
-        evaluationCriterias: {
-          connect:
-            evaluationCriterias && evaluationCriterias.map((c) => ({ id: c })),
-        },
-        submission: { connect: { id: submissionId } },
-        createdBy: {
-          connect: {
-            id: user.id,
+    if (reviewId) {
+      review = await prisma.review.update({
+        where: { submissionId: submissionId, id: reviewId },
+        data: {
+          ...payload,
+          evaluationCriterias: {
+            connect:
+              evaluationCriterias &&
+              evaluationCriterias.map((c) => ({ id: c })),
           },
+          score,
         },
-        score,
-      },
-      update: {
-        ...payload,
-        evaluationCriterias: {
-          connect:
-            evaluationCriterias && evaluationCriterias.map((c) => ({ id: c })),
+      });
+    } else {
+      review = await prisma.review.create({
+        data: {
+          ...payload,
+          evaluationCriterias: {
+            connect:
+              evaluationCriterias &&
+              evaluationCriterias.map((c) => ({ id: c })),
+          },
+          submission: { connect: { id: submissionId } },
+          createdBy: {
+            connect: {
+              id: user.id,
+            },
+          },
+          score,
         },
-        score,
-      },
-    });
+      });
+    }
 
-    const submissionUpdated = await submissionsRepo.findByIdFull(submissionId);
+    const submissionUpdated =
+      await submissionsService.findByIdFull(submissionId);
 
     if (submissionUpdated) {
+      const reviewCount =
+        submissionUpdated.reviews.length > 0
+          ? submissionUpdated.reviews.length
+          : 1;
+
+      const totalScore = Math.ceil(
+        submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
+          reviewCount,
+      );
+
       //update the submission status and score
-      await submissionsRepo.update(submissionId, {
+      await submissionsService.update(submissionId, {
         status: SubmissionStatus.REVIEWED,
         // avg score
-        score: Math.ceil(
-          submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length || 0,
-        ),
+        score: totalScore,
       });
     }
 
     return { success: true, data: review };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };
@@ -123,13 +136,13 @@ export const deleteReviewAction = async (reviewId) => {
 
   const { user } = session;
 
-  const review = await reviewsRepo.findOneById(reviewId);
+  const review = await reviewsService.findOneById(reviewId);
 
   if (!review) {
     notFound();
   }
 
-  const submission = await submissionsRepo.findOneById(review?.submissionId);
+  const submission = await submissionsService.findOneById(review?.submissionId);
 
   if (!submission) {
     notFound();
@@ -145,34 +158,40 @@ export const deleteReviewAction = async (reviewId) => {
       throw Error("forbidden");
     }
 
-    await reviewsRepo.remove(reviewId);
+    await reviewsService.remove(reviewId);
 
-    const submissionUpdated = await submissionsRepo.findByIdFull(submission.id);
+    const submissionUpdated = await submissionsService.findByIdFull(
+      submission.id,
+    );
 
     if (submissionUpdated) {
+      const reviewCount =
+        submissionUpdated.reviews.length > 0
+          ? submissionUpdated.reviews.length
+          : 1;
+
+      const totalScore = Math.ceil(
+        submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
+          reviewCount,
+      );
+
       //update the submission status and score
-      await submissionsRepo.update(submission.id, {
+      await submissionsService.update(submission.id, {
         ...(submissionUpdated.reviews.length === 0 && {
           status: SubmissionStatus.TO_REVIEW,
         }),
-        score: Math.ceil(
-          submissionUpdated.reviews.reduce((a, b) => a + b.score, 0) /
-            submission.reviews.length || 0,
-        ),
+        score: totalScore,
       });
     }
 
     return { success: true, data: review };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };
@@ -190,7 +209,7 @@ export const rejectSubmissionAction = async (submissionId) => {
 
   const { user } = session;
 
-  const submission = await submissionsRepo.findByIdFull(submissionId);
+  const submission = await submissionsService.findByIdFull(submissionId);
 
   if (!submission || submission.organizationId !== user.activeOrgId) {
     notFound();
@@ -202,7 +221,7 @@ export const rejectSubmissionAction = async (submissionId) => {
     }
 
     //update the submission status and score
-    await submissionsRepo.update(submissionId, {
+    await submissionsService.update(submissionId, {
       status: SubmissionStatus.REJECTED,
       score: 0,
     });
@@ -210,14 +229,11 @@ export const rejectSubmissionAction = async (submissionId) => {
     return { success: true, data: { message: "ok" } };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
     return { success: false, error: { message: "something went wrong" } };

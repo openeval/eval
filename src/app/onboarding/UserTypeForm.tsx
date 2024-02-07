@@ -42,13 +42,14 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(userTypeSchema),
     defaultValues: {
-      type: UserType.CANDIDATE,
+      type: UserType.APPLICANT,
     },
   });
 
   const [isLoading, startActionTransition] = React.useTransition();
 
   async function onSubmit(data: FormData) {
+    const path = data.type === UserType.APPLICANT ? "candidate" : "recruiter";
     startActionTransition(async () => {
       const res = await action(data);
       if (res.success) {
@@ -56,7 +57,8 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
           title: "Success.",
           description: "account updated",
         });
-        redirect(`/onboarding/${data.type.toLowerCase()}`);
+        // TODO: create a new onboarding path
+        redirect(`/onboarding/${path}`);
       } else {
         toast({
           title: "Something went wrong.",
@@ -94,7 +96,7 @@ export function UserTypeForm({ action }: UserTypeFormProps) {
                           data-testid="candidate"
                         >
                           <RadioGroupItem
-                            value={UserType.CANDIDATE}
+                            value={UserType.APPLICANT}
                             id="candidate"
                             className="sr-only"
                           />

@@ -5,6 +5,8 @@ import Markdown from "~/components/Markdown";
 import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser } from "~/server/auth";
 import { prisma } from "~/server/db";
+import * as assessmentSessionsService from "~/server/services/AssessmentSessions";
+import * as candidatesService from "~/server/services/Candidates";
 import { startAssessmentSessionAction } from "./actions";
 import { StartAssessmentButton } from "./StartAssessmentButton";
 
@@ -12,18 +14,11 @@ interface PageProps {
   params: { assessmentId: string };
 }
 
-const getAssessmentById = cache(async (id: string, candidateId) => {
+const getAssessmentById = cache(async (id: string) => {
   return await prisma.assessment.findFirst({
     where: {
       id: id,
       published: true,
-    },
-    include: {
-      applicantSessions: {
-        where: {
-          candidateId,
-        },
-      },
     },
   });
 });
@@ -35,16 +30,25 @@ export default async function Page({ params }: PageProps) {
     redirect("/login");
   }
 
-  const { candidate } = user;
-
-  const assessment = await getAssessmentById(
-    params.assessmentId,
-    candidate?.id,
-  );
+  const assessment = await getAssessmentById(params.assessmentId);
 
   if (!assessment) {
     notFound();
   }
+
+  const candidate = await candidatesService.findCandidateByUserId(
+    user.id,
+    assessment.organizationId,
+  );
+
+  if (!candidate) {
+    notFound();
+  }
+
+  const applicantSession = await assessmentSessionsService.findActiveSession(
+    candidate.id,
+    assessment.id,
+  );
 
   return (
     <div>
@@ -62,7 +66,7 @@ export default async function Page({ params }: PageProps) {
           <div className="container flex justify-end">
             <StartAssessmentButton
               assessmentId={params.assessmentId}
-              applicantSession={assessment?.applicantSessions[0]}
+              applicantSession={applicantSession}
               user={user}
               action={startAssessmentSessionAction}
             />

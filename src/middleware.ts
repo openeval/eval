@@ -21,6 +21,8 @@ export default auth((req: AuthRequest) => {
   }
 });
 
+// public folder isn't excluded
+// https://github.com/vercel/next.js/discussions/36308
 export const config = {
   matcher: [
     /*

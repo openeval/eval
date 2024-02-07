@@ -7,8 +7,8 @@ import { UserUpdateInputSchema } from "prisma/zod";
 import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
-import * as userRepo from "~/server/repositories/User";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
+import * as userService from "~/server/services/User";
 import type { ActionResponse } from "~/types";
 
 export type UpdateProfileAction = (
@@ -27,7 +27,7 @@ export const updateProfileAction: UpdateProfileAction = async (id, data) => {
 
   const { user } = session;
 
-  let uUser = await userRepo.findOneById(id);
+  let uUser = await userService.findOneById(id);
 
   if (!uUser || uUser?.id !== user.id) {
     notFound();
@@ -35,7 +35,7 @@ export const updateProfileAction: UpdateProfileAction = async (id, data) => {
 
   try {
     UserUpdateInputSchema.parse(data);
-    uUser = await userRepo.update(
+    uUser = await userService.update(
       { id },
       {
         ...data,
@@ -45,16 +45,13 @@ export const updateProfileAction: UpdateProfileAction = async (id, data) => {
     return { success: true, data: uUser };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

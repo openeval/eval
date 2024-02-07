@@ -14,6 +14,7 @@ import { prisma } from "~/server/db";
 export const authOptions: NextAuthConfig = {
   secret: env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   session: {
     strategy: "jwt",
   },

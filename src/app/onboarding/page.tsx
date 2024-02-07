@@ -2,7 +2,7 @@ import { CandidateStatus, UserType } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findCandidateByUserId } from "~/server/repositories/Candidates";
+import { findCandidateByUserId } from "~/server/services/Candidates";
 import { updateUserTypeAction } from "./actions";
 import { UserTypeForm } from "./UserTypeForm";
 
@@ -25,8 +25,12 @@ export default async function Onboarding({
     redirect("/");
   }
 
-  if (user.type === UserType.CANDIDATE) {
-    const candidate = await findCandidateByUserId(user.id);
+  // TODO: refactor onboarding
+  // with a new flow for invitation
+  if (user.type === UserType.APPLICANT) {
+    const orgId = searchParams.orgId;
+
+    const candidate = await findCandidateByUserId(user.id, orgId);
 
     if (!candidate) {
       redirect(

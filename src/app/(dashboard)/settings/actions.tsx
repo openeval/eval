@@ -8,8 +8,8 @@ import slugify from "slugify";
 import { z } from "zod";
 
 import { getServerSession } from "~/server/auth";
-import { createError, ERROR_CODES } from "~/server/error";
-import * as orgRepo from "~/server/repositories/Organizations";
+import { ERROR_CODES, ErrorResponse } from "~/server/error";
+import * as orgService from "~/server/services/Organizations";
 import type { ActionResponse } from "~/types";
 
 export type UpdateOrgAction = (
@@ -28,7 +28,7 @@ export const updateOrgAction: UpdateOrgAction = async (id, data) => {
 
   const { user } = session;
 
-  let org = await orgRepo.findOneById(id);
+  let org = await orgService.findOneById(id);
 
   if (!org || org?.id !== user.activeOrgId) {
     notFound();
@@ -36,7 +36,7 @@ export const updateOrgAction: UpdateOrgAction = async (id, data) => {
 
   try {
     OrganizationUpdateInputSchema.parse(data);
-    org = await orgRepo.update(
+    org = await orgService.update(
       { id },
       {
         ...data,
@@ -47,16 +47,13 @@ export const updateOrgAction: UpdateOrgAction = async (id, data) => {
     return { success: true, data: org };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return {
-        success: false,
-        error: createError(
-          "Incorrect format",
-          ERROR_CODES.BAD_REQUEST,
-          error.issues,
-        ),
-      };
+      return ErrorResponse(
+        "Incorrect format",
+        ERROR_CODES.BAD_REQUEST,
+        error.issues,
+      );
     }
 
-    return { success: false, error: createError() };
+    return ErrorResponse();
   }
 };

@@ -1,8 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "~/server/auth";
-import { findAllWithChildren } from "~/server/repositories/EvaluationCriteria";
-import * as submissionRepo from "~/server/repositories/Submissions";
+import { findAllWithChildren } from "~/server/services/EvaluationCriteria";
+import * as submissionService from "~/server/services/Submissions";
 import { submitReviewAction } from "../actions";
 import { SubmissionDetailPage } from "./SubmissionDetailPage";
 
@@ -20,7 +20,7 @@ export default async function Page({ params }: SubmissionDetailPageProps) {
     redirect("/login");
   }
 
-  const submission = await submissionRepo.findByIdFull(params.submissionId, {
+  const submission = await submissionService.findByIdFull(params.submissionId, {
     plotReviewsData: true,
   });
 

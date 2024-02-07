@@ -10,8 +10,8 @@ import {
   CardTitle,
 } from "~/components/ui/Card";
 import { getCurrentUser } from "~/server/auth";
-import * as MembershipRepo from "~/server/repositories/Membership";
-import { update as updateUser } from "~/server/repositories/User";
+import * as MembershipService from "~/server/services/Membership";
+import { update as updateUser } from "~/server/services/User";
 
 export const metadata = {
   title: "Onboarding",
@@ -26,14 +26,14 @@ export default async function CandidateInvited({ searchParams }) {
 
   const { membershipId } = searchParams;
 
-  const membership = await MembershipRepo.findOneById(membershipId);
+  const membership = await MembershipService.findOneById(membershipId);
 
   if (!membership) {
     notFound();
   }
 
   if (membership.userId === user.id && !membership.accepted) {
-    await MembershipRepo.update({ id: membershipId }, { accepted: true });
+    await MembershipService.update({ id: membershipId }, { accepted: true });
     //set active org
     await updateUser(
       { id: user.id },

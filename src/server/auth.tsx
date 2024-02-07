@@ -1,6 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {
-  CandidateStatus,
   UserType,
   type User as BaseUser,
   type Candidate,
@@ -14,21 +13,22 @@ import NextAuth, {
   type User,
 } from "next-auth";
 
+import { linkGithubAccount } from "~/server/services/Candidates";
 import { PostHogClient } from "~/server/telemetry";
 
 import "next-auth";
 
 import CredentialsProvider from "next-auth/providers/credentials";
-import EmailProvider from "next-auth/providers/email";
 import GitHubProvider from "next-auth/providers/github";
+import NodemailerProvider, {
+  type NodemailerConfig,
+} from "next-auth/providers/nodemailer";
 import nodemailer from "nodemailer";
 
 import { LoginEmail } from "~/emails/LoginEmail";
 import { env } from "~/env.mjs";
 import { absoluteUrl, createHash, randomString } from "~/lib/utils";
 import { prisma } from "~/server/db";
-import { update as updateCandidate } from "~/server/repositories/Candidates";
-import { update as updateUser } from "~/server/repositories/User";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -39,26 +39,22 @@ import { update as updateUser } from "~/server/repositories/User";
 declare module "next-auth" {
   interface User extends BaseUser {
     membership: Membership;
-    candidate?: Candidate;
+    applications: Candidate[];
     activeOrg: Organization;
   }
 
   interface Session extends DefaultSession {
     user: User & DefaultSession["user"];
   }
-
-  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
-  interface JWT {
-    id: string;
-    name: string | null;
-    email: string | null;
-    activeOrgId: string | null;
-    type: UserType;
-    completedOnboarding: boolean;
-    candidate?: Candidate;
-  }
 }
 
+/** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+declare module "@auth/core/jwt" {
+  // TODO:FIX TYPING
+  // interface JWT extends DefaultJWT {
+  //   user: User;
+  // }
+}
 // We use this provider only in CI
 const credentialsProvider = CredentialsProvider({
   name: "Credentials",
@@ -73,7 +69,7 @@ const credentialsProvider = CredentialsProvider({
         email: credentials?.email as string,
       },
       include: {
-        candidate: true,
+        applications: true,
         memberships: true,
         activeOrg: true,
       },
@@ -87,6 +83,27 @@ const credentialsProvider = CredentialsProvider({
     return null;
   },
 });
+
+const sendVerificationRequest: NodemailerConfig["sendVerificationRequest"] =
+  async (params) => {
+    const {
+      identifier: email,
+      url,
+      provider: { server, from },
+    } = params;
+
+    const { host } = new URL(url);
+    const transport = nodemailer.createTransport(server);
+    await transport.sendMail({
+      to: email,
+      from,
+      subject: `Sign in to ${host}`,
+      text: render(<LoginEmail url={url} />, {
+        plainText: true,
+      }),
+      html: render(<LoginEmail url={url} />),
+    });
+  };
 
 const providers = [
   /**
@@ -113,7 +130,7 @@ const providers = [
     },
     // allowDangerousEmailAccountLinking: true,
   }),
-  EmailProvider({
+  NodemailerProvider({
     server:
       env.CI === "true"
         ? { port: 4025 }
@@ -141,6 +158,7 @@ env.CI && providers.push(credentialsProvider);
 export const authOptions: NextAuthConfig = {
   secret: env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   session: {
     strategy: "jwt",
   },
@@ -156,7 +174,7 @@ export const authOptions: NextAuthConfig = {
           email: token.email as string,
         },
         include: {
-          candidate: true,
+          applications: true,
           memberships: true,
           activeOrg: true,
         },
@@ -172,26 +190,19 @@ export const authOptions: NextAuthConfig = {
       return {
         ...token,
         user: {
-          id: dbUser.id,
-          name: dbUser.name,
-          email: dbUser.email,
-          activeOrgId: dbUser.activeOrgId,
-          activeOrg: dbUser.activeOrg,
-          type: dbUser.type,
-          completedOnboarding: dbUser.completedOnboarding,
-          candidate: dbUser.candidate,
+          ...dbUser,
           membership: dbUser.memberships.find(
             (item) => item.organizationId === dbUser.activeOrgId,
           ),
         },
       };
     },
-    // @ts-expect-error authjs token
     session: async ({ session, token }) => {
       session.user = {
         ...session.user,
+        //@ts-expect-error TODO: fix typing
         ...token.user,
-        id: token.sub,
+        id: token.sub as string,
       };
       return session;
     },
@@ -203,39 +214,13 @@ export const authOptions: NextAuthConfig = {
       posthog.identify(user?.id);
     },
     async linkAccount({ account, user, profile }) {
-      if (account.provider === "github" && user.type === UserType.CANDIDATE) {
-        // candidates need to link their github account to verify their profiles
-        // this happens when a candidate is invited (created by organization) and
-        // when the candidate is created in the onboarding process
-        await updateCandidate(
-          { userId: user.id },
-          { status: CandidateStatus.VERIFIED, ghUsername: profile.ghUsername },
-        );
-
-        await updateUser({ id: user.id }, { completedOnboarding: true });
+      if (account.provider === "github" && user.type === UserType.APPLICANT) {
+        await linkGithubAccount(user, profile);
       }
     },
   },
   providers,
 };
-
-async function sendVerificationRequest({
-  identifier: email,
-  url,
-  provider: { server, from },
-}) {
-  const { host } = new URL(url);
-  const transport = nodemailer.createTransport(server);
-  await transport.sendMail({
-    to: email,
-    from,
-    subject: `Sign in to ${host}`,
-    text: render(<LoginEmail url={url} />, {
-      plainText: true,
-    }),
-    html: render(<LoginEmail url={url} />),
-  });
-}
 
 export async function getSession() {
   return await auth();

@@ -6,7 +6,7 @@ import { Badge } from "~/components/ui/Badge";
 import { Card, CardContent } from "~/components/ui/Card";
 import { Typography } from "~/components/ui/Typography";
 import { formatDate } from "~/lib/utils";
-import type { CandidateFullData } from "~/server/repositories/Candidates";
+import type { CandidateFullData } from "~/server/services/Candidates";
 import type { UpdateCandidateAction } from "../action";
 import { CandidateProfileOps } from "./CandidateProfileOps";
 import { SubmissionItem } from "./SubmissionItem";
@@ -64,6 +64,7 @@ export default function CandidateDetailPage({
               {/* contributions */}
               <img
                 src={`https://gh-card.useeval.com/api/cards/profile-details?username=${candidate.ghUsername}&theme=github_dark`}
+                alt="profile-details"
                 className="w-full"
               />
             </div>
@@ -71,10 +72,12 @@ export default function CandidateDetailPage({
               {/* contributions */}
               <img
                 src={`https://gh-card.useeval.com/api/cards/stats?username=${candidate.ghUsername}&theme=github_dark`}
+                alt="stats"
                 className="w-full"
               />
               <img
                 src={`https://gh-card.useeval.com/api/cards/repos-per-language?username=${candidate.ghUsername}&theme=github_dark`}
+                alt="repos"
                 className="w-full"
               />
             </div>
