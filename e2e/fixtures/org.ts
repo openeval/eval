@@ -2,7 +2,6 @@ import { type Page } from "@playwright/test";
 import type { Organization, Prisma, User } from "@prisma/client";
 
 import * as ee from "~/ee/lib/core";
-import { stripe } from "~/ee/lib/stripe";
 import { prisma } from "~/server/db";
 import * as orgService from "~/server/services/Organizations";
 

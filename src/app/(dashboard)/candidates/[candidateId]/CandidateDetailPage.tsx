@@ -64,6 +64,7 @@ export default function CandidateDetailPage({
               {/* contributions */}
               <img
                 src={`https://gh-card.useeval.com/api/cards/profile-details?username=${candidate.ghUsername}&theme=github_dark`}
+                alt="profile-details"
                 className="w-full"
               />
             </div>
@@ -71,10 +72,12 @@ export default function CandidateDetailPage({
               {/* contributions */}
               <img
                 src={`https://gh-card.useeval.com/api/cards/stats?username=${candidate.ghUsername}&theme=github_dark`}
+                alt="stats"
                 className="w-full"
               />
               <img
                 src={`https://gh-card.useeval.com/api/cards/repos-per-language?username=${candidate.ghUsername}&theme=github_dark`}
+                alt="repos"
                 className="w-full"
               />
             </div>
