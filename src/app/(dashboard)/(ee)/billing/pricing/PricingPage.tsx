@@ -184,10 +184,10 @@ export default function PricingPage({ planAction }) {
     {
       type: "price",
       title: "Standard",
-      monthlyPrice: 7,
-      yearlyPrice: 5,
+      monthlyPrice: 8,
+      yearlyPrice: 6,
       quantity: 10,
-      currency: CurrencySymbols.EUR,
+      currency: CurrencySymbols.USD,
       description: "Unlock all features you need to get started",
       features: ["Unlimited Seats", "Unlimited Assessments", "Basic support"],
       popular: true,
