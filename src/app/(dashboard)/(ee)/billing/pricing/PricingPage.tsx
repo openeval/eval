@@ -225,6 +225,7 @@ export default function PricingPage({ planAction }) {
     {
       type: "price",
       title: "Plus",
+      lookup_key: "plus", //"standar_yearly"
       currency: CurrencySymbols.USD,
       monthlyPrice: 450,
       yearlyPrice: 360,
