@@ -279,7 +279,7 @@ export async function generateAuthLink(
     expires,
   });
 
-  const _url = `${url}/callback/${opts.provider || "email"}?${params}`;
+  const _url = `${url}/callback/${opts.provider || "nodemailer"}?${params}`;
 
   return _url;
 }

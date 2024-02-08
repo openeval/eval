@@ -29,12 +29,12 @@ export default async function PricingTable() {
     redirect("/billing/settings");
   }
 
-  const startStripeCheckoutAction = async (interval) => {
+  const startStripeCheckoutAction = async (priceKey) => {
     "use server";
 
     const url = await createSubscriptionSessionLink({
       org,
-      interval,
+      priceKey,
     });
 
     if (url) {

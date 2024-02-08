@@ -10,9 +10,7 @@ import { render } from "@react-email/render";
 import type { User } from "next-auth";
 import slugify from "slugify";
 
-import * as ee from "~/ee/lib/core";
 import { AssessmentInvitationEmail } from "~/emails/AssessmentInvitationEmail";
-import { env } from "~/env.mjs";
 import { generateAuthLink } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { ServiceError } from "~/server/error";
@@ -224,13 +222,4 @@ export async function linkGithubAccount(user, profile) {
 
   // is this still need it ?
   await userService.update({ id: user.id }, { completedOnboarding: true });
-
-  //find invitation and update the verified account
-  if (env.IS_EE) {
-    await Promise.all(
-      candidates.map(async (candidate) => {
-        await ee.trackUsage(candidate);
-      }),
-    );
-  }
 }

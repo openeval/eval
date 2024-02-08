@@ -20,6 +20,7 @@ export type CreateStripeCheckoutSessionAction = (data: {
   priceId: string;
 }) => Promise<ActionResponse<User>>;
 
+// DEPRECATED
 export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionAction =
   async (data) => {
     const { priceId } = data;
@@ -64,17 +65,14 @@ export const createStripeCheckoutSessionAction: CreateStripeCheckoutSessionActio
       return { success: true, data: session };
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return {
-          success: false,
-          error: ErrorResponse(
-            "Incorrect format",
-            ERROR_CODES.BAD_REQUEST,
-            error.issues,
-          ),
-        };
+        return ErrorResponse(
+          "Incorrect format",
+          ERROR_CODES.BAD_REQUEST,
+          error.issues,
+        );
       }
 
-      return { success: false, error: ErrorResponse(error?.message) };
+      return ErrorResponse(error?.message);
     }
   };
 
@@ -108,6 +106,6 @@ export async function createStripeBillingPortalSessionAction(): Promise<
 
     return { success: true, data: url };
   } catch (error) {
-    return { success: false, error: ErrorResponse(error?.message) };
+    return ErrorResponse(error?.message);
   }
 }

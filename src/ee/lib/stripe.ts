@@ -3,8 +3,24 @@ import Stripe from "stripe";
 
 import { env } from "~/ee/env.mjs";
 import { absoluteUrl } from "~/lib/utils";
+import { ServiceError } from "~/server/error";
 import { organizationMetadataSchema } from "../types/Organization";
 
+const products = [
+  {
+    name: "lite",
+    prices: [
+      {
+        interval: "yearly",
+        lookup_key: "lite_yearly",
+      },
+      {
+        interval: "monthly",
+        lookup_key: "lite_monthly",
+      },
+    ],
+  },
+];
 export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? "", {
   // https://github.com/stripe/stripe-node#configuration
   apiVersion: "2023-10-16",
@@ -18,13 +34,25 @@ export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? "", {
 
 type SubscriptionOpts = {
   org: Organization;
-  interval: string;
+  priceKey: string;
 };
 export const createSubscriptionSessionLink = async ({
   org,
-  interval,
+  priceKey,
 }: SubscriptionOpts) => {
   const orgMetadata = organizationMetadataSchema.parse(org.metadata);
+
+  const prices = await stripe.prices.list({
+    lookup_keys: [priceKey],
+  });
+
+  const price = prices.data.find(
+    (price) => price.lookup_key === priceKey && price.active,
+  );
+
+  if (!price) {
+    throw new ServiceError(`price not found with key: ${priceKey}`);
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
@@ -35,10 +63,8 @@ export const createSubscriptionSessionLink = async ({
     client_reference_id: org.id,
     line_items: [
       {
-        price:
-          interval === "year"
-            ? process.env.STRIPE_PRICE_STANDARD_CANDIDATES_METERED_YEARLY_ID
-            : process.env.STRIPE_PRICE_STANDARD_CANDIDATES_METERED_MONTHLY_ID,
+        price: price.id,
+        quantity: 1,
       },
     ],
     subscription_data: {

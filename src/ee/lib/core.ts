@@ -31,7 +31,7 @@ export const createCustomer = async (org: Organization) => {
   );
 };
 
-// we track usage for candidates
+//DEPRECATED
 export const trackUsage = async (candidate: Candidate) => {
   const org = await orgService.findOneById(candidate.organizationId);
 
