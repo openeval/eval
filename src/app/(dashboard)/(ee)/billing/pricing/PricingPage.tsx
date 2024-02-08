@@ -22,7 +22,7 @@ type PricingSwitchProps = {
 };
 
 type PricingCardProps = {
-  isYearly?: boolean;
+  billingPeriod?: "yearly" | "monthly";
   title: string;
   monthlyPrice?: number;
   yearlyPrice?: number;
@@ -39,12 +39,12 @@ type PricingCardProps = {
 };
 
 const PricingSwitch = ({ onSwitch }: PricingSwitchProps) => (
-  <Tabs defaultValue="1" className="mx-auto w-40" onValueChange={onSwitch}>
+  <Tabs defaultValue="yearly" className="mx-auto w-40" onValueChange={onSwitch}>
     <TabsList className="px-2 py-6">
-      <TabsTrigger value="0" className="text-base">
+      <TabsTrigger value="monthly" className="text-base">
         Monthly
       </TabsTrigger>
-      <TabsTrigger value="1" className="text-base">
+      <TabsTrigger value="yearly" className="text-base">
         Yearly
       </TabsTrigger>
     </TabsList>
@@ -53,7 +53,7 @@ const PricingSwitch = ({ onSwitch }: PricingSwitchProps) => (
 
 const PricingCard = ({
   type,
-  isYearly,
+  billingPeriod,
   title,
   monthlyPrice = 1,
   yearlyPrice = 1,
@@ -67,11 +67,10 @@ const PricingCard = ({
   isLoadingAction,
   quantity = 1,
 }: PricingCardProps) => {
-  const activePrice = isYearly ? yearlyPrice : monthlyPrice;
+  const activePrice = billingPeriod === "yearly" ? yearlyPrice : monthlyPrice;
+  const isYearly = billingPeriod === "yearly";
   const totalPrice =
-    isYearly && yearlyPrice
-      ? yearlyPrice * quantity * 12
-      : monthlyPrice * quantity * 1;
+    isYearly && yearlyPrice ? yearlyPrice * 12 : monthlyPrice * quantity * 1;
 
   return (
     <Card
@@ -93,10 +92,10 @@ const PricingCard = ({
               <div
                 className={cn("h-fit rounded-xl px-2.5 py-1 text-sm", {
                   "bg-gradient-to-r from-orange-400 to-rose-400 dark:text-black ":
-                    popular,
+                    true,
                 })}
               >
-                Save ${(monthlyPrice - yearlyPrice) * 12 * quantity}
+                Save ${(monthlyPrice - yearlyPrice) * 12}
               </div>
             )}
           </div>
@@ -107,13 +106,13 @@ const PricingCard = ({
 
             {type === "price" && (
               <>
-                <h3 className="mr-2 text-5xl font-bold">
+                <h3 className="mr-2 text-4xl font-bold">
                   {currency} {activePrice}
                 </h3>
                 <span className="mb-1 flex flex-col justify-end text-sm">
                   <span>
                     /per <br />
-                    Verified Candidate
+                    month
                   </span>
                 </span>
               </>
@@ -121,11 +120,10 @@ const PricingCard = ({
           </div>
 
           <CardDescription className="h-12 pt-1.5">
-            {currency && (
+            {type === "price" && isYearly && (
               <span>
                 {currency}
-                <strong>{totalPrice}</strong> billed{" "}
-                {isYearly ? "yearly" : "monthly"}
+                <strong>{totalPrice}</strong> billed {billingPeriod}
               </span>
             )}
           </CardDescription>
@@ -136,12 +134,6 @@ const PricingCard = ({
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           <>
-            {type === "price" && (
-              <CheckItem
-                text={`${isYearly ? quantity * 12 : quantity} Verified Candidates`}
-              />
-            )}
-
             {features.map((feature: string) => (
               <CheckItem key={feature} text={feature} />
             ))}
@@ -170,10 +162,11 @@ const CheckItem = ({ text }: { text: string }) => (
 );
 
 export default function PricingPage({ planAction }) {
-  const [isYearly, setIsYearly] = useState(true);
+  const [billingPeriod, setBillingPeriod] = useState<"yearly" | "monthly">(
+    "yearly",
+  );
   const [isLoadingAction, startActionTransition] = useTransition();
-  const togglePricingPeriod = (value: string) =>
-    setIsYearly(parseInt(value) === 1);
+  const togglePricingPeriod = (value) => setBillingPeriod(value);
 
   enum CurrencySymbols {
     USD = "$",
@@ -183,38 +176,73 @@ export default function PricingPage({ planAction }) {
   const plans = [
     {
       type: "price",
-      title: "Standard",
-      monthlyPrice: 8,
-      yearlyPrice: 6,
-      quantity: 10,
+      title: "Basic",
+      lookup_key: "basic", //"standar_yearly"
+      monthlyPrice: 30,
+      yearlyPrice: 24,
+      quantity: 3,
       currency: CurrencySymbols.USD,
-      description: "Unlock all features you need to get started",
-      features: ["Unlimited Seats", "Unlimited Assessments", "Basic support"],
-      popular: true,
+      description: "Best for starters.",
+      features: [
+        "3 Verified Candidates *",
+        "Unlimited Seats",
+        "Unlimited Assessments",
+        "Basic support",
+      ],
+      popular: false,
       actionLabel: "Start trial",
-      action: async (_plan) => {
+      action: async (plan) => {
         startActionTransition(async () => {
-          await planAction(isYearly ? "year" : "month");
+          const priceKey = `${plan.lookup_key}_${billingPeriod}`;
+          await planAction(priceKey);
         });
       },
     },
     {
-      type: "custom",
-      title: "Enterprise",
-      price: "Custom",
-      description: "Dedicated support and custom solution to fit your needs.",
+      type: "price",
+      title: "Standard",
+      lookup_key: "standard", //"standar_yearly"
+      monthlyPrice: 150,
+      yearlyPrice: 120,
+      quantity: 15,
+      currency: CurrencySymbols.USD,
+      description: "Best for growing organization.",
       features: [
-        "Premium support",
-        "Advanced integrations",
-        "Volume discounts",
-        "Workshops",
+        "15 Verified Candidates *",
+        "Unlimited Seats",
+        "Unlimited Assessments",
+        "Basic support",
       ],
-      actionLabel: "Contact us",
+      popular: true,
+      actionLabel: "Start trial",
+      action: async (plan) => {
+        startActionTransition(async () => {
+          const priceKey = `${plan.lookup_key}_${billingPeriod}`;
+          await planAction(priceKey);
+        });
+      },
+    },
+    {
+      type: "price",
+      title: "Plus",
+      currency: CurrencySymbols.USD,
+      monthlyPrice: 450,
+      yearlyPrice: 360,
+      quantity: 45,
+      description: "Best for teams and large organizations.",
+      features: [
+        "45 Verified Candidates *",
+        "Unlimited Seats",
+        "Unlimited Assessments",
+        "Premium support",
+      ],
       exclusive: true,
-      action: (_plan) => {
-        window.location.replace(
-          `mailto:${siteConfig.contactUsEmail}?subject=Enterprise plan`,
-        );
+      actionLabel: "Start trial",
+      action: async (plan) => {
+        startActionTransition(async () => {
+          const priceKey = `${plan.lookup_key}_${billingPeriod}`;
+          await planAction(priceKey);
+        });
       },
     },
   ];
@@ -225,9 +253,7 @@ export default function PricingPage({ planAction }) {
           Pricing
         </Typography>
 
-        <Typography variant={"lead"}>
-          Unlock all features. Pay as you go only for Verified Candidates.
-        </Typography>
+        <Typography variant={"lead"}>Unlock all features.</Typography>
         <br />
         <Typography variant={"subtle"}>
           14 days free trial, no credit card needed.
@@ -235,18 +261,45 @@ export default function PricingPage({ planAction }) {
       </section>
 
       <PricingSwitch onSwitch={togglePricingPeriod} />
-      <section className="mt-8 flex flex-col justify-center gap-8 sm:flex-row sm:flex-wrap">
+      <section className="container mb-4 mt-8 flex flex-col justify-center gap-8 sm:flex-row sm:flex-wrap">
         {plans.map((plan) => {
           return (
             <PricingCard
               key={plan.title}
               {...plan}
               action={() => plan.action(plan)}
-              isYearly={isYearly}
+              billingPeriod={billingPeriod}
               isLoadingAction={isLoadingAction}
             />
           );
         })}
+        <Typography variant={"muted"}>
+          * $10 for each extra Verfied Candidate
+        </Typography>
+      </section>
+
+      <section className="container mt-8">
+        <Card>
+          <CardHeader>Need more Verified Candidates ?</CardHeader>
+          <CardContent>
+            <CardDescription>
+              Contact us for volume discounts, custom implementations or just to
+              say hi!.
+            </CardDescription>
+            <div className="mt-8">
+              <Button
+                onClick={() =>
+                  window.location.replace(
+                    `mailto:${siteConfig.contactUsEmail}?subject=Enterprise plan`,
+                  )
+                }
+                variant={"secondary"}
+              >
+                Contact us
+              </Button>{" "}
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
