@@ -21,12 +21,13 @@ export default async function Layout({
   if (!user) {
     redirect("/login");
   }
-  if (!user.completedOnboarding || !user.activeOrgId) {
-    redirect("/onboarding");
-  }
 
   if (user.type === UserType.APPLICANT) {
     redirect("/d");
+  }
+
+  if (!user.completedOnboarding || !user.activeOrgId) {
+    redirect("/onboarding");
   }
 
   if (env.IS_EE) {
