@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { stripe } from "~/ee/lib/stripe";
 import { organizationMetadataSchema } from "~/ee/types/Organization";
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findOneById as findOrg } from "~/server/services/Organizations";
 import { BillingSettingsPage } from "./BillingSettingsPage";
 
@@ -15,6 +15,10 @@ export default async function page() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "manage", "Billing")) {
+    redirect("/404");
   }
 
   const org = await findOrg(user.activeOrgId);

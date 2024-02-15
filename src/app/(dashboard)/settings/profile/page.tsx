@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { updateProfileAction } from "./actions";
 import { ProfilePage } from "./ProfilePage";
 
@@ -13,6 +13,10 @@ export default async function page() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "manage", "Profile")) {
+    redirect("/404");
   }
 
   return (

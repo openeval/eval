@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findByIdFull } from "~/server/services/Candidates";
 import { updateCandidateAction } from "../action";
 import CandidateDetailPage from "./CandidateDetailPage";
@@ -19,6 +19,10 @@ export default async function Page({ params }: CandidateDetailPageProps) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Candidate")) {
+    redirect("/404");
   }
 
   const candidate = await getCandidate(params.candidateId);

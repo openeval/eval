@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { InviteCandidateButton } from "~/components/InviteCandidateButton";
 import { Typography } from "~/components/ui/Typography";
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findOneById } from "~/server/services/Assessments";
 import { findCandidatesByAssessment } from "~/server/services/Candidates";
 import { CandidateOnAssessmentItem } from "./CandidateOnAssessmentItem";
@@ -23,6 +23,9 @@ export default async function AssessmentCandidatePage({
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
+  }
+  if (!isAuthorized(user, "read", "Assessment")) {
+    redirect("/404");
   }
   const assessment = await findOneById(assessmentId, user.activeOrgId);
   if (!assessment) {

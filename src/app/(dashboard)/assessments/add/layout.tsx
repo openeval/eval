@@ -1,8 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { getCurrentUser } from "~/server/auth";
 import { StepsNav } from "./StepsNav";
 
 type AssessmentDetailPageProps = {
@@ -10,12 +8,6 @@ type AssessmentDetailPageProps = {
 };
 
 export default async function Layout({ children }: AssessmentDetailPageProps) {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
   return (
     <div>
       <div className="mx-auto w-full min-w-0">

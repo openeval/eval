@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllMembershipsByOrgId } from "~/server/services/Membership";
 import { findOneById as findOrg } from "~/server/services/Organizations";
 import { TeamSettingsPage } from "./TeamSettingsPage";
@@ -14,6 +14,10 @@ export default async function page() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Member")) {
+    redirect("/404");
   }
 
   const org = await findOrg(user.activeOrgId);

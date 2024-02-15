@@ -26,5 +26,5 @@ export default async function Home() {
     redirect("/assessments");
   }
 
-  return <div></div>;
+  return <div>loading...</div>;
 }
