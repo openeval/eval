@@ -8,7 +8,7 @@ import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllForList } from "~/server/services/Assessments";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -26,6 +26,10 @@ export default async function AssessmentPage({ searchParams }) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Assessment")) {
+    redirect("/404");
   }
 
   const { data: assessments, count } = await getAssessmentsForUser(

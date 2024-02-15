@@ -7,7 +7,7 @@ import { buttonVariants } from "~/components/ui/Button";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
 import { cn } from "~/lib/utils";
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllForList } from "~/server/services/Submissions";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -25,6 +25,10 @@ export default async function SubmissionsPage({ params }) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Submission")) {
+    redirect("/404");
   }
 
   const submissions = await getSubmissions({

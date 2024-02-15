@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { searchIssues } from "~/server/github";
 import { findOneById } from "~/server/services/Assessments";
 import { AssessmentTaskPage } from "../../AssessmentTaskPage";
@@ -25,6 +25,10 @@ export default async function Page({
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Assessment")) {
+    redirect("/404");
   }
 
   const assessment = await findOneById(assessmentId, user.activeOrgId);

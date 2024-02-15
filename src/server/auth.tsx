@@ -25,6 +25,7 @@ import NodemailerProvider, {
 } from "next-auth/providers/nodemailer";
 import nodemailer from "nodemailer";
 
+import { defineAbilityFor, type AppAbility } from "~/config/security";
 import { LoginEmail } from "~/emails/LoginEmail";
 import { env } from "~/env.mjs";
 import { absoluteUrl, createHash, randomString } from "~/lib/utils";
@@ -283,5 +284,13 @@ export async function generateAuthLink(
 
   return _url;
 }
+
+export const isAuthorized = (
+  user: User,
+  ...args: Parameters<AppAbility["can"]>
+) => {
+  const ability = defineAbilityFor(user);
+  return ability.can(...args);
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);

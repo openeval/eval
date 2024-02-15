@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findOneById } from "~/server/services/Assessments";
 import { updateAssessmentAction } from "../actions";
 import { AssessmentRoleForm } from "./AssessmentRoleForm";
@@ -15,6 +15,10 @@ export default async function AssessmentDetailPage({
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Assessment")) {
+    redirect("/404");
   }
 
   const assessment = await findOneById(assessmentId, user.activeOrgId);

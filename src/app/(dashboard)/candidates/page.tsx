@@ -6,7 +6,7 @@ import { cache } from "react";
 import { EmptyPlaceholder } from "~/components/EmptyPlaceholder";
 import { Separator } from "~/components/ui/Separator";
 import { Typography } from "~/components/ui/Typography";
-import { getCurrentUser } from "~/server/auth";
+import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllForList } from "~/server/services/Candidates";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -24,6 +24,10 @@ export default async function CandidatesPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAuthorized(user, "read", "Candidate")) {
+    redirect("/404");
   }
 
   const candidates = await getCandidates({ organizationId: user.activeOrgId });
