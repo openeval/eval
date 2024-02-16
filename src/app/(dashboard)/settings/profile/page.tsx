@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
+import { subject } from "@casl/ability";
+import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser, isAuthorized } from "~/server/auth";
-import { updateProfileAction } from "./actions";
+import * as userService from "~/server/services/User";
 import { ProfilePage } from "./ProfilePage";
 
 export const metadata = {
@@ -15,11 +16,19 @@ export default async function page() {
     redirect("/login");
   }
 
-  if (!isAuthorized(user, "manage", "Profile")) {
+  const profile = await userService.findOneById(user.id!, {
+    id: true,
+    name: true,
+    email: true,
+  });
+
+  if (!profile) {
+    notFound();
+  }
+
+  if (!isAuthorized(user, "manage", subject("Profile", profile))) {
     redirect("/404");
   }
 
-  return (
-    <ProfilePage data={{ user: user }} actions={{ updateProfileAction }} />
-  );
+  return <ProfilePage data={{ profile }} />;
 }

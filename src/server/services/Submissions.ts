@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { Prisma, Review, Submission } from "@prisma/client";
 
 import { prisma } from "~/server/db";

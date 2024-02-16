@@ -58,22 +58,13 @@ export function InviteTeamMemberForm({
 
   async function onSubmit(data: FormData) {
     startActionTransition(async () => {
-      try {
-        const res = await inviteTeamMemberAction(data);
-        if (res.success) {
-          onSuccess();
-        } else {
-          toast({
-            title: "Something went wrong.",
-            description: res.error?.message,
-            variant: "destructive",
-          });
-        }
-      } catch (e) {
-        // TODO: how to handle errors in with server actions
+      const res = await inviteTeamMemberAction(data);
+      if (res.success) {
+        onSuccess();
+      } else {
         toast({
           title: "Something went wrong.",
-          description: "Please try again.",
+          description: res.error?.message,
           variant: "destructive",
         });
       }

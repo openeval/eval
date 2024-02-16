@@ -1,8 +1,9 @@
+import { AssessmentSchema } from "prisma/zod";
 import { z } from "zod";
 
-export const CreateAssessmentDto = z.object({
-  title: z.string(),
-  description: z.string(),
+export const CreateAssessmentDtoSchema = AssessmentSchema.pick({
+  title: true,
+  description: true,
 });
 
-export type CreateAssessmentDtoType = z.infer<typeof CreateAssessmentDto>;
+export type CreateAssessmentDto = z.infer<typeof CreateAssessmentDtoSchema>;

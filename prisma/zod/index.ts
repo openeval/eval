@@ -356,14 +356,14 @@ export const AccountSchema = z.object({
   type: z.string(),
   provider: z.string(),
   providerAccountId: z.string(),
-  refresh_token: z.string().nullable(),
-  access_token: z.string().nullable(),
-  refresh_token_expires_in: z.number().int().nullable(),
-  expires_at: z.number().int().nullable(),
-  token_type: z.string().nullable(),
-  scope: z.string().nullable(),
-  id_token: z.string().nullable(),
-  session_state: z.string().nullable(),
+  refresh_token: z.string().nullish(),
+  access_token: z.string().nullish(),
+  refresh_token_expires_in: z.number().int().nullish(),
+  expires_at: z.number().int().nullish(),
+  token_type: z.string().nullish(),
+  scope: z.string().nullish(),
+  id_token: z.string().nullish(),
+  session_state: z.string().nullish(),
 });
 
 export type Account = z.infer<typeof AccountSchema>;
@@ -386,16 +386,16 @@ export type Session = z.infer<typeof SessionSchema>;
 /////////////////////////////////////////
 
 export const UserSchema = z.object({
-  type: UserTypeSchema.nullable(),
+  type: UserTypeSchema.nullish(),
   id: z.string(),
-  name: z.string().nullable(),
+  name: z.string().nullish(),
   email: z.string(),
-  emailVerified: z.coerce.date().nullable(),
-  password: z.string().nullable(),
+  emailVerified: z.coerce.date().nullish(),
+  password: z.string().nullish(),
   completedOnboarding: z.boolean(),
-  image: z.string().nullable(),
-  ghUsername: z.string().nullable(),
-  activeOrgId: z.string().nullable(),
+  image: z.string().nullish(),
+  ghUsername: z.string().nullish(),
+  activeOrgId: z.string().nullish(),
   createdAt: z.coerce.date(),
 });
 
@@ -420,11 +420,11 @@ export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
 export const OrganizationSchema = z.object({
   id: z.string(),
   name: z.string(),
-  email: z.string().nullable(),
-  slug: z.string().nullable(),
-  logo: z.string().nullable(),
-  bio: z.string().nullable(),
-  size: z.string().nullable(),
+  email: z.string().nullish(),
+  slug: z.string().nullish(),
+  logo: z.string().nullish(),
+  bio: z.string().nullish(),
+  size: z.string().nullish(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   metadata: JsonValueSchema,
@@ -454,15 +454,15 @@ export type Membership = z.infer<typeof MembershipSchema>;
 export const CandidateSchema = z.object({
   status: CandidateStatusSchema,
   id: z.string(),
-  applicantId: z.string().nullable(),
-  organizationId: z.string().nullable(),
+  applicantId: z.string().nullish(),
+  organizationId: z.string().nullish(),
   name: z.string(),
-  ghUsername: z.string().nullable(),
+  ghUsername: z.string().nullish(),
   lastName: z.string(),
   email: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  createdById: z.string().nullable(),
+  createdById: z.string().nullish(),
 });
 
 export type Candidate = z.infer<typeof CandidateSchema>;
@@ -490,12 +490,12 @@ export const AssessmentSchema = z.object({
   visibility: VisibilitySchema,
   id: z.string(),
   title: z.string(),
-  slug: z.string().nullable(),
+  slug: z.string().nullish(),
   description: z.string(),
   createdById: z.string(),
   organizationId: z.string(),
-  ghIssuesQuerySeach: z.string().nullable(),
-  evaluationPeriodDays: z.string().nullable(),
+  ghIssuesQuerySeach: z.string().nullish(),
+  evaluationPeriodDays: z.string().nullish(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   published: z.boolean(),
@@ -513,7 +513,7 @@ export const AssessmentSessionSchema = z.object({
   expiresAt: z.coerce.date(),
   assessmentId: z.string(),
   startedAt: z.coerce.date(),
-  finishedAt: z.coerce.date().nullable(),
+  finishedAt: z.coerce.date().nullish(),
   candidateId: z.string(),
 });
 
@@ -526,7 +526,7 @@ export type AssessmentSession = z.infer<typeof AssessmentSessionSchema>;
 export const SubmissionSchema = z.object({
   status: SubmissionStatusSchema,
   id: z.string(),
-  notes: z.string().nullable(),
+  notes: z.string().nullish(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   candidateId: z.string(),
@@ -549,7 +549,7 @@ export const ReviewSchema = z.object({
   updatedAt: z.coerce.date(),
   createdById: z.string(),
   score: z.number().int(),
-  submissionId: z.string().nullable(),
+  submissionId: z.string().nullish(),
 });
 
 export type Review = z.infer<typeof ReviewSchema>;
@@ -562,7 +562,7 @@ export const ContributionSchema = z.object({
   type: ContributionTypeSchema,
   id: z.string(),
   title: z.string(),
-  description: z.string().nullable(),
+  description: z.string().nullish(),
   state: z.string(),
   url: z.string(),
   repo: z.string(),
@@ -586,7 +586,7 @@ export const RepoSchema = z.object({
   description: z.string(),
   url: z.string(),
   isPrivate: z.boolean(),
-  assessmentId: z.string().nullable(),
+  assessmentId: z.string().nullish(),
 });
 
 export type Repo = z.infer<typeof RepoSchema>;
@@ -599,7 +599,7 @@ export const EvaluationCriteriaSchema = z.object({
   id: z.number().int(),
   name: z.string(),
   weight: z.number().int(),
-  parentId: z.number().int().nullable(),
+  parentId: z.number().int().nullish(),
 });
 
 export type EvaluationCriteria = z.infer<typeof EvaluationCriteriaSchema>;
@@ -609,7 +609,7 @@ export type EvaluationCriteria = z.infer<typeof EvaluationCriteriaSchema>;
 /////////////////////////////////////////
 
 export const FeedbackSchema = z.object({
-  type: FeedbackTypeSchema.nullable(),
+  type: FeedbackTypeSchema.nullish(),
   id: z.number().int(),
   message: z.string(),
   createdAt: z.coerce.date(),

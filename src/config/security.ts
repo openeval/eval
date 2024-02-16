@@ -4,7 +4,7 @@ import {
   type MongoQuery,
   type PureAbility,
 } from "@casl/ability";
-import { MembershipRole, UserType } from "@prisma/client";
+import { MembershipRole, UserType, type User as pUser } from "@prisma/client";
 import type { User } from "next-auth";
 
 export const roleList = [
@@ -41,10 +41,13 @@ export type Ability =
   | [CrudActions, "Billing"]
   | [CrudActions, "Assessment"]
   | [CrudActions, "Profile"]
-  | [CrudActions, "all"];
-
+  | [CrudActions, "all"]
+  | [CrudActions, Partial<pUser>];
 export type AppAbility = PureAbility<Ability, MongoQuery>;
 
+// manage and all are special keywords in CASL.
+// manage represents any action and all represents any subject.
+// the order of the rules matter
 export function defineAbilityFor(user: User) {
   const { can, cannot, build } = new AbilityBuilder<AppAbility>(
     createMongoAbility,
@@ -52,7 +55,7 @@ export function defineAbilityFor(user: User) {
 
   if (user.type === UserType.RECRUITER) {
     can("read", "all");
-    can("manage", "Profile");
+
     if (user.membership?.role === MembershipRole.OWNER) {
       can("manage", "all");
     }
@@ -68,12 +71,15 @@ export function defineAbilityFor(user: User) {
 
     if (user.membership?.role === MembershipRole.REVIEWER) {
       can("manage", "Submission");
+      can("read", "Candidate");
     }
   }
 
   if (user.type === UserType.APPLICANT) {
     cannot("read", "dashboard");
   }
+
+  cannot("manage", "Profile", { id: { $ne: user.id } });
 
   return build();
 }

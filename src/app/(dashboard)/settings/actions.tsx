@@ -1,5 +1,4 @@
 "use server";
-"use only-server";
 
 import type { Organization, Prisma } from "@prisma/client";
 import { notFound, redirect } from "next/navigation";

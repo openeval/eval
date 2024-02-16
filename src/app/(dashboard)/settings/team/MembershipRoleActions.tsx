@@ -36,6 +36,12 @@ export const MembershipRoleActions = ({ membership }) => {
             description: "Member removed",
           });
           router.refresh();
+        } else {
+          toast({
+            title: "Something went wrong.",
+            description: res.error?.message,
+            variant: "destructive",
+          });
         }
       });
     }

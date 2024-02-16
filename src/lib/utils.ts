@@ -2,11 +2,23 @@ import { clsx, type ClassValue } from "clsx";
 import { formatDistanceStrict } from "date-fns";
 import type { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
+import { type ZodRawShape } from "zod";
 
 import { env } from "~/env.mjs";
 
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
+}
+
+export function selectFromSchema<T extends ZodRawShape>(schema: {
+  shape: T;
+}): { [K in keyof T]: true } {
+  const keys = Object.keys(schema.shape) as Array<keyof T>;
+  const extractedObj = {} as { [K in keyof T]: true };
+  keys.forEach((key) => {
+    extractedObj[key] = true;
+  });
+  return extractedObj;
 }
 
 // November 27, 2023

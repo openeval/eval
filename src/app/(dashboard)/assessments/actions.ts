@@ -6,8 +6,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import {
-  CreateAssessmentDto,
-  type CreateAssessmentDtoType,
+  CreateAssessmentDtoSchema,
+  type CreateAssessmentDto,
 } from "~/dto/CreateAssessmentDto";
 import { UpdateAssessmentDto } from "~/dto/UpdateAssessmentDto";
 import { getServerSession } from "~/server/auth";
@@ -21,7 +21,7 @@ import type { ActionResponse } from "~/types";
 // https://clerk.com/docs/nextjs/server-actions#with-client-components
 
 export type CreateAssessmentAction = (
-  data: CreateAssessmentDtoType,
+  data: CreateAssessmentDto,
 ) => Promise<ActionResponse<Assessment>>;
 
 export const createAssessmentAction: CreateAssessmentAction = async (data) => {
@@ -35,7 +35,7 @@ export const createAssessmentAction: CreateAssessmentAction = async (data) => {
 
   const { user } = session;
   try {
-    CreateAssessmentDto.parse({
+    CreateAssessmentDtoSchema.parse({
       ...data,
     });
 

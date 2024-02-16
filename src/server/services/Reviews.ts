@@ -1,3 +1,5 @@
+import "server-only";
+
 import { prisma } from "~/server/db";
 
 export async function findOneById(id: string) {

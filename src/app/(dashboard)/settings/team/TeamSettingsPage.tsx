@@ -1,5 +1,3 @@
-"use server";
-
 import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
 import {
   Card,
