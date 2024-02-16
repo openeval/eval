@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { redirect } from "next/navigation";
-import { AssessmentSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import TextareaAutosize from "react-textarea-autosize";
@@ -19,14 +18,12 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
+import { CreateAssessmentInputDtoSchema } from "~/dto/CreateAssessmentDto";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 import type { CreateAssessmentAction } from "../actions";
 
-const assessmentSchema = AssessmentSchema.pick({
-  title: true,
-  description: true,
-});
+const assessmentSchema = CreateAssessmentInputDtoSchema;
 
 interface AssessmentRoleFormProps extends React.HTMLAttributes<HTMLDivElement> {
   action: CreateAssessmentAction;
@@ -57,7 +54,7 @@ export function RoleStageForm({
       } else {
         toast({
           title: "Something went wrong.",
-          description: "Please try again.",
+          description: res.error?.message,
           variant: "destructive",
         });
       }

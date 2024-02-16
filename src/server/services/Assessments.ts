@@ -1,8 +1,9 @@
 import "server-only";
 
-import type { Prisma } from "@prisma/client";
+import { AssessmentStatus, type Prisma } from "@prisma/client";
 
 import { siteConfig } from "~/config/site";
+import { type CreateAssessmentDto } from "~/dto/CreateAssessmentDto";
 import { prisma } from "~/server/db";
 
 export async function findAll() {
@@ -71,6 +72,22 @@ export async function update(where: Prisma.AssessmentWhereUniqueInput, data) {
       },
     },
   });
+}
+
+export async function create(input: CreateAssessmentDto) {
+  const { createdById, organizationId, ...data } = input;
+
+  const assessment = await prisma.assessment.create({
+    data: {
+      ...data,
+      status: AssessmentStatus.ACTIVE,
+      published: false,
+      organization: { connect: { id: organizationId } },
+      createdBy: { connect: { id: createdById } },
+    },
+  });
+
+  return assessment;
 }
 
 export async function findByCandidate(candidateId) {
