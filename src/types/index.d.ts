@@ -1,9 +1,12 @@
 import type { Icon } from "lucide-react";
 
+import type { Subjects } from "~/config/security";
+
 export type NavItem = {
   title: string;
   href: string;
   disabled?: boolean;
+  accessSubject: Subjects;
 };
 
 export type MainNavItem = NavItem;
@@ -15,6 +18,7 @@ export type SidebarNavItem = {
   icon?: keyof typeof Icon;
   children?: NavItem[];
   href?: string;
+  accessSubject: typeof Subjects;
 };
 
 export type ActionResponse<T> = {

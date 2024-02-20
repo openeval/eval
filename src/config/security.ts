@@ -9,14 +9,14 @@ import type { User } from "next-auth";
 
 export const roleList = [
   {
-    name: "Member",
-    value: MembershipRole.MEMBER,
-    description: " Can view, comment and edit.",
-  },
-  {
     name: "Reviewer",
     value: MembershipRole.REVIEWER,
     description: "Can view, comment and review submissions.",
+  },
+  {
+    name: "Member",
+    value: MembershipRole.MEMBER,
+    description: " Can view, comment and edit.",
   },
   {
     name: "Admin",
@@ -30,19 +30,24 @@ export const roleList = [
   },
 ];
 
-type CrudActions = "create" | "read" | "update" | "delete" | "manage";
+type Actions = "invite" | "create" | "read" | "update" | "delete" | "manage";
 
-export type Ability =
-  | ["read", "dashboard"]
-  | [CrudActions | "invite", "Member"]
-  | [CrudActions, "Candidate"]
-  | [CrudActions, "Submission"]
-  | [CrudActions, "Organization"]
-  | [CrudActions, "Billing"]
-  | [CrudActions, "Assessment"]
-  | [CrudActions, "Profile"]
-  | [CrudActions, "all"]
-  | [CrudActions, Partial<pUser>];
+export type Subjects =
+  | "Dashboard"
+  | "Member"
+  | "Candidate"
+  | "Submission"
+  | "Organization"
+  | "Billing"
+  | "Assessment"
+  | "Profile"
+  | "all"
+  | "Settings"
+  | "ApplicantDashboard"
+  | Partial<pUser>;
+
+export type Ability = [Actions, Subjects];
+
 export type AppAbility = PureAbility<Ability, MongoQuery>;
 
 // manage and all are special keywords in CASL.
@@ -54,8 +59,6 @@ export function defineAbilityFor(user: User) {
   );
 
   if (user.type === UserType.RECRUITER) {
-    can("read", "all");
-
     if (user.membership?.role === MembershipRole.OWNER) {
       can("manage", "all");
     }
@@ -70,15 +73,18 @@ export function defineAbilityFor(user: User) {
     }
 
     if (user.membership?.role === MembershipRole.REVIEWER) {
-      can("manage", "Submission");
+      can("read", "Dashboard");
+      can("read", "Submission");
       can("read", "Candidate");
     }
   }
 
   if (user.type === UserType.APPLICANT) {
-    cannot("read", "dashboard");
+    can("manage", "ApplicantDashboard");
+    cannot("manage", "Dashboard");
   }
 
+  can("manage", "Profile", { id: { $eq: user.id } });
   cannot("manage", "Profile", { id: { $ne: user.id } });
 
   return build();
