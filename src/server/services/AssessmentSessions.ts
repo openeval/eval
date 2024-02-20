@@ -1,3 +1,5 @@
+import "server-only";
+
 import { AssessmentSessionStatus } from "@prisma/client";
 
 import { prisma } from "~/server/db";

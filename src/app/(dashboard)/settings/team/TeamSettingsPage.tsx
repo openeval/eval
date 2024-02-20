@@ -1,5 +1,4 @@
-"use server";
-
+import { Can } from "~/components/AbilityProvider";
 import { Avatar, AvatarFallback } from "~/components/ui/Avatar";
 import {
   Card,
@@ -59,7 +58,9 @@ export async function TeamSettingsPage({ data }: TeamSettingsPageProps) {
                   </div>
                 </div>
 
-                <MembershipRoleActions membership={membership} />
+                <Can I="manage" a="Member">
+                  <MembershipRoleActions membership={membership} />
+                </Can>
               </div>
             );
           })}

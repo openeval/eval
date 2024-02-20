@@ -1,3 +1,6 @@
+// it fails on playwright
+// import "server-only";
+
 import type { Prisma, User } from "@prisma/client";
 
 import { prisma } from "~/server/db";
@@ -6,8 +9,8 @@ export async function create(data: Prisma.UserCreateInput) {
   return await prisma.user.create({ data });
 }
 
-export async function findOneById(id: User["id"]) {
-  return await prisma.user.findFirst({ where: { id } });
+export async function findOneById(id: User["id"], select?: Prisma.UserSelect) {
+  return await prisma.user.findFirst({ where: { id }, select });
 }
 
 export async function findOneByEmail(email: User["email"]) {

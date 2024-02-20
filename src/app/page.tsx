@@ -23,7 +23,7 @@ export default async function Home() {
     if (env.IS_EE) {
       await checkSubscription(user);
     }
-    redirect("/assessments");
+    redirect("/dashboard");
   }
 
   return <div>loading...</div>;

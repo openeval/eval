@@ -82,7 +82,6 @@ export function AssessmentSettingsForm({
       reviewers: data.reviewers?.map((o) => ({ id: o.value })) || [],
     };
 
-    // return;
     startActionTransition(async () => {
       const res = await props.action({ id: props.assessment.id }, payload);
       if (res.success) {

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Can } from "~/components/AbilityProvider";
 import { Button } from "~/components/ui/Button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/Sheet";
 import { toast } from "~/hooks/use-toast";
@@ -23,7 +24,9 @@ export function InviteTeamMemberButton({}) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button>Invite</Button>
+        <Can I="invite" a="Member">
+          <Button>Invite</Button>
+        </Can>
       </SheetTrigger>
       <SheetContent side="right">
         <InviteTeamMemberForm onSuccess={onSuccess} />

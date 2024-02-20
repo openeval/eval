@@ -286,9 +286,11 @@ export async function generateAuthLink(
 }
 
 export const isAuthorized = (
-  user: User,
+  user: User | undefined,
   ...args: Parameters<AppAbility["can"]>
 ) => {
+  if (!user) return false;
+
   const ability = defineAbilityFor(user);
   return ability.can(...args);
 };

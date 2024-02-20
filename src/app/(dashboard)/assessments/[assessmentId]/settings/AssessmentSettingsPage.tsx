@@ -7,7 +7,7 @@ import { AssessmentSettingsForm } from "../../AssessmentSettingsForm";
 
 export const AssessmentSettingsPage = ({ data }) => {
   const router = useRouter();
-  console.log(data.members);
+
   return (
     <AssessmentSettingsForm
       assessment={data.assessment}

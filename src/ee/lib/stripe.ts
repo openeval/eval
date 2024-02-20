@@ -57,7 +57,7 @@ export const createSubscriptionSessionLink = async ({
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
-    success_url: `${absoluteUrl()}/assessments`, //set it with props
+    success_url: `${absoluteUrl()}/dashboard`, //set it with props
     cancel_url: `${absoluteUrl()}/`,
     customer: orgMetadata?.stripeCustomerId as string,
     client_reference_id: org.id,

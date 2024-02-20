@@ -1,8 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { User } from "@prisma/client";
-import { UserUpdateInputSchema } from "prisma/zod";
+// import { UserSchema } from "prisma/zod";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -26,27 +25,46 @@ import {
   FormMessage,
 } from "~/components/ui/Form";
 import { Input } from "~/components/ui/Input";
+import { ProfileDtoSchema, type ProfileDto } from "~/dto/ProfileDto";
+import { toast } from "~/hooks/use-toast";
+import { updateProfileAction } from "./actions";
 
 type ProfileFormProps = React.HTMLAttributes<HTMLFormElement> & {
-  defaultValues: User;
-  onSubmit: (data: FormData) => void;
-  isLoading?: boolean;
+  defaultValues: ProfileDto; // ProfileDto
+  onSuccess?: () => void;
 };
 
-const schema = UserUpdateInputSchema;
+const schema = ProfileDtoSchema;
 
 type FormData = z.infer<typeof schema>;
 
-export function ProfileForm({
-  defaultValues,
-  isLoading,
-  onSubmit,
-}: ProfileFormProps) {
+export function ProfileForm({ defaultValues, onSuccess }: ProfileFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
     shouldUnregister: true,
   });
+
+  const [isLoadingAction, startActionTransition] = React.useTransition();
+
+  const onSubmit = (formData: FormData) => {
+    startActionTransition(async () => {
+      const res = await updateProfileAction(defaultValues.id, formData);
+
+      if (res.success) {
+        toast({
+          title: "Updated.",
+        });
+        onSuccess?.();
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: res.error?.message,
+          variant: "destructive",
+        });
+      }
+    });
+  };
 
   return (
     <Form {...form}>
@@ -64,7 +82,11 @@ export function ProfileForm({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your full name" {...field} />
+                    <Input
+                      placeholder="Your full name"
+                      {...field}
+                      value={field.value as string}
+                    />
                   </FormControl>
                   <FormDescription>How should we call you.</FormDescription>
                   <FormMessage />
@@ -92,7 +114,7 @@ export function ProfileForm({
             />
           </CardContent>
           <CardFooter className="justify-end">
-            <Button disabled={isLoading}>Save</Button>
+            <Button disabled={isLoadingAction}>Save</Button>
           </CardFooter>
         </Card>
       </form>

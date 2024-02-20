@@ -1,18 +1,19 @@
 "use client";
 
-import { Dot, FileBadge, ListTodo, Settings, Users } from "lucide-react";
+import { Dot, FileBadge, Home, ListTodo, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "~/lib/utils";
 import { type SidebarNavItem } from "~/types";
+import { Can } from "./AbilityProvider";
 
 interface DashboardNavProps {
   items: SidebarNavItem[];
   onClickMenuItem?: () => void;
 }
 
-const Icons = { Settings, Users, FileBadge, Dot, ListTodo };
+const Icons = { Settings, Users, FileBadge, Dot, ListTodo, Home };
 
 export function SideNav({ items, onClickMenuItem }: DashboardNavProps) {
   const path = usePathname();
@@ -50,9 +51,8 @@ type NavItemProps = {
 function NavItem({ item, isActive, isChild, onClick }: NavItemProps) {
   const Icon = Icons[item.icon || "Dot"];
   const path = usePathname();
-
   return (
-    <>
+    <Can I="read" an={item.accessSubject}>
       <Link
         aria-label={item.title}
         href={item.disabled || !item.href ? "#" : item.href}
@@ -85,6 +85,6 @@ function NavItem({ item, isActive, isChild, onClick }: NavItemProps) {
             isChild
           />
         ))}
-    </>
+    </Can>
   );
 }
