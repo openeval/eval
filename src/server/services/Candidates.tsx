@@ -210,6 +210,7 @@ export async function inviteToAssessment(
 
 export async function linkGithubAccount(user, profile) {
   // prisma do not return the updated entities in updateMany
+  // TODO: we need to keep track on billing
   const candidates = await prisma.candidate.findMany({
     where: { applicantId: user.id, status: CandidateStatus.PENDING },
   });
@@ -218,6 +219,7 @@ export async function linkGithubAccount(user, profile) {
     where: { applicantId: user.id, status: CandidateStatus.PENDING },
     data: {
       status: CandidateStatus.VERIFIED,
+      verifiedAt: new Date(),
       ghUsername: profile.ghUsername,
     },
   });

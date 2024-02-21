@@ -125,7 +125,6 @@ export async function finishAssessmentSessionAction(
 
     return { success: true, data: response };
   } catch (error) {
-    console.log(error);
     if (error instanceof z.ZodError) {
       return ErrorResponse(
         "Incorrect format",
