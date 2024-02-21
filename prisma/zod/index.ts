@@ -143,6 +143,7 @@ export const CandidateScalarFieldEnumSchema = z.enum([
   "email",
   "createdAt",
   "updatedAt",
+  "verifiedAt",
   "createdById",
 ]);
 
@@ -356,14 +357,14 @@ export const AccountSchema = z.object({
   type: z.string(),
   provider: z.string(),
   providerAccountId: z.string(),
-  refresh_token: z.string().nullish(),
-  access_token: z.string().nullish(),
-  refresh_token_expires_in: z.number().int().nullish(),
-  expires_at: z.number().int().nullish(),
-  token_type: z.string().nullish(),
-  scope: z.string().nullish(),
-  id_token: z.string().nullish(),
-  session_state: z.string().nullish(),
+  refresh_token: z.string().nullable(),
+  access_token: z.string().nullable(),
+  refresh_token_expires_in: z.number().int().nullable(),
+  expires_at: z.number().int().nullable(),
+  token_type: z.string().nullable(),
+  scope: z.string().nullable(),
+  id_token: z.string().nullable(),
+  session_state: z.string().nullable(),
 });
 
 export type Account = z.infer<typeof AccountSchema>;
@@ -386,16 +387,16 @@ export type Session = z.infer<typeof SessionSchema>;
 /////////////////////////////////////////
 
 export const UserSchema = z.object({
-  type: UserTypeSchema.nullish(),
+  type: UserTypeSchema.nullable(),
   id: z.string(),
-  name: z.string().nullish(),
+  name: z.string().nullable(),
   email: z.string(),
-  emailVerified: z.coerce.date().nullish(),
-  password: z.string().nullish(),
+  emailVerified: z.coerce.date().nullable(),
+  password: z.string().nullable(),
   completedOnboarding: z.boolean(),
-  image: z.string().nullish(),
-  ghUsername: z.string().nullish(),
-  activeOrgId: z.string().nullish(),
+  image: z.string().nullable(),
+  ghUsername: z.string().nullable(),
+  activeOrgId: z.string().nullable(),
   createdAt: z.coerce.date(),
 });
 
@@ -420,11 +421,11 @@ export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
 export const OrganizationSchema = z.object({
   id: z.string(),
   name: z.string(),
-  email: z.string().nullish(),
-  slug: z.string().nullish(),
-  logo: z.string().nullish(),
-  bio: z.string().nullish(),
-  size: z.string().nullish(),
+  email: z.string().nullable(),
+  slug: z.string().nullable(),
+  logo: z.string().nullable(),
+  bio: z.string().nullable(),
+  size: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   metadata: JsonValueSchema,
@@ -454,15 +455,16 @@ export type Membership = z.infer<typeof MembershipSchema>;
 export const CandidateSchema = z.object({
   status: CandidateStatusSchema,
   id: z.string(),
-  applicantId: z.string().nullish(),
-  organizationId: z.string().nullish(),
+  applicantId: z.string().nullable(),
+  organizationId: z.string().nullable(),
   name: z.string(),
-  ghUsername: z.string().nullish(),
+  ghUsername: z.string().nullable(),
   lastName: z.string(),
   email: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  createdById: z.string().nullish(),
+  verifiedAt: z.coerce.date().nullable(),
+  createdById: z.string().nullable(),
 });
 
 export type Candidate = z.infer<typeof CandidateSchema>;
@@ -490,12 +492,12 @@ export const AssessmentSchema = z.object({
   visibility: VisibilitySchema,
   id: z.string(),
   title: z.string(),
-  slug: z.string().nullish(),
+  slug: z.string().nullable(),
   description: z.string(),
   createdById: z.string(),
   organizationId: z.string(),
-  ghIssuesQuerySeach: z.string().nullish(),
-  evaluationPeriodDays: z.string().nullish(),
+  ghIssuesQuerySeach: z.string().nullable(),
+  evaluationPeriodDays: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   published: z.boolean(),
@@ -513,7 +515,7 @@ export const AssessmentSessionSchema = z.object({
   expiresAt: z.coerce.date(),
   assessmentId: z.string(),
   startedAt: z.coerce.date(),
-  finishedAt: z.coerce.date().nullish(),
+  finishedAt: z.coerce.date().nullable(),
   candidateId: z.string(),
 });
 
@@ -526,7 +528,7 @@ export type AssessmentSession = z.infer<typeof AssessmentSessionSchema>;
 export const SubmissionSchema = z.object({
   status: SubmissionStatusSchema,
   id: z.string(),
-  notes: z.string().nullish(),
+  notes: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   candidateId: z.string(),
@@ -549,7 +551,7 @@ export const ReviewSchema = z.object({
   updatedAt: z.coerce.date(),
   createdById: z.string(),
   score: z.number().int(),
-  submissionId: z.string().nullish(),
+  submissionId: z.string().nullable(),
 });
 
 export type Review = z.infer<typeof ReviewSchema>;
@@ -562,7 +564,7 @@ export const ContributionSchema = z.object({
   type: ContributionTypeSchema,
   id: z.string(),
   title: z.string(),
-  description: z.string().nullish(),
+  description: z.string().nullable(),
   state: z.string(),
   url: z.string(),
   repo: z.string(),
@@ -586,7 +588,7 @@ export const RepoSchema = z.object({
   description: z.string(),
   url: z.string(),
   isPrivate: z.boolean(),
-  assessmentId: z.string().nullish(),
+  assessmentId: z.string().nullable(),
 });
 
 export type Repo = z.infer<typeof RepoSchema>;
@@ -599,7 +601,7 @@ export const EvaluationCriteriaSchema = z.object({
   id: z.number().int(),
   name: z.string(),
   weight: z.number().int(),
-  parentId: z.number().int().nullish(),
+  parentId: z.number().int().nullable(),
 });
 
 export type EvaluationCriteria = z.infer<typeof EvaluationCriteriaSchema>;
@@ -609,7 +611,7 @@ export type EvaluationCriteria = z.infer<typeof EvaluationCriteriaSchema>;
 /////////////////////////////////////////
 
 export const FeedbackSchema = z.object({
-  type: FeedbackTypeSchema.nullish(),
+  type: FeedbackTypeSchema.nullable(),
   id: z.number().int(),
   message: z.string(),
   createdAt: z.coerce.date(),
@@ -1005,6 +1007,7 @@ export const CandidateSelectSchema: z.ZodType<Prisma.CandidateSelect> = z
     email: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
+    verifiedAt: z.boolean().optional(),
     createdById: z.boolean().optional(),
     applicant: z.union([z.boolean(), z.lazy(() => UserArgsSchema)]).optional(),
     organization: z
@@ -3254,6 +3257,10 @@ export const CandidateWhereInputSchema: z.ZodType<Prisma.CandidateWhereInput> =
       updatedAt: z
         .union([z.lazy(() => DateTimeFilterSchema), z.coerce.date()])
         .optional(),
+      verifiedAt: z
+        .union([z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date()])
+        .optional()
+        .nullable(),
       createdById: z
         .union([z.lazy(() => UuidNullableFilterSchema), z.string()])
         .optional()
@@ -3320,6 +3327,12 @@ export const CandidateOrderByWithRelationInputSchema: z.ZodType<Prisma.Candidate
       email: z.lazy(() => SortOrderSchema).optional(),
       createdAt: z.lazy(() => SortOrderSchema).optional(),
       updatedAt: z.lazy(() => SortOrderSchema).optional(),
+      verifiedAt: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       createdById: z
         .union([
           z.lazy(() => SortOrderSchema),
@@ -3420,6 +3433,13 @@ export const CandidateWhereUniqueInputSchema: z.ZodType<Prisma.CandidateWhereUni
           updatedAt: z
             .union([z.lazy(() => DateTimeFilterSchema), z.coerce.date()])
             .optional(),
+          verifiedAt: z
+            .union([
+              z.lazy(() => DateTimeNullableFilterSchema),
+              z.coerce.date(),
+            ])
+            .optional()
+            .nullable(),
           createdById: z
             .union([z.lazy(() => UuidNullableFilterSchema), z.string()])
             .optional()
@@ -3489,6 +3509,12 @@ export const CandidateOrderByWithAggregationInputSchema: z.ZodType<Prisma.Candid
       email: z.lazy(() => SortOrderSchema).optional(),
       createdAt: z.lazy(() => SortOrderSchema).optional(),
       updatedAt: z.lazy(() => SortOrderSchema).optional(),
+      verifiedAt: z
+        .union([
+          z.lazy(() => SortOrderSchema),
+          z.lazy(() => SortOrderInputSchema),
+        ])
+        .optional(),
       createdById: z
         .union([
           z.lazy(() => SortOrderSchema),
@@ -3573,6 +3599,13 @@ export const CandidateScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Can
           z.coerce.date(),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),
+          z.coerce.date(),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.lazy(() => UuidNullableWithAggregatesFilterSchema),
@@ -7532,6 +7565,7 @@ export const CandidateCreateInputSchema: z.ZodType<Prisma.CandidateCreateInput> 
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -7574,6 +7608,7 @@ export const CandidateUncheckedCreateInputSchema: z.ZodType<Prisma.CandidateUnch
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       assessmentSessions: z
         .lazy(
@@ -7653,6 +7688,13 @@ export const CandidateUpdateInputSchema: z.ZodType<Prisma.CandidateUpdateInput> 
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -7748,6 +7790,13 @@ export const CandidateUncheckedUpdateInputSchema: z.ZodType<Prisma.CandidateUnch
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -7794,6 +7843,7 @@ export const CandidateCreateManyInputSchema: z.ZodType<Prisma.CandidateCreateMan
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
     })
     .strict();
@@ -7850,6 +7900,13 @@ export const CandidateUpdateManyMutationInputSchema: z.ZodType<Prisma.CandidateU
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 
@@ -7919,6 +7976,13 @@ export const CandidateUncheckedUpdateManyInputSchema: z.ZodType<Prisma.Candidate
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -11317,6 +11381,7 @@ export const CandidateCountOrderByAggregateInputSchema: z.ZodType<Prisma.Candida
       email: z.lazy(() => SortOrderSchema).optional(),
       createdAt: z.lazy(() => SortOrderSchema).optional(),
       updatedAt: z.lazy(() => SortOrderSchema).optional(),
+      verifiedAt: z.lazy(() => SortOrderSchema).optional(),
       createdById: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
@@ -11334,6 +11399,7 @@ export const CandidateMaxOrderByAggregateInputSchema: z.ZodType<Prisma.Candidate
       email: z.lazy(() => SortOrderSchema).optional(),
       createdAt: z.lazy(() => SortOrderSchema).optional(),
       updatedAt: z.lazy(() => SortOrderSchema).optional(),
+      verifiedAt: z.lazy(() => SortOrderSchema).optional(),
       createdById: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
@@ -11351,6 +11417,7 @@ export const CandidateMinOrderByAggregateInputSchema: z.ZodType<Prisma.Candidate
       email: z.lazy(() => SortOrderSchema).optional(),
       createdAt: z.lazy(() => SortOrderSchema).optional(),
       updatedAt: z.lazy(() => SortOrderSchema).optional(),
+      verifiedAt: z.lazy(() => SortOrderSchema).optional(),
       createdById: z.lazy(() => SortOrderSchema).optional(),
     })
     .strict();
@@ -22905,6 +22972,7 @@ export const CandidateCreateWithoutApplicantInputSchema: z.ZodType<Prisma.Candid
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       organization: z
         .lazy(() => OrganizationCreateNestedOneWithoutCandidatesInputSchema)
         .optional(),
@@ -22943,6 +23011,7 @@ export const CandidateUncheckedCreateWithoutApplicantInputSchema: z.ZodType<Pris
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       assessmentSessions: z
         .lazy(
@@ -23092,6 +23161,7 @@ export const CandidateCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.Candid
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -23131,6 +23201,7 @@ export const CandidateUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Pris
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       assessmentSessions: z
         .lazy(
           () =>
@@ -23807,6 +23878,10 @@ export const CandidateScalarWhereInputSchema: z.ZodType<Prisma.CandidateScalarWh
       updatedAt: z
         .union([z.lazy(() => DateTimeFilterSchema), z.coerce.date()])
         .optional(),
+      verifiedAt: z
+        .union([z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date()])
+        .optional()
+        .nullable(),
       createdById: z
         .union([z.lazy(() => UuidNullableFilterSchema), z.string()])
         .optional()
@@ -24407,6 +24482,7 @@ export const CandidateCreateWithoutOrganizationInputSchema: z.ZodType<Prisma.Can
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -24445,6 +24521,7 @@ export const CandidateUncheckedCreateWithoutOrganizationInputSchema: z.ZodType<P
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       assessmentSessions: z
         .lazy(
@@ -27255,6 +27332,7 @@ export const CandidateCreateWithoutCandidatesOnAssessmentsInputSchema: z.ZodType
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -27291,6 +27369,7 @@ export const CandidateUncheckedCreateWithoutCandidatesOnAssessmentsInputSchema: 
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       assessmentSessions: z
         .lazy(
@@ -27655,6 +27734,13 @@ export const CandidateUpdateWithoutCandidatesOnAssessmentsInputSchema: z.ZodType
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -27744,6 +27830,13 @@ export const CandidateUncheckedUpdateWithoutCandidatesOnAssessmentsInputSchema: 
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -29080,6 +29173,7 @@ export const CandidateCreateWithoutAssessmentSessionsInputSchema: z.ZodType<Pris
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -29117,6 +29211,7 @@ export const CandidateUncheckedCreateWithoutAssessmentSessionsInputSchema: z.Zod
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       contributions: z
         .lazy(
@@ -29548,6 +29643,13 @@ export const CandidateUpdateWithoutAssessmentSessionsInputSchema: z.ZodType<Pris
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -29638,6 +29740,13 @@ export const CandidateUncheckedUpdateWithoutAssessmentSessionsInputSchema: z.Zod
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -29713,6 +29822,7 @@ export const CandidateCreateWithoutSubmissionsInputSchema: z.ZodType<Prisma.Cand
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -29752,6 +29862,7 @@ export const CandidateUncheckedCreateWithoutSubmissionsInputSchema: z.ZodType<Pr
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       assessmentSessions: z
         .lazy(
@@ -30195,6 +30306,13 @@ export const CandidateUpdateWithoutSubmissionsInputSchema: z.ZodType<Prisma.Cand
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -30287,6 +30405,13 @@ export const CandidateUncheckedUpdateWithoutSubmissionsInputSchema: z.ZodType<Pr
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -31796,6 +31921,7 @@ export const CandidateCreateWithoutContributionsInputSchema: z.ZodType<Prisma.Ca
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       applicant: z
         .lazy(() => UserCreateNestedOneWithoutApplicationsInputSchema)
         .optional(),
@@ -31835,6 +31961,7 @@ export const CandidateUncheckedCreateWithoutContributionsInputSchema: z.ZodType<
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
       assessmentSessions: z
         .lazy(
@@ -32002,6 +32129,13 @@ export const CandidateUpdateWithoutContributionsInputSchema: z.ZodType<Prisma.Ca
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -32094,6 +32228,13 @@ export const CandidateUncheckedUpdateWithoutContributionsInputSchema: z.ZodType<
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -33345,6 +33486,7 @@ export const CandidateCreateManyApplicantInputSchema: z.ZodType<Prisma.Candidate
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
     })
     .strict();
@@ -33362,6 +33504,7 @@ export const CandidateCreateManyCreatedByInputSchema: z.ZodType<Prisma.Candidate
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
     })
     .strict();
 
@@ -34169,6 +34312,13 @@ export const CandidateUpdateWithoutApplicantInputSchema: z.ZodType<Prisma.Candid
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       organization: z
         .lazy(() => OrganizationUpdateOneWithoutCandidatesNestedInputSchema)
         .optional(),
@@ -34254,6 +34404,13 @@ export const CandidateUncheckedUpdateWithoutApplicantInputSchema: z.ZodType<Pris
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -34346,6 +34503,13 @@ export const CandidateUncheckedUpdateManyWithoutApplicantInputSchema: z.ZodType<
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -34408,6 +34572,13 @@ export const CandidateUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.Candid
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -34500,6 +34671,13 @@ export const CandidateUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Pris
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       assessmentSessions: z
         .lazy(
           () =>
@@ -34592,6 +34770,13 @@ export const CandidateUncheckedUpdateManyWithoutCreatedByInputSchema: z.ZodType<
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
     })
     .strict();
 
@@ -35178,6 +35363,7 @@ export const CandidateCreateManyOrganizationInputSchema: z.ZodType<Prisma.Candid
       email: z.string(),
       createdAt: z.coerce.date().optional(),
       updatedAt: z.coerce.date().optional(),
+      verifiedAt: z.coerce.date().optional().nullable(),
       createdById: z.string().optional().nullable(),
     })
     .strict();
@@ -35661,6 +35847,13 @@ export const CandidateUpdateWithoutOrganizationInputSchema: z.ZodType<Prisma.Can
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       applicant: z
         .lazy(() => UserUpdateOneWithoutApplicationsNestedInputSchema)
         .optional(),
@@ -35746,6 +35939,13 @@ export const CandidateUncheckedUpdateWithoutOrganizationInputSchema: z.ZodType<P
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),
@@ -35838,6 +36038,13 @@ export const CandidateUncheckedUpdateManyWithoutOrganizationInputSchema: z.ZodTy
           z.lazy(() => DateTimeFieldUpdateOperationsInputSchema),
         ])
         .optional(),
+      verifiedAt: z
+        .union([
+          z.coerce.date(),
+          z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema),
+        ])
+        .optional()
+        .nullable(),
       createdById: z
         .union([
           z.string(),

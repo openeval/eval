@@ -1,18 +1,19 @@
-import { CandidateStatus, SubmissionStatus } from "@prisma/client";
-
 import "server-only";
 
-import { Prisma } from "@prisma/client";
+import { CandidateStatus, Prisma, SubmissionStatus } from "@prisma/client";
 
 import { prisma } from "~/server/db";
 
-// export async function getDashboardStats(organizationId: string) {
-//   const result = await prisma.$queryRaw(query);
-// }
-
 export async function getTotalVerifiedCandidates(organizationId) {
+  const date = new Date();
+  const startCurrentMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
   return prisma.candidate.count({
-    where: { organizationId, status: CandidateStatus.VERIFIED },
+    where: {
+      organizationId,
+      status: CandidateStatus.VERIFIED,
+      verifiedAt: { gt: startCurrentMonth },
+    },
   });
 }
 
@@ -22,7 +23,7 @@ export async function getTotalSubmissions(organizationId) {
   });
 }
 
-export async function getContributedHours(organizationId: string) {
+export async function getContributedHours(organizationId) {
   const result = await prisma.$queryRaw<
     [
       {

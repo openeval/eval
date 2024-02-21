@@ -163,6 +163,7 @@ model Candidate {
   email                   String
   createdAt               DateTime                  @default(now()) @map("created_at")
   updatedAt               DateTime                  @default(now()) @updatedAt @map("updated_at")
+  verifiedAt              DateTime?                 @map("verified_at")
   createdBy               User?                     @relation("userCandidateCreated", fields: [createdById], references: [id], onDelete: SetNull)
   createdById             String?                   @map("created_by_id") @db.Uuid
   contributions           Contribution[]
