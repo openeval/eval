@@ -7,9 +7,9 @@ import {
   InviteCandidateSchema,
   type InviteCandidateType,
 } from "~/dto/InviteCandidateDto";
-import { getServerSession } from "~/server/auth";
-import { prisma } from "~/server/db";
+import { getCurrentUser, getServerSession, isAuthorized } from "~/server/auth";
 import { ERROR_CODES, ErrorResponse, ServiceError } from "~/server/error";
+import * as assessmentService from "~/server/services/Assessments";
 import { findOneById, remove } from "~/server/services/Candidates";
 import * as candidatesService from "~/server/services/Candidates";
 import type { ActionResponse } from "~/types";
@@ -19,24 +19,29 @@ export type InviteCandidateAction = (
 ) => Promise<ActionResponse<{ message: string }>>;
 
 export const inviteCandidateAction: InviteCandidateAction = async (data) => {
-  const session = await getServerSession();
+  const user = await getCurrentUser();
 
-  // users shound't be able to execute an action without a session
-  // this is a security prevention
-  if (!session) {
+  if (!user) {
     redirect("/login");
   }
 
-  const { user } = session;
-
   try {
+    if (!isAuthorized(user, "invite", "Candidate")) {
+      throw new ServiceError("Forbidden");
+    }
+
     InviteCandidateSchema.parse(data);
 
     const { assessmentId, ...invitedData } = data;
 
-    const assessment = await prisma.assessment.findFirstOrThrow({
-      where: { id: assessmentId },
-    });
+    const assessment = await assessmentService.findOneById(
+      assessmentId,
+      user.activeOrgId,
+    );
+
+    if (!assessment) {
+      throw new ServiceError("Forbidden");
+    }
 
     await candidatesService.inviteToAssessment(assessment, {
       ...invitedData,

@@ -6,6 +6,12 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/Accordion";
 import { Button } from "~/components/ui/Button";
 import { Checkbox } from "~/components/ui/Checkbox";
 import {
@@ -84,62 +90,110 @@ export function ReviewSubmissionForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid gap-6">
-          <FormField
-            control={form.control}
-            name="evaluationCriterias"
-            render={() => (
-              <FormItem className="space-y-4">
-                {evaluationCriterias.map((item) => {
-                  return (
-                    <div>
-                      <div className="mb-4 flex">
-                        <FormLabel className="text-base">{item.name}</FormLabel>
-                      </div>
-                      <div className="space-y-2">
-                        {item.children.map((child) => (
-                          <FormField
-                            key={child.id}
-                            control={form.control}
-                            name="evaluationCriterias"
-                            render={({ field }) => {
-                              return (
-                                <FormItem
-                                  key={child.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value?.includes(child.id)}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([
-                                              ...field.value,
-                                              child.id,
-                                            ])
-                                          : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== child.id,
-                                              ),
-                                            );
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    {child.name}
-                                  </FormLabel>
-                                </FormItem>
+          <Accordion type="single" collapsible className="w-full">
+            <FormField
+              control={form.control}
+              name="evaluationCriterias"
+              render={() => (
+                <FormItem className="space-y-4">
+                  {evaluationCriterias.map((item) => {
+                    const checks = form.getValues("evaluationCriterias");
+
+                    return (
+                      <AccordionItem value={item.name}>
+                        <div className="flex items-center">
+                          <Checkbox
+                            className="mr-2"
+                            checked={
+                              item.children.filter((a) => checks.includes(a.id))
+                                .length === item.children.length
+                            }
+                            onCheckedChange={(checked) => {
+                              const checks = form.getValues(
+                                "evaluationCriterias",
                               );
+
+                              const children = item.children.map((i) => i.id);
+
+                              if (checked) {
+                                form.setValue("evaluationCriterias", [
+                                  ...checks,
+                                  ...children,
+                                ]);
+                              } else {
+                                form.setValue(
+                                  "evaluationCriterias",
+                                  checks.filter((a) => !children?.includes(a)),
+                                );
+                              }
                             }}
                           />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+                          <AccordionTrigger className="">
+                            <FormLabel className="flex w-full flex-row justify-between text-base">
+                              {item.name}
+                              <div className="mr-2 text-sm text-muted-foreground hover:no-underline">
+                                {
+                                  item.children.filter((a) =>
+                                    checks.includes(a.id),
+                                  ).length
+                                }
+                                /{item.children.length}
+                              </div>
+                            </FormLabel>
+                          </AccordionTrigger>
+                        </div>
+                        <AccordionContent>
+                          <div className="space-y-2">
+                            {item.children.map((child) => (
+                              <FormField
+                                key={child.id}
+                                control={form.control}
+                                name="evaluationCriterias"
+                                render={({ field }) => {
+                                  return (
+                                    <FormItem
+                                      key={child.id}
+                                      className="flex flex-row items-start space-x-3 space-y-0"
+                                    >
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={field.value?.includes(
+                                            child.id,
+                                          )}
+                                          onCheckedChange={(checked) => {
+                                            checked
+                                              ? field.onChange([
+                                                  ...field.value,
+                                                  child.id,
+                                                ])
+                                              : field.onChange(
+                                                  field.value?.filter(
+                                                    (value) =>
+                                                      value !== child.id,
+                                                  ),
+                                                );
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormLabel className="font-normal">
+                                        {child.name}
+                                      </FormLabel>
+                                    </FormItem>
+                                  );
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Accordion>
           <FormField
             control={form.control}
             name="note"

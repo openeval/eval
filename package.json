@@ -15,7 +15,7 @@
     "start": "next start",
     "ts-lint": "tsc --noEmit --incremental --watch",
     "test": "CI=true vitest test",
-    "test:staged": "CI=true vitest --run",
+    "test:staged": "CI=true vitest related --run",
     "test:e2e:dev": "NODE_ENV=development CI=true playwright test",
     "test:e2e:prod": "NODE_ENV=production CI=true playwright test",
     "format": "prettier . --write",
