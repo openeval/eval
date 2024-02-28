@@ -133,7 +133,6 @@ export async function inviteToAssessment(
   }
 
   //check if user exist in the platform
-
   const invalidUser = await prisma.user.findFirst({
     where: { email: opts.email, type: UserType.RECRUITER },
   });
@@ -209,12 +208,6 @@ export async function inviteToAssessment(
 }
 
 export async function linkGithubAccount(user, profile) {
-  // prisma do not return the updated entities in updateMany
-  // TODO: we need to keep track on billing
-  const candidates = await prisma.candidate.findMany({
-    where: { applicantId: user.id, status: CandidateStatus.PENDING },
-  });
-
   await prisma.candidate.updateMany({
     where: { applicantId: user.id, status: CandidateStatus.PENDING },
     data: {
