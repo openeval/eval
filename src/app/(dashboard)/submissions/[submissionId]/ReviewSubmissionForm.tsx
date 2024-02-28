@@ -86,6 +86,27 @@ export function ReviewSubmissionForm({
     });
   }
 
+  const onCategoryCheckChange = (checked, category) => {
+    let checks = form.getValues("evaluationCriterias");
+
+    const children = category.children.map((i) => i.id);
+
+    checks = checked
+      ? [...checks, ...children]
+      : checks.filter((a) => !children?.includes(a));
+
+    form.setValue("evaluationCriterias", checks);
+  };
+
+  const isCategoryChecked = (category) => {
+    const checks = form.getValues("evaluationCriterias");
+
+    return (
+      category.children.filter((a) => checks.includes(a.id)).length ===
+      category.children.length
+    );
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -97,36 +118,15 @@ export function ReviewSubmissionForm({
               render={() => (
                 <FormItem className="space-y-4">
                   {evaluationCriterias.map((item) => {
-                    const checks = form.getValues("evaluationCriterias");
-
                     return (
                       <AccordionItem value={item.name}>
                         <div className="flex items-center">
                           <Checkbox
                             className="mr-2"
-                            checked={
-                              item.children.filter((a) => checks.includes(a.id))
-                                .length === item.children.length
+                            checked={isCategoryChecked(item)}
+                            onCheckedChange={(checked) =>
+                              onCategoryCheckChange(checked, item)
                             }
-                            onCheckedChange={(checked) => {
-                              const checks = form.getValues(
-                                "evaluationCriterias",
-                              );
-
-                              const children = item.children.map((i) => i.id);
-
-                              if (checked) {
-                                form.setValue("evaluationCriterias", [
-                                  ...checks,
-                                  ...children,
-                                ]);
-                              } else {
-                                form.setValue(
-                                  "evaluationCriterias",
-                                  checks.filter((a) => !children?.includes(a)),
-                                );
-                              }
-                            }}
                           />
 
                           <AccordionTrigger className="">
@@ -135,7 +135,9 @@ export function ReviewSubmissionForm({
                               <div className="mr-2 text-sm text-muted-foreground hover:no-underline">
                                 {
                                   item.children.filter((a) =>
-                                    checks.includes(a.id),
+                                    form
+                                      .getValues("evaluationCriterias")
+                                      .includes(a.id),
                                   ).length
                                 }
                                 /{item.children.length}
@@ -162,17 +164,13 @@ export function ReviewSubmissionForm({
                                             child.id,
                                           )}
                                           onCheckedChange={(checked) => {
-                                            checked
-                                              ? field.onChange([
-                                                  ...field.value,
-                                                  child.id,
-                                                ])
-                                              : field.onChange(
-                                                  field.value?.filter(
-                                                    (value) =>
-                                                      value !== child.id,
-                                                  ),
+                                            const value = checked
+                                              ? [...field.value, child.id]
+                                              : field.value?.filter(
+                                                  (value) => value !== child.id,
                                                 );
+
+                                            field.onChange(value);
                                           }}
                                         />
                                       </FormControl>
