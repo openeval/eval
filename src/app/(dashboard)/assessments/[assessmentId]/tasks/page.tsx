@@ -5,10 +5,8 @@ import { searchIssues } from "~/server/github";
 import { findOneById } from "~/server/services/Assessments";
 import { AssessmentTaskPage } from "../../AssessmentTaskPage";
 
-const getIssues = async (querySearch?: {
-  [key: string]: string | string[] | undefined;
-}) => {
-  return await searchIssues({ querySearch: querySearch?.q });
+const getIssues = async (querySearch?: string | string[] | null) => {
+  return await searchIssues({ querySearch });
 };
 
 export const metadata = {
@@ -37,7 +35,9 @@ export default async function Page({
     notFound();
   }
 
-  const { items: issues, total_count } = await getIssues(searchParams);
+  const { items: issues, total_count } = await getIssues(
+    searchParams?.q || assessment.ghIssuesQuerySeach,
+  );
   return (
     <AssessmentTaskPage
       data={{
