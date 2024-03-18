@@ -25,16 +25,19 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/Table";
+import { usePagination } from "~/hooks/usePagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  dataCount: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  dataCount,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -42,12 +45,14 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+  const { setPagination, pagination, pageCount } = usePagination({ dataCount });
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
     state: {
+      pagination,
       sorting,
       columnVisibility,
       rowSelection,
@@ -58,12 +63,15 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    manualPagination: true,
+    pageCount: pageCount,
   });
 
   return (
