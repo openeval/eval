@@ -18,8 +18,7 @@ export async function findAllForList(
   where: Prisma.AssessmentWhereInput,
   opts: { page: number } = { page: 0 },
 ) {
-  const pageIndex =
-    typeof opts.page === "number" && opts.page > 0 ? opts.page - 1 : 0;
+  const pageIndex = opts.page > 0 ? opts.page - 1 : 0;
 
   // prisma can't return count when adding pagination
   const [data, count] = await prisma.$transaction([

@@ -11,11 +11,9 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
-  type PaginationState,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { DataTablePagination } from "~/components/ui/data-table-pagination";
@@ -27,8 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/Table";
-import { siteConfig } from "~/config/site";
-import { useCreateQueryString } from "~/hooks/useCreateQueryString";
+import { usePagination } from "~/hooks/usePagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
@@ -42,10 +39,6 @@ export function DataTable<TData, TValue>({
   data,
   dataCount,
 }: DataTableProps<TData, TValue>) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -54,37 +47,7 @@ export function DataTable<TData, TValue>({
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  // Search params
-  const page = typeof searchParams?.get("page") !== "number" ?? 1;
-
-  // Create query string
-  const createQueryString = useCreateQueryString(searchParams);
-
-  // Handle server-side pagination
-  const [{ pageIndex, pageSize }, setPagination] =
-    React.useState<PaginationState>({
-      pageIndex: Number(page) - 1,
-      pageSize: Number(siteConfig.pageListLimit),
-    });
-
-  const pagination = React.useMemo(
-    () => ({
-      pageIndex,
-      pageSize,
-    }),
-    [pageIndex, pageSize],
-  );
-
-  React.useEffect(() => {
-    if (pageIndex !== 0 || searchParams?.get("page")) {
-      router.push(
-        `${pathname}?${createQueryString({
-          page: pageIndex + 1,
-        })}`,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex]);
+  const { pageCount, pagination, setPagination } = usePagination({ dataCount });
 
   const table = useReactTable({
     data,
@@ -109,8 +72,7 @@ export function DataTable<TData, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
-    pageCount: Math.ceil(dataCount / siteConfig.pageListLimit),
-    // getCanPreviousPage:  () => pageIndex
+    pageCount: pageCount,
   });
 
   return (

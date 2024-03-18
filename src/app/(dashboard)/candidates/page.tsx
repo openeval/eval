@@ -15,11 +15,11 @@ export const metadata = {
   title: "Candidates",
 };
 
-const getCandidates = cache(async (where) => {
-  return await findAllForList(where);
+const getCandidates = cache(async (where, opts) => {
+  return await findAllForList(where, opts);
 });
 
-export default async function CandidatesPage() {
+export default async function CandidatesPage({ searchParams }) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -30,7 +30,14 @@ export default async function CandidatesPage() {
     redirect("/404");
   }
 
-  const candidates = await getCandidates({ organizationId: user.activeOrgId });
+  const { data: candidates, count } = await getCandidates(
+    {
+      organizationId: user.activeOrgId,
+    },
+    {
+      page: searchParams.page,
+    },
+  );
 
   return (
     <>
@@ -43,7 +50,7 @@ export default async function CandidatesPage() {
       <Separator className="my-4" />
 
       {candidates.length > 0 && (
-        <DataTable columns={columns} data={candidates} />
+        <DataTable dataCount={count} columns={columns} data={candidates} />
       )}
 
       {!candidates.length && (

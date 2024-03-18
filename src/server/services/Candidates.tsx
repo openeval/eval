@@ -12,6 +12,7 @@ import { render } from "@react-email/render";
 import type { User } from "next-auth";
 import slugify from "slugify";
 
+import { siteConfig } from "~/config/site";
 import { AssessmentInvitationEmail } from "~/emails/AssessmentInvitationEmail";
 import { generateAuthLink } from "~/server/auth";
 import { prisma } from "~/server/db";
@@ -74,22 +75,36 @@ export type CandidatesListData = Prisma.PromiseReturnType<
   typeof findAllForList
 >;
 
-export async function findAllForList(where: Prisma.CandidateWhereInput) {
-  return await prisma.candidate.findMany({
-    where,
-    select: {
-      id: true,
-      name: true,
-      status: true,
-      lastName: true,
-      email: true,
-      createdAt: true,
-      _count: { select: { submissions: true } },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+export async function findAllForList(
+  where: Prisma.CandidateWhereInput,
+  opts: { page: number } = { page: 0 },
+) {
+  const pageIndex = opts.page > 0 ? opts.page - 1 : 0;
+
+  // prisma can't return count when adding pagination
+  const [data, count] = await prisma.$transaction([
+    prisma.candidate.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        lastName: true,
+        email: true,
+        createdAt: true,
+        _count: { select: { submissions: true } },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      // pagination
+      take: siteConfig.pageListLimit,
+      skip: pageIndex,
+    }),
+    prisma.candidate.count({ where }),
+  ]);
+
+  return { data, count };
 }
 
 export async function remove(id: string) {
