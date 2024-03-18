@@ -5,12 +5,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/Popover";
-import { stripe } from "../lib/stripe";
+import { getSubscription } from "../lib/stripe";
 import { ManageSubscriptionButton } from "./ManageSubscriptionButton";
 
 export const UpgradeBanner = async ({ activeOrg }) => {
   if (activeOrg.metadata?.subscriptionId) {
-    const subscription = await stripe.subscriptions.retrieve(
+    const subscription = await getSubscription(
       activeOrg.metadata?.subscriptionId,
     );
 
