@@ -1,4 +1,4 @@
-import { UserType, type Candidate, type Organization } from "@prisma/client";
+import { UserType, type Organization } from "@prisma/client";
 import { type User } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -29,29 +29,4 @@ export const createCustomer = async (org: Organization) => {
     { id: org.id },
     { metadata: { ...metadata, stripeCustomerId: customer.id } },
   );
-};
-
-//DEPRECATED
-export const trackUsage = async (candidate: Candidate) => {
-  const org = await orgService.findOneById(candidate.organizationId);
-
-  const metadata = organizationMetadataSchema.parse(org?.metadata);
-  if (metadata?.subscriptionId) {
-    const subscription = await stripe.subscriptions.retrieve(
-      metadata?.subscriptionId,
-    );
-
-    const subscriptionItemId = subscription.items.data.find((d) => {
-      return d.price.lookup_key?.includes("metered_candidates");
-    });
-
-    // TODO: we need to report issues (sentry)
-    // cancel or paused subscriptions can't capture usage
-    if (subscriptionItemId) {
-      await stripe.subscriptionItems.createUsageRecord(subscriptionItemId?.id, {
-        quantity: 1,
-        action: "increment",
-      });
-    }
-  }
 };

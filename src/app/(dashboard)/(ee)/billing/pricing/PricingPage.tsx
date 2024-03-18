@@ -248,7 +248,7 @@ export default function PricingPage({ planAction }) {
     },
   ];
   return (
-    <div data-testid="pricing-page" className="">
+    <div data-testid="pricing-page">
       <section className="mb-8 text-center">
         <Typography variant={"h1"} className="mb-4 uppercase">
           Pricing

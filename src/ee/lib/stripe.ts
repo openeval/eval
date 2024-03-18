@@ -1,4 +1,5 @@
 import type { Organization } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import Stripe from "stripe";
 
 import { env } from "~/ee/env.mjs";
@@ -6,21 +7,6 @@ import { absoluteUrl } from "~/lib/utils";
 import { ServiceError } from "~/server/error";
 import { organizationMetadataSchema } from "../types/Organization";
 
-const products = [
-  {
-    name: "lite",
-    prices: [
-      {
-        interval: "yearly",
-        lookup_key: "lite_yearly",
-      },
-      {
-        interval: "monthly",
-        lookup_key: "lite_monthly",
-      },
-    ],
-  },
-];
 export const stripe = new Stripe(env.STRIPE_SECRET_KEY ?? "", {
   // https://github.com/stripe/stripe-node#configuration
   apiVersion: "2023-10-16",
@@ -85,4 +71,20 @@ export const createSubscriptionSessionLink = async ({
   });
 
   return session.url;
+};
+
+export const getSubscription = async (subscriptionId) => {
+  try {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    return subscription;
+  } catch (e) {
+    switch (e.type) {
+      case "StripeInvalidRequestError":
+        return null;
+
+      default:
+        Sentry.captureException(e);
+        break;
+    }
+  }
 };
