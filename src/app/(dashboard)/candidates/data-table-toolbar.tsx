@@ -1,6 +1,6 @@
 "use client";
 
-import { AssessmentStatus } from "@prisma/client";
+import { CandidateStatus } from "@prisma/client";
 import type { Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 
@@ -33,7 +33,7 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
-            options={Object.values(AssessmentStatus).map((item) => {
+            options={Object.values(CandidateStatus).map((item) => {
               return { label: item, value: item };
             })}
           />

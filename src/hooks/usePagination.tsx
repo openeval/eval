@@ -1,7 +1,6 @@
 "use client";
 
 import { type PaginationState } from "@tanstack/react-table";
-import { revalidatePath } from "next/cache";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
@@ -12,6 +11,7 @@ const usePagination = ({ dataCount = 0 }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   // Search params
   const page = searchParams?.get("page") || 1;
 

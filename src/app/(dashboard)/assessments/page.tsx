@@ -11,7 +11,7 @@ import { cn } from "~/lib/utils";
 import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllForList } from "~/server/services/Assessments";
 import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { AssessmentsDataTable } from "./data-table";
 
 export const metadata = {
   title: "Assessments",
@@ -60,7 +60,11 @@ export default async function AssessmentPage({ searchParams }) {
       <Separator className="my-4" />
 
       {assessments.length > 0 && (
-        <DataTable dataCount={count} columns={columns} data={assessments} />
+        <AssessmentsDataTable
+          dataCount={count}
+          columns={columns}
+          data={assessments}
+        />
       )}
 
       {!assessments.length && (

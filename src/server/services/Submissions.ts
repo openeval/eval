@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Prisma, Review, Submission } from "@prisma/client";
 
+import { siteConfig } from "~/config/site";
 import { prisma } from "~/server/db";
 import { getDetailScore } from "~/server/services/EvaluationCriteria";
 
@@ -20,14 +21,28 @@ export type SubmissionsListData = Prisma.PromiseReturnType<
   typeof findAllForList
 >;
 
-export async function findAllForList(where: Prisma.SubmissionWhereInput) {
-  return await prisma.submission.findMany({
-    where,
-    include: { contribution: true, reviews: true, assessment: true },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+export async function findAllForList(
+  where: Prisma.SubmissionWhereInput,
+  opts: { page: number } = { page: 0 },
+) {
+  const pageIndex = opts.page > 0 ? opts.page - 1 : 0;
+
+  // prisma can't return count when adding pagination
+  const [data, count] = await prisma.$transaction([
+    prisma.submission.findMany({
+      where,
+      include: { contribution: true, reviews: true, assessment: true },
+      orderBy: {
+        createdAt: "desc",
+      },
+      // pagination
+      take: siteConfig.pageListLimit,
+      skip: pageIndex,
+    }),
+    prisma.submission.count({ where }),
+  ]);
+
+  return { data, count };
 }
 
 export async function findByCandidateOnAssessment(
