@@ -10,17 +10,17 @@ import { cn } from "~/lib/utils";
 import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllForList } from "~/server/services/Submissions";
 import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { SubmissionsDataTable } from "./data-table";
 
 export const metadata = {
   title: "Submissions",
 };
 
-const getSubmissions = async (where) => {
-  return await findAllForList(where);
+const getSubmissions = async (where, opts) => {
+  return await findAllForList(where, opts);
 };
 
-export default async function SubmissionsPage({ params }) {
+export default async function SubmissionsPage({ params, searchParams }) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -31,10 +31,15 @@ export default async function SubmissionsPage({ params }) {
     redirect("/404");
   }
 
-  const submissions = await getSubmissions({
-    organizationId: user.activeOrgId,
-    assessmentId: params.assessmentId,
-  });
+  const { data: submissions, count } = await getSubmissions(
+    {
+      organizationId: user.activeOrgId,
+      assessmentId: params.assessmentId,
+    },
+    {
+      page: searchParams.page,
+    },
+  );
 
   return (
     <>
@@ -47,7 +52,11 @@ export default async function SubmissionsPage({ params }) {
       <Separator className="my-4" />
 
       {submissions.length > 0 && (
-        <DataTable columns={columns} data={submissions} />
+        <SubmissionsDataTable
+          columns={columns}
+          data={submissions}
+          dataCount={count}
+        />
       )}
 
       {!submissions.length && (

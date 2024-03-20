@@ -9,7 +9,7 @@ import { Typography } from "~/components/ui/Typography";
 import { getCurrentUser, isAuthorized } from "~/server/auth";
 import { findAllForList } from "~/server/services/Candidates";
 import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { CandidatesDataTable } from "./data-table";
 
 export const metadata = {
   title: "Candidates",
@@ -50,7 +50,11 @@ export default async function CandidatesPage({ searchParams }) {
       <Separator className="my-4" />
 
       {candidates.length > 0 && (
-        <DataTable dataCount={count} columns={columns} data={candidates} />
+        <CandidatesDataTable
+          dataCount={count}
+          columns={columns}
+          data={candidates}
+        />
       )}
 
       {!candidates.length && (

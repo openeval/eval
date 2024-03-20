@@ -9,7 +9,7 @@ import { formatDate } from "~/lib/utils";
 import { type CandidatesListData } from "~/server/services/Candidates";
 import { DataTableRowActions } from "./data-table-row-actions";
 
-export type Item = CandidatesListData[0];
+export type Item = CandidatesListData["data"][0];
 
 export const columns: ColumnDef<Item>[] = [
   {

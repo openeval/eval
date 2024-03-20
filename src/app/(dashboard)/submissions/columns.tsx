@@ -10,7 +10,7 @@ import { formatDate } from "~/lib/utils";
 import type { SubmissionsListData } from "~/server/services/Submissions";
 import { DataTableRowActions } from "./data-table-row-actions";
 
-export type Item = SubmissionsListData[0];
+export type Item = SubmissionsListData["data"][0];
 
 export const columns: ColumnDef<Item>[] = [
   {
@@ -38,7 +38,7 @@ export const columns: ColumnDef<Item>[] = [
     },
   },
   {
-    accessorKey: "name",
+    accessorKey: "contribution.title",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Contribution" />
     ),
