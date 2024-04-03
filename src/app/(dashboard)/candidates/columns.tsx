@@ -31,6 +31,15 @@ export const columns: ColumnDef<Item>[] = [
     },
   },
   {
+    accessorKey: "email",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
+    ),
+    cell: ({ row }) => {
+      return <div className="flex items-center">{row.getValue("email")}</div>;
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
