@@ -181,9 +181,6 @@ export async function inviteToAssessment(
     },
     create: {
       ...invitedData,
-      candidatesOnAssessments: {
-        create: { assessmentId: assessment.id },
-      },
       organization: { connect: { id: org.id } },
       createdBy: { connect: { id: user.id } },
       applicant: { connect: { id: userCandidate.id } },
@@ -197,10 +194,22 @@ export async function inviteToAssessment(
         candidateId: candidate.id,
         assessmentId: assessment.id,
       },
+      status: CandidateOnAssessmentStatus.PENDING,
     },
     create: { candidateId: candidate.id, assessmentId: assessment.id },
     update: {},
   });
+
+  // check if users already connected their github account
+  const ghAccount = await prisma.account.findFirst({
+    where: { userId: userCandidate.id, provider: "github" },
+  });
+
+  if (ghAccount) {
+    await linkGithubAccount(userCandidate, {
+      ghUsername: userCandidate.ghUsername,
+    });
+  }
 
   const inviteLink = await generateAuthLink(opts.email, {
     callbackUrl: `/a/${assessment.id}/${slugify(assessment.title)}`,
